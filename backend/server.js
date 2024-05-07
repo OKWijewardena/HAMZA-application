@@ -16,6 +16,7 @@ app.use(bodyParser.json());
 const URL = process.env.MONGODB_URL;
 
 //routes
+app.use("/selling", require("./routers/selling.route"));
 
 
 //MongoDB configurations
