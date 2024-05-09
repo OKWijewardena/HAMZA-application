@@ -6,6 +6,10 @@ const payment = new mongoose.Schema({
         type : String,
         required : true
     },
+    civilID : {
+        type : String,
+        required : true
+    },
     deviceName : {
         type : String,
         required : true

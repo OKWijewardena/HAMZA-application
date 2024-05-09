@@ -17,6 +17,8 @@ const URL = process.env.MONGODB_URL;
 
 //routes
 app.use("/selling", require("./routers/selling.route"));
+app.use("/payment", require("./routers/payment.route"));
+app.use("/device", require("./routers/device.route"));
 
 
 //MongoDB configurations

@@ -5,6 +5,7 @@ const Selling = require("../models/Selling.model");
 router.route("/addSelling").post((req, res) => {
     const deviceName = req.body.deviceName;
     const customerName = req.body.customerName;
+    const civilID = req.body.civilID;
     const price = req.body.price;
     const months = req.body.months;
     const date = req.body.date;
@@ -30,6 +31,7 @@ router.route("/addSelling").post((req, res) => {
     const newAddSelling = new Selling({
       deviceName,
       customerName,
+      civilID,
       price,
       months,
       date,
@@ -113,4 +115,44 @@ router.route("/addSelling").post((req, res) => {
         console.log(err);
       });
   });
+
+  router.route("/paymentHistory").get(async (req, res) => {
+    const civiID = req.query.civiID;
+    const requestDate = new Date(req.query.date); // Parse the date from the query
+    const paymentAmount = parseFloat(req.query.payment); // Parse the payment amount into a floating-point number
+  
+    try {
+      const selling = await Selling.findOne({ civiID: civiID });
+  
+      if (!selling) {
+        return res.status(404).json({ message: "Selling record not found" });
+      }
+  
+      let isPaymentUpdated = false;
+      const customArray = selling.customArray; // Get the customArray from the found Selling document
+  
+      // Find the first unpaid item where the date is greater than the request date and the price matches the payment amount
+      for (let i = 0; i < customArray.length; i++) {
+        let itemDate = new Date(customArray[i].date);
+        if (itemDate > requestDate && customArray[i].price === paymentAmount && customArray[i].status === "unpaid") {
+          customArray[i].status = "paid"; // Update the status to 'paid'
+          isPaymentUpdated = true;
+          break; // Break the loop after updating the status
+        }
+      }
+  
+      if (!isPaymentUpdated) {
+        return res.status(404).json({ message: "No matching unpaid record found with the given date and payment amount" });
+      }
+  
+      // Save the updated selling document
+      await selling.save();
+  
+      res.json({ message: "Payment status updated successfully", customArray: selling.customArray });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
 module.exports = router;

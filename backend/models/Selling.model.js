@@ -10,6 +10,10 @@ const selling = new mongoose.Schema({
         type : String,
         required : true
     },
+    civilID : {
+        type : String,
+        required : true
+    },
     price : {
         type : String,
         required : true
