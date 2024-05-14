@@ -98,7 +98,9 @@ router.route("/addSelling").post((req, res) => {
   
     Selling
       .findOneAndDelete({ _id: req.params.id })
-      .then((selling) => res.send(selling))
+      .then(() => {
+        res.status(200).send({ status: "customer device purchase Deleted" });
+      })
   
       .catch((err) => {
         console.log(err);
@@ -117,42 +119,23 @@ router.route("/addSelling").post((req, res) => {
   });
 
   router.route("/paymentHistory").get(async (req, res) => {
-    const civiID = req.query.civiID;
-    const requestDate = new Date(req.query.date); // Parse the date from the query
-    const paymentAmount = parseFloat(req.query.payment); // Parse the payment amount into a floating-point number
+    const civiID = req.body.civiID;
+    const requestDate = new Date(req.body.date); // Parse the date from the body
+    const paymentAmount = parseFloat(req.body.payment); // Parse the payment amount into a floating-point number
   
     try {
       const selling = await Selling.findOne({ civiID: civiID });
-  
+    
       if (!selling) {
-        return res.status(404).json({ message: "Selling record not found" });
+        return res.status(404).json({ message: "No payment history found for the provided civiID" });
       }
   
-      let isPaymentUpdated = false;
-      const customArray = selling.customArray; // Get the customArray from the found Selling document
-  
-      // Find the first unpaid item where the date is greater than the request date and the price matches the payment amount
-      for (let i = 0; i < customArray.length; i++) {
-        let itemDate = new Date(customArray[i].date);
-        if (itemDate > requestDate && customArray[i].price === paymentAmount && customArray[i].status === "unpaid") {
-          customArray[i].status = "paid"; // Update the status to 'paid'
-          isPaymentUpdated = true;
-          break; // Break the loop after updating the status
-        }
-      }
-  
-      if (!isPaymentUpdated) {
-        return res.status(404).json({ message: "No matching unpaid record found with the given date and payment amount" });
-      }
-  
-      // Save the updated selling document
-      await selling.save();
-  
-      res.json({ message: "Payment status updated successfully", customArray: selling.customArray });
+      res.json(selling);
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
+  
 
 module.exports = router;

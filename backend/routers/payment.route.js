@@ -74,7 +74,9 @@ router.route("/addPayment").post((req, res) => {
   
     Payment
       .findOneAndDelete({ _id: req.params.id })
-      .then((payment) => res.send(payment))
+      .then(() => {
+        res.status(200).send({ status: "Payment Deleted" });
+      })
   
       .catch((err) => {
         console.log(err);

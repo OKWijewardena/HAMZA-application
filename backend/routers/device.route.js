@@ -93,12 +93,14 @@ router.route("/addDevice").post((req, res) => {
       });
   });
   
-  router.route("/deleteItem/:id").delete(async (req, res) => {
+  router.route("/deleteDevice/:id").delete(async (req, res) => {
     let GNumber = req.params.itemID;
   
     Device
       .findOneAndDelete({ _id: req.params.id })
-      .then((device) => res.send(device))
+      .then(() => {
+        res.status(200).send({ status: "Device Deleted" });
+      })
   
       .catch((err) => {
         console.log(err);
