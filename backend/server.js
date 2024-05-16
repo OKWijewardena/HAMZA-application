@@ -24,6 +24,9 @@ app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/employee&admin",require("./routes/employee&adminRoutes"));
 app.use("/api/customer",require("./routes/customerRoutes"));
+app.use("/device",require("./routes/deviceRoutes"));
+app.use("/selling",require("./routes/sellingRoutes"));
+app.use("/payment",require("./routes/paymentRoutes"));
 
 
 //Run on port
