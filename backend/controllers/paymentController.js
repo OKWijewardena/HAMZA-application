@@ -49,7 +49,7 @@ exports.updatePayment = async (req, res) => {
   };
 
   try {
-    await Payment.findOneAndUpdate({ _id: req.params.id }, updatePayment);
+    await Payment.findOneAndUpdate({ civilID : req.params.civilID }, updatePayment);
     res.status(200).send({ status: "Payment Updated" });
   } catch (err) {
     console.log(err);
@@ -59,7 +59,7 @@ exports.updatePayment = async (req, res) => {
 
 // Controller to delete a payment
 exports.deletePayment = (req, res) => {
-  Payment.findOneAndDelete({ _id: req.params.id })
+  Payment.findOneAndDelete({ civilID : req.params.civilID })
     .then(() => {
       res.status(200).send({ status: "Payment Deleted" });
     })
@@ -71,7 +71,7 @@ exports.deletePayment = (req, res) => {
 
 // Controller to get a single payment by ID
 exports.getOnePayment = (req, res) => {
-  Payment.findOne({ _id: req.params.id })
+  Payment.findOne({ civilID: req.params.civilID })
     .then((payment) => {
       res.json(payment);
     })

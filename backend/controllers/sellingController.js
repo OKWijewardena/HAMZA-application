@@ -4,6 +4,8 @@ const Selling = require("../models/sellingModel");
 exports.addSelling = async (req, res) => {
     const { deviceName, customerName, civilID, price, months, date, advance } = req.body;
     
+    const currentbalance = parseFloat(price) * parseFloat(months);
+    const balance = String(currentbalance);
     const customArray = [];
   
     for (let i = 0; i < months; i++) {
@@ -29,6 +31,7 @@ exports.addSelling = async (req, res) => {
       months,
       date,
       advance,
+      balance,
       customArray
     });
   
@@ -62,6 +65,7 @@ exports.updateSelling = async (req, res) => {
     months,
     date,
     advance,
+    balance
   } = req.body;
 
   const updateSellingRecord = {
@@ -71,6 +75,7 @@ exports.updateSelling = async (req, res) => {
     months,
     date,
     advance,
+    balance
   };
 
   try {
@@ -118,6 +123,7 @@ exports.updatePaymentHistory = async (req, res) => {
 
     let isPaymentUpdated = false;
     const customArray = selling.customArray;
+    let balance = selling.balance;
 
     for (let i = 0; i < customArray.length; i++) {
       const itemDate = new Date(customArray[i].date);
@@ -125,11 +131,17 @@ exports.updatePaymentHistory = async (req, res) => {
 
       if (itemDate >= new Date(date) && itemPrice === parseFloat(payment) && customArray[i].status === "unpaid") {
         customArray[i].status = "paid";
+        customArray[i].price = payment.toString();
+        currentbalance = parseFloat(balance) - parseFloat(payment);
+        balance = currentbalance.toString();
         isPaymentUpdated = true;
         break;
       } else if (itemDate >= new Date(date) && itemPrice > parseFloat(payment) && customArray[i].status === "unpaid") {
         customArray[i].status = "paid";
+        customArray[i].price = payment.toString();
         const newPrice = 2 * itemPrice - parseFloat(payment);
+        currentbalance = parseFloat(balance) - parseFloat(payment);
+        balance = currentbalance.toString();
 
         if (customArray[i + 1]) {
           customArray[i + 1].price = newPrice.toString();
@@ -141,7 +153,10 @@ exports.updatePaymentHistory = async (req, res) => {
         break;
       } else if (itemDate >= new Date(date) && itemPrice < parseFloat(payment) && customArray[i].status === "unpaid") {
         customArray[i].status = "paid";
+        customArray[i].price = payment.toString();
         const newPrice = itemPrice - (parseFloat(payment) - itemPrice);
+        currentbalance = parseFloat(balance) - parseFloat(payment);
+        balance = currentbalance.toString();
 
         if (customArray[i + 1]) {
           customArray[i + 1].price = newPrice.toString();

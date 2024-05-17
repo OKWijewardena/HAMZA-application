@@ -30,6 +30,10 @@ const selling = new mongoose.Schema({
         type : String,
         required : true
     },
+    balance : {
+        type : String,
+        required : true
+    },
     customArray: {
         type: [
           {
