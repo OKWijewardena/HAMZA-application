@@ -3,6 +3,17 @@ const customerModel =require("../models/customerModel");
 const bcrypt=require("bcryptjs");
 const validator = require("validator");
 
+
+
+//@desc  get customers
+//@route get /api/ customers / 
+//@access public
+const getusers=asyncHandler(async(req, res) => {
+    const customer=await customerModel.find();
+        res.status(200).json(customer);
+      });
+
+
 //@desc register a customer
 //@route post /api/ customer / register
 //@access public
@@ -167,6 +178,6 @@ const deleteCustomer=asyncHandler(async(req,res)=>{
     res.status(200).json({ message: "User deleted successfully" });
 });
 
-module.exports={registerCustomer,getCustomer,updateCustomer,deleteCustomer};
+module.exports={registerCustomer,getCustomer,updateCustomer,deleteCustomer,getusers};
 
       

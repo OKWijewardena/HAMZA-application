@@ -1,3 +1,4 @@
+
 const Payment = require("../models/paymentModel");
 
 // Controller to add a new payment
