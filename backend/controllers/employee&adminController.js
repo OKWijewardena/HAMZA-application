@@ -4,6 +4,15 @@ const bcrypt=require("bcryptjs");
 const validator = require("validator");
 
 
+//@desc get all Admin and Employee
+//@route get /api/ adminemployee / 
+//@access public
+const employeeAdmin=asyncHandler(async(req, res) => {
+    const employeeAdmin=await employeeAdminModel.find();
+    res.status(200).json(employeeAdmin);
+    });
+
+
 //@desc register a Admin or Employee
 //@route post /api/ users / register
 //@access public
@@ -162,6 +171,6 @@ const deleteEmployeeAdmin=asyncHandler(async(req,res)=>{
     res.status(200).json({ message: "User deleted successfully" });
 });
 
-module.exports={registeremployeeandadmin,getEmployeeAdmin,updateEmployeeAdmin,deleteEmployeeAdmin};
+module.exports={registeremployeeandadmin,getEmployeeAdmin,updateEmployeeAdmin,deleteEmployeeAdmin,employeeAdmin};
 
       

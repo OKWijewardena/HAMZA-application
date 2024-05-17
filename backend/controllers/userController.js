@@ -58,7 +58,23 @@ const loginUser = asyncHandler(async (req, res) => {
     }
     //compare password with has password
     if(userlogin && (await bcrypt.compare(password,userlogin.password))){
-        res.status(200).json({message:"user page"})
+          // Check user role and return appropriate message
+          let message;
+          switch(userlogin.role) {
+              case 'admin':
+                  message = "Admin page";
+                  break;
+              case 'employee':
+                  message = "Employee page";
+                  break;
+              case 'customer':
+                  message = "Customer page";
+                  break;
+              
+          }
+          res.status(200).json({message: message})
+        
+
     } else {
         res.status(400);
         throw new Error("password not matched!");
