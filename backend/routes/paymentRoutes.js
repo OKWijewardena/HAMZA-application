@@ -9,12 +9,12 @@ router.post("/addPayment", paymentController.addPayment);
 router.get("/getPayment", paymentController.getAllPayments);
 
 // Route for updating a payment
-router.put("/updatePayment/:id", paymentController.updatePayment);
+router.put("/updatePayment/:civilID", paymentController.updatePayment);
 
 // Route for deleting a payment
-router.delete("/deletePayment/:id", paymentController.deletePayment);
+router.delete("/deletePayment/:civilID", paymentController.deletePayment);
 
 // Route for getting a single payment by ID
-router.get("/getOnePayment/:id", paymentController.getOnePayment);
+router.get("/getOnePayment/:civilID", paymentController.getOnePayment);
 
 module.exports = router;
