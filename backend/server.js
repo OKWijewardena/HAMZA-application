@@ -1,6 +1,8 @@
 const express = require("express");
 const connectionDb = require("./config/dbconnection");
 const errorHandler = require("./middleware/errorHandler");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 const dotenv=require("dotenv").config();
 
 
@@ -18,6 +20,8 @@ const PORT = process.env.PORT || 8000;
 
 
 //app.use =middeleware
+app.use(cors());
+app.use(bodyParser.json());
 app.use(express.json());
 app.use(errorHandler);
 app.use("/api/products", require("./routes/productRoutes"));
