@@ -118,6 +118,7 @@ exports.updatePaymentHistory = async (req, res) => {
 
     let isPaymentUpdated = false;
     const customArray = selling.customArray;
+    let balance = parseFloat(selling.balance);
 
     for (let i = 0; i < customArray.length; i++) {
       const itemDate = new Date(customArray[i].date);
@@ -125,11 +126,15 @@ exports.updatePaymentHistory = async (req, res) => {
 
       if (itemDate >= new Date(date) && itemPrice === parseFloat(payment) && customArray[i].status === "unpaid") {
         customArray[i].status = "paid";
+        customArray[i].price = payment.toString();
+        balance -= parseFloat(payment);
         isPaymentUpdated = true;
         break;
       } else if (itemDate >= new Date(date) && itemPrice > parseFloat(payment) && customArray[i].status === "unpaid") {
         customArray[i].status = "paid";
+        customArray[i].price = payment.toString();
         const newPrice = 2 * itemPrice - parseFloat(payment);
+        balance -= parseFloat(payment);
 
         if (customArray[i + 1]) {
           customArray[i + 1].price = newPrice.toString();
@@ -141,7 +146,9 @@ exports.updatePaymentHistory = async (req, res) => {
         break;
       } else if (itemDate >= new Date(date) && itemPrice < parseFloat(payment) && customArray[i].status === "unpaid") {
         customArray[i].status = "paid";
+        customArray[i].price = payment.toString();
         const newPrice = itemPrice - (parseFloat(payment) - itemPrice);
+        balance -= parseFloat(payment);
 
         if (customArray[i + 1]) {
           customArray[i + 1].price = newPrice.toString();
@@ -158,6 +165,7 @@ exports.updatePaymentHistory = async (req, res) => {
       return res.status(404).json({ message: "No matching unpaid record found with the given date and payment amount" });
     }
 
+    selling.balance = balance.toString();
     await selling.save();
 
     res.json({ message: "Payment status updated successfully", customArray: selling.customArray });
