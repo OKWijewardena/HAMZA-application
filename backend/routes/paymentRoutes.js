@@ -1,12 +1,20 @@
-const express =require ("express");
-const {getPayments,createPayment,getPaymentsByCivilId}=require("../controllers/paymentController");
-const router = express. Router();
+const express = require("express");
+const router = express.Router();
+const paymentController = require("../controllers/paymentController");
 
+// Route for adding a new payment
+router.post("/addPayment", paymentController.addPayment);
 
-router.route("/").get(getPayments).post(createPayment);
-router.route("/:civil_id").get(getPaymentsByCivilId);
-//router.route("/:id").get(getInvoice);
+// Route for getting all payments
+router.get("/getPayment", paymentController.getAllPayments);
 
+// Route for updating a payment
+router.put("/updatePayment/:civilID", paymentController.updatePayment);
 
+// Route for deleting a payment
+router.delete("/deletePayment/:civilID", paymentController.deletePayment);
 
-module.exports=router;  
+// Route for getting a single payment by ID
+router.get("/getOnePayment/:civilID", paymentController.getOnePayment);
+
+module.exports = router;

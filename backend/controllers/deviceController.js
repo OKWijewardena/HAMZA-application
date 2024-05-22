@@ -1,89 +1,108 @@
-const asyncHandler = require("express-async-handler");
-const device= require("../models/deviceModel");
+const Device = require("../models/deviceModel");
 
-//@desc Get all device
-//@route Get /api/ devices
-//@access public
+exports.addDevice = async (req, res) => {
+  try {
+    const {
+      deviceName,
+      quantity,
+      price,
+      color,
+      shopName,
+      modelNumber,
+      storage,
+      warrenty,
+      emiNumber,
+      purchaseDate,
+      expireDate
+    } = req.body;
 
-const getdevices=asyncHandler(async(req, res) => {
-const devices=await device.find();
-    res.status(200).json(devices);
-  });
+    const newDevice = new Device({
+      deviceName,
+      quantity,
+      price,
+      color,
+      shopName,
+      modelNumber,
+      storage,
+      warrenty,
+      emiNumber,
+      purchaseDate,
+      expireDate
+    });
 
-//@desc create new device
-//@route post /api/ device
-//@access public
-const createdevices = asyncHandler(async(req, res) => {
-  console.log("the request body is", req.body);
-  const { color, deviceName, emiNumber, expireDate, modelNumber, price, purchaseDate, quantity, shopName, storage,warrenty} = req.body;
-  if (!color || !deviceName || !emiNumber||!expireDate || !modelNumber || !price|| !purchaseDate || !quantity||!shopName || !storage || !warrenty) {
-      res.status(400);
-      throw new Error("all fields are mandatory !");
+    await newDevice.save();
+
+    res.json("New Device Added");
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
   }
-  const device = await device.create({
-    color, 
-    deviceName,
-    emiNumber, 
-    expireDate,
-    modelNumber,
-    price, 
-    purchaseDate,
-    currentQty, 
-    quantity, 
-    shopName, 
-    storage,
-    warrenty
-  })
+};
 
-  res.status(201).json(device);
-});
-
-
-//@desc Get new device
-//@route put /api/ device /:id 
-//@access public
-const getdevice = asyncHandler(async(req, res) => {
-  const deviceData = await device.findById(req.params.id);
-  if(!deviceData){
-    res.status(404);
-    throw new Error("Contact not found");
-  } 
-  res.status(200).json(deviceData);
-});
-
-
-
-//@desc update device
-//@route put /api/ device /:id 
-//@access public
-const updatedevice=asyncHandler(async(req, res) => {
-  const  deviceupdate=await device.findById(req.params.id);
-  if(!deviceupdate){
-    res.status(404);
-    throw new Error("Contact not found");
-  }
-  const  deviceupdated=await device.findByIdAndUpdate
-  (req.params.id,
-  req.body,{
-  new:true,
-  });
-
-    res.status(200).json(deviceupdated);
-  });
-
-
-//@desc delete new device
-//@route delete /api/ device /:id 
-//@access public
-const deletedevice = asyncHandler(async(req, res) => {
-  const deviceDelete = await device.findById(req.params.id);
-  if(!deviceDelete){
-    res.status(404);
-    throw new Error("Contact not found");
-  }
-  await device.deleteOne({ _id: req.params.id });
-  res.status(201).json(device);
-});
-
-
-module.exports={getdevices,createdevices,getdevice,updatedevice,deletedevice};
+exports.getAllDevices = async (req, res) => {
+    try {
+      const devices = await Device.find();
+      res.json(devices);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+  
+  exports.updateDevice = async (req, res) => {
+    try {
+      const {
+        deviceName,
+        quantity,
+        price,
+        color,
+        shopName,
+        modelNumber,
+        storage,
+        warrenty,
+        emiNumber,
+        purchaseDate,
+        expireDate
+      } = req.body;
+  
+      const updatedDevice = {
+        deviceName,
+        quantity,
+        price,
+        color,
+        shopName,
+        modelNumber,
+        storage,
+        warrenty,
+        emiNumber,
+        purchaseDate,
+        expireDate
+      };
+  
+      await Device.findByIdAndUpdate(req.params.id, updatedDevice);
+      res.status(200).send({ status: "Device Updated" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({ status: "Error with updating", error: err.message });
+    }
+  };
+  
+  exports.deleteDevice = async (req, res) => {
+    try {
+      await Device.findByIdAndDelete(req.params.id);
+      res.status(200).send({ status: "Device Deleted" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+  
+  exports.getOneDevice = async (req, res) => {
+    try {
+      const device = await Device.findById(req.params.id);
+      res.send(device);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };

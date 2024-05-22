@@ -1,16 +1,13 @@
-const mongoose = require ("mongoose")
+const mongoose = require("mongoose");
 
-const devicesSchema=mongoose.Schema({
+const device = new mongoose.Schema({
+    
     deviceName : {
         type : String,
         required : true
     }, 
     quantity : {
-        type : Number, // corrected here
-        required : true
-    },
-    current_qty:{
-        type : Number, // corrected here
+        type : String,
         required : true
     },
     price : {
@@ -49,7 +46,7 @@ const devicesSchema=mongoose.Schema({
         type : String,
         required : true
     }           
-   
 });
 
-module.exports = mongoose.model("devices",devicesSchema); 
+const deviceModel = mongoose.model("device",device);
+module.exports = deviceModel;

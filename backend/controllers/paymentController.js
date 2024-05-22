@@ -1,55 +1,82 @@
-const asyncHandler = require("express-async-handler");
-const Payment = require("../models/paymentmodel");
 
-//@desc Get all payments
-//@route Get /api/ payments
-//@access public
+const Payment = require("../models/paymentModel");
 
-const getPayments=asyncHandler(async(req, res) => {
-const payments=await Payment.find();
-    res.status(200).json(payments);
+// Controller to add a new payment
+exports.addPayment = (req, res) => {
+  const { customerName, civilID, deviceName, price, date } = req.body;
+
+  const newPayment = new Payment({
+    customerName,
+    civilID,
+    deviceName,
+    price,
+    date,
   });
 
-
-
-//@desc create new payment
-//@route post /api/ payment
-//@access public
-const createPayment = asyncHandler(async(req, res) => {
-    console.log("the request body is", req.body);
-    const {  customerName, civilID, deviceName, price,date} = req.body;
-    if (!customerName|| !civilID || !deviceName ||!price||!date) {
-        res.status(400);
-        throw new Error("all fields are mandatory !");
-    }
-    const py = await Payment.create({
-        
-        customerName,
-        civilID,
-        deviceName,
-        price,
-        date
-       
+  newPayment
+    .save()
+    .then(() => {
+      res.json("New Payment Added");
     })
-  
-    res.status(201).json(py);
-  });
-  
-//@desc get by id
-//@route get /api/ payment/id
-//@access public
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: "Error adding new payment" });
+    });
+};
 
-const getPaymentsByCivilId = asyncHandler(async(req, res) => {
-  const civilId = req.params.civil_id;
-  const payments = await Payment.find({ civilID: civilId });
-  if (payments) {
-      res.status(200).json(payments);
-  } else {
-      res.status(404);
-      throw new Error('No payments found for this civil ID');
+// Controller to get all payments
+exports.getAllPayments = (req, res) => {
+  Payment.find()
+    .then((payments) => {
+      res.json(payments);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: "Error retrieving payments" });
+    });
+};
+
+// Controller to update a payment
+exports.updatePayment = async (req, res) => {
+  const { customerName, civilID, deviceName, price, date } = req.body;
+
+  const updatePayment = {
+    customerName,
+    civilID,
+    deviceName,
+    price,
+    date,
+  };
+
+  try {
+    await Payment.findOneAndUpdate({ civilID : req.params.civilID }, updatePayment);
+    res.status(200).send({ status: "Payment Updated" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ status: "Error with updating payment", error: err.message });
   }
-});
+};
 
+// Controller to delete a payment
+exports.deletePayment = (req, res) => {
+  Payment.findOneAndDelete({ civilID : req.params.civilID })
+    .then(() => {
+      res.status(200).send({ status: "Payment Deleted" });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: "Error deleting payment" });
+    });
+};
 
-
-  module.exports={getPayments,createPayment,getPaymentsByCivilId};
+// Controller to get a single payment by ID
+exports.getOnePayment = (req, res) => {
+  Payment.findOne({ civilID: req.params.civilID })
+    .then((payment) => {
+      res.json(payment);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: "Error retrieving payment" });
+    });
+};
