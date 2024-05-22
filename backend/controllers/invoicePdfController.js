@@ -5,9 +5,9 @@ const path = require('path');
 const moment = require('moment');
 const stats = require('simple-statistics');
 
-exports.convertToPDF = async (req, res) => {
+const convertToPDF = async (req, res) => {
     
-    let data = req.body;
+    let data = Array.isArray(req.body) ? req.body : [req.body];
     
     // Format the date to exclude the time
     data = data.map(item => {
@@ -81,6 +81,45 @@ exports.convertToPDF = async (req, res) => {
     res.send(pdf);
 };
 
+
+
+
+const convertToPaymentInvoicePDF = async (req, res) => {
+    
+    let data = Array.isArray(req.body) ? req.body : [req.body];
+    
+    // Format the date to exclude the time
+    data = data.map(item => {
+        let date = new Date(item.date);
+        let formattedDate = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+        item.date = formattedDate;
+        item.statisticsDate = moment(formattedDate).format('YYYY-MM-DD');
+        return item;
+    });
+    
+
+    // Calculate the total price
+    let totalPrice = data.reduce((total, item) => total + item.price, 0);
+
+ 
+    // Read the HTML template
+    const source = fs.readFileSync(path.join(__dirname, '../template/PaymentInvoicePdfTemplate.html'), 'utf8');
+
+    // Compile the template with handlebars
+    const template = handlebars.compile(source);
+    const html = template({ data, totalPrice}); // Pass the total price to the template
+  
+    const pdf = await convertHTMLToPDF(html, 'data.pdf');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=data.pdf');
+    res.send(pdf);
+};
+
+
+
+
+
+
 async function convertHTMLToPDF(htmlContent, pdfFilePath, margins = {top: '10mm', right: '10mm', bottom: '10mm', left: '10mm'}){
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
@@ -89,3 +128,5 @@ async function convertHTMLToPDF(htmlContent, pdfFilePath, margins = {top: '10mm'
     await browser.close();
     return pdf;
 }
+
+module.exports={convertToPDF,convertToPaymentInvoicePDF};

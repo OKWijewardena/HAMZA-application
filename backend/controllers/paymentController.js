@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Payment = require("../models/paymentmodel");
+
 //@desc Get all payments
 //@route Get /api/ payments
 //@access public
@@ -8,7 +9,6 @@ const getPayments=asyncHandler(async(req, res) => {
 const payments=await Payment.find();
     res.status(200).json(payments);
   });
-
 
 
 
@@ -34,5 +34,22 @@ const createPayment = asyncHandler(async(req, res) => {
   
     res.status(201).json(py);
   });
+  
+//@desc get by id
+//@route get /api/ payment/id
+//@access public
 
-  module.exports={getPayments,createPayment};
+const getPaymentsByCivilId = asyncHandler(async(req, res) => {
+  const civilId = req.params.civil_id;
+  const payments = await Payment.find({ civilID: civilId });
+  if (payments) {
+      res.status(200).json(payments);
+  } else {
+      res.status(404);
+      throw new Error('No payments found for this civil ID');
+  }
+});
+
+
+
+  module.exports={getPayments,createPayment,getPaymentsByCivilId};
