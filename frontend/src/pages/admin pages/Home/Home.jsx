@@ -156,7 +156,7 @@ function DashboardContent() {
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Container maxWidth="" sx={{ mt: 4, mb: 4 }}>
           <Box sx={{ flexGrow: 1, p: 2 }}>
       <Grid container spacing={3}>
         {/* Welcome Card */}
