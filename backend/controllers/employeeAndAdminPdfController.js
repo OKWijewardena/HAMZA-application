@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+const  puppeteer = require('puppeteer');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
@@ -34,10 +34,10 @@ const source = fs.readFileSync(path.join(__dirname, '../template/employeeAdminPd
 };
 
 async function convertHTMLToPDF(htmlContent, pdfFilePath, margins = {top: '10mm', right: '1mm', bottom: '10mm', left: '1mm'}){
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.setContent(htmlContent);
-    const pdf = await page.pdf({ format : 'A4', margin : margins });
-    await browser.close();
-    return pdf;
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(htmlContent);
+  const pdf = await page.pdf({ format : 'A4', margin : margins, printBackground: true }); // Added printBackground: true
+  await browser.close();
+  return pdf;
 }

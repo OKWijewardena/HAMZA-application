@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const usermodel = require("../models/usermodel");
 const bcrypt=require("bcryptjs");
+const axios = require('axios');
 
 //@desc register a user
 //@route post /api/ users / register
@@ -60,19 +61,23 @@ const loginUser = asyncHandler(async (req, res) => {
     if(userlogin && (await bcrypt.compare(password,userlogin.password))){
           // Check user role and return appropriate message
           let message;
+          let role;
+          let userInfo;
           switch(userlogin.role) {
               case 'admin':
-                  message = "Admin page";
-                  break;
               case 'employee':
-                  message = "Employee page";
+                  userInfo = await axios.get(`http://localhost:8000/api/employee&admin/${email}`);
+                  role = userlogin.role;
+                  message = `${role.charAt(0).toUpperCase() + role.slice(1)} page`;
                   break;
               case 'customer':
+                  userInfo = await axios.get(`http://localhost:8000/api/customer/${email}`);
+                  role = 'customer';
                   message = "Customer page";
                   break;
-              
           }
-          res.status(200).json({message: message})
+          userInfo.data.role = role;
+          res.status(200).json({message: message, user: userInfo.data})
         
 
     } else {
@@ -80,7 +85,6 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new Error("password not matched!");
     }
 });
-
   
 //@desc get user data
 //@route get /api/users/email

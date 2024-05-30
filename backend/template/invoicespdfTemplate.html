@@ -58,10 +58,29 @@
 
 
 <style type="text/css">
+    @media print {
+  @page {
+    margin: 0;
+   
+  }
+  html, body, #content, #header, #footer, .page {
+    
+    -webkit-print-color-adjust: exact !important;
+  }
+  /* Add this to apply background color to the table header */
+  .table th {
+    background-color: rgb(218 188 225) !important;
+  }
+  .table td{
+    color: black !important;
+  }
+
+}
     	body {
   color: black !important;
   background: white !important;
-  
+  font-family: 'Public Sans', sans-serif;
+
 }
 body {
   -webkit-print-color-adjust: exact;
@@ -168,9 +187,9 @@ body {
     background: #2d353c;
     color: #fff;
     font-size: 28px;
-    text-align: right;
+    text-align:left;
     vertical-align: bottom;
-    font-weight: 300
+    font-weight: 300;
 }
 
 .invoice-price .invoice-price-right small {
@@ -187,6 +206,20 @@ body {
     padding-top: 10px;
     font-size: 10px
 }
+.price {
+    display: inline-block;
+    width: 35%; /* adjust as needed */
+    text-align: left;
+}
+
+.currency {
+    display: inline-block;
+    width: 5%; /* adjust as needed */
+    text-align: left;
+    font-size: small;
+    padding-left: 5px;
+}
+
 
 .invoice-note {
     color: #6e6b6b;
@@ -211,7 +244,7 @@ body {
     <div class="col-md-12">
         <div class="invoice">
 
-            <div class="invoice-company text-inverse f-w-600">
+            <div class="invoice-company text-inverse f-w-600" style="color: rgb(117 40 136);margin-top:30px;">
                 <span class="pull-right hidden-print">
                   Generated Date: <span id="currentDate"></span>
                 </span>
@@ -225,11 +258,11 @@ body {
               </script>
               
 
-              <div class="invoice-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="text-align: left; font-size: 28px;">SMART CO</div>
+              <div class="invoice-header" style="display: flex; justify-content: space-between; align-items: center; background-color: rgb(224 206 229); border-radius: .5rem; color: rgb(117 40 136);font-family: 'Public Sans', sans-serif;">
+                <div style="text-align: left; font-size: 28px; font-weight: bold; ">SMARTCO</div>
                 <div style="text-align: right;">
-                    <small>Payment Report Generated Period</small>
-                    <div class="invoice-detail" style="display: flex; flex-direction: column; align-items: flex-start; font-family: monospace;">
+                    <small><strong>Payment Report Generated Period</strong></small>
+                    <div class="invoice-detail" style="display: flex; flex-direction: column; align-items: flex-start;">
                         <div style="display: flex; align-items: center;">
                             <div style="width: 60px; margin-right: 10px; text-align: left;">FROM:</div>
                             <div class="date text-inverse m-t-5">{{startDate}}</div>
@@ -242,17 +275,18 @@ body {
                 </div>
             </div>
             
+            
       
 
 <div class="invoice-content">
 
 <div class="table-responsive">
-<table class="table table-invoice">
-<thead>
+<table class="table table-invoice"style="color: rgb(117 40 136)">
+<thead style="color: rgb(3, 3, 3) ">
 
-    <tr>
-        <th class="text-left">Device</th>
-        <th class="text-left" width="10%">Civil Id </th>
+    <tr style="background-color: rgb(218 188 225); -webkit-print-color-adjust: exact; ">
+        <th class="text-left ">Device</th>
+        <th class="text-left" width="10%">Civil  Id </th>
         <th class="text-left" width="10%">Customer </th>
         <th class="text-left" width="10%">Date</th>
         <th class="text-left"  width="10%">price</th>
@@ -265,12 +299,12 @@ body {
         {{#each data}}
         <tr>
             <span class="text-inverse">
-                <th class="text-left">{{this.deviceName}}</th>
+                <td class="text-left">{{this.deviceName}}</td>
             </span>
-            <td class="text-left" width="20%">{{this.civilID}}</td>
+            <td style="" text-left" width="20%">{{this.civilID}}</td>
             <td class="text-left" width="20%">{{this.customerName}}</td>
             <td class="text-left" width="20%">{{this.date}}</td>
-            <td class="text-left" width="20%">{{this.price}} (KWD)</td>
+            <td class="text-left" width="20%"><span class="pricee">{{this.price}}</span><span class="currency"> (KWD)</span></td>
         </tr>
         {{/each}}
     </tr>
@@ -282,10 +316,10 @@ body {
 
 
 <div class="invoice-price">
-<div class="invoice-price-left">
+<div class="invoice-price-left"style="background-color: rgb(224 206 229) ;color: rgb(3 3 3)">
 <div class="invoice-price-row">
-<div class="sub-price">
-<small>Total Number Of Transection</small>
+<div class="sub-price" >
+<small>Total Number Of transactions</small>
 <span class="text-inverse">{{numberOfItems}}</span>
 </div>
 <div class="sub-price">
@@ -294,8 +328,11 @@ body {
 
 </div>
 </div>
-<div class="invoice-price-right">
-    <small>TOTAL</small> <span class="f-w-600">{{totalPrice}} (KWD)</span>
+<div class="invoice-price-right"style="background-color: rgb(218 188 225);color: rgb(3,3,3);padding-left: 35px;">
+    <small>TOTAL</small> <span class="f-w-1200"> {{totalPrice}}(KWD) </span>
+    <script>
+      
+    </script>
     </div>
 </div>
 
@@ -303,13 +340,12 @@ body {
 
 
 <div class="invoice-note" style="text-align: left;">
-    <h2 style="font-size: larger; font-weight: bold; text-decoration: underline;">Statistics Based on the Generated Report</h2>
-    <ul >
+    <h2 style="font-size: larger; font-weight: bold; text-decoration: underline;color: rgb(3 3 3)">Statistics Based on the Generated Report</h2>
+    <ul style="color: #050505" >
         <li>Month with highest payment: {{highestPaymentMonth}}</li>
         <li>Highest monthly payment : {{x}} (KWD)</li>
         <li>Month with lowest payment: {{lowestPaymentMonth}}</li>
         <li>Lowest monthly payment : {{y}} (KWD)</li>
-        <li>Predicted payment for next month: {{predictedNextMonthPayment}} (KWD)</li>
     </ul>
 </div>
 
@@ -320,7 +356,7 @@ body {
 THANK YOU FOR YOUR BUSINESS
 </p>
 <p class="text-center">
-<span class="m-r-10"><i class="fa fa-fw fa-lg fa-globe"></i> Smart Co.com</span>
+<span class="m-r-10"><i class="fa fa-fw fa-lg fa-globe"></i> SmartCo.com</span>
 <span class="m-r-10"><i class="fa fa-fw fa-lg fa-phone-volume"></i> T:016-18192302</span>
 <span class="m-r-10"><i class="fa fa-fw fa-lg fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5624223f333b262516313b373f3a7835393b">[email&#160;protected]</a></span>
 </p>

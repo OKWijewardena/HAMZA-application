@@ -4,6 +4,7 @@ const handlebars = require('handlebars');
 const path = require('path');
 const moment = require('moment');
 const stats = require('simple-statistics');
+const axios = require('axios'); // Import axios
 
 const convertToPDF = async (req, res) => {
     
@@ -26,7 +27,8 @@ const convertToPDF = async (req, res) => {
     let endDate = data[data.length - 1].date;
 
     // Calculate the total price
-    let totalPrice = data.reduce((total, item) => total + item.price, 0);
+    let totalPrice = data.reduce((total, item) => total + parseFloat(item.price), 0);
+
 
     // Assuming your data is in the 'data' variable
     data = data.map(item => {
@@ -41,7 +43,7 @@ const convertToPDF = async (req, res) => {
         if (!paymentsByMonth[month]) {
             paymentsByMonth[month] = [];
         }
-        paymentsByMonth[month].push(item.price);
+        paymentsByMonth[month].push(parseFloat(item.price));
     });
 
     // Calculate total payments for each month
@@ -51,21 +53,11 @@ const convertToPDF = async (req, res) => {
     }
 
     // Find the month with the highest payment
-    let highestPaymentMonth = Object.keys(totalPaymentsByMonth).reduce((a, b) => totalPaymentsByMonth[a] > totalPaymentsByMonth[b] ? a : b);
+let highestPaymentMonth = Object.keys(totalPaymentsByMonth).reduce((a, b) => totalPaymentsByMonth[a] > totalPaymentsByMonth[b] ? a : b);
+let x = parseFloat(totalPaymentsByMonth[highestPaymentMonth]);
 
-    console.log('Month with highest payment:', highestPaymentMonth, 'Total payment:', totalPaymentsByMonth[highestPaymentMonth]);
-    let x =totalPaymentsByMonth[highestPaymentMonth];
-
-    // Predict next month's payment
-    let lastTwoMonths = Object.keys(totalPaymentsByMonth).sort().slice(-2);
-    let lastTwoMonthsPayments = lastTwoMonths.map(month => totalPaymentsByMonth[month]);
-    let predictedNextMonthPayment = stats.mean(lastTwoMonthsPayments);
-
-    console.log('Predicted payment for next month:', predictedNextMonthPayment);
-    let lowestPaymentMonth = Object.keys(totalPaymentsByMonth).reduce((a, b) => totalPaymentsByMonth[a] < totalPaymentsByMonth[b] ? a : b);
-
-    console.log('Month with lowest payment:', lowestPaymentMonth, 'Total payment:', totalPaymentsByMonth[lowestPaymentMonth]);
-    let y=totalPaymentsByMonth[lowestPaymentMonth];
+let lowestPaymentMonth = Object.keys(totalPaymentsByMonth).reduce((a, b) => totalPaymentsByMonth[a] < totalPaymentsByMonth[b] ? a : b);
+let y = parseFloat(totalPaymentsByMonth[lowestPaymentMonth]);
 
     // Read the HTML template
     const source = fs.readFileSync(path.join(__dirname, '../template/invoicespdfTemplate.html'), 'utf8');
@@ -73,7 +65,7 @@ const convertToPDF = async (req, res) => {
     let numberOfItems = data.length;
     // Compile the template with handlebars
     const template = handlebars.compile(source);
-    const html = template({ data, totalPrice,numberOfItems,startDate, endDate , highestPaymentMonth, x,predictedNextMonthPayment,lowestPaymentMonth,y}); // Pass the total price to the template
+    const html = template({ data, totalPrice,numberOfItems,startDate, endDate , highestPaymentMonth, x,lowestPaymentMonth,y}); // Pass the total price to the template
   
     const pdf = await convertHTMLToPDF(html, 'data.pdf');
     res.setHeader('Content-Type', 'application/pdf');
@@ -81,11 +73,7 @@ const convertToPDF = async (req, res) => {
     res.send(pdf);
 };
 
-
-
-
 const convertToPaymentInvoicePDF = async (req, res) => {
-    
     let data = Array.isArray(req.body) ? req.body : [req.body];
     
     // Format the date to exclude the time
@@ -96,18 +84,36 @@ const convertToPaymentInvoicePDF = async (req, res) => {
         item.statisticsDate = moment(formattedDate).format('YYYY-MM-DD');
         return item;
     });
-    
 
-    // Calculate the total price
-    let totalPrice = data.reduce((total, item) => total + item.price, 0);
+    // Retrieve customer data
+    for (let item of data) {
+        const response = await axios.get(`http://localhost:8000/api/customer/civil/${item.civilID}`);
+        const customerData = response.data;
+        item.customerData = customerData;
+    }
 
- 
+    // Calculate the total price first
+    let totalPrice = data.reduce((total, item) => total + Number(item.price), 0);
+
+    // Format the individual price field
+    let formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2
+    });
+
+    data = data.map(item => {
+        item.price = formatter.format(Number(item.price));
+        return item;
+    });
+
+    // Format the total price into Kuwaiti Dinar currency format
+    let formattedPrice = formatter.format(totalPrice);
+
     // Read the HTML template
     const source = fs.readFileSync(path.join(__dirname, '../template/PaymentInvoicePdfTemplate.html'), 'utf8');
-
+ 
     // Compile the template with handlebars
     const template = handlebars.compile(source);
-    const html = template({ data, totalPrice}); // Pass the total price to the template
+    const html = template({ data, formattedPrice }); // Pass the total price and customer data to the template
   
     const pdf = await convertHTMLToPDF(html, 'data.pdf');
     res.setHeader('Content-Type', 'application/pdf');
@@ -115,16 +121,11 @@ const convertToPaymentInvoicePDF = async (req, res) => {
     res.send(pdf);
 };
 
-
-
-
-
-
-async function convertHTMLToPDF(htmlContent, pdfFilePath, margins = {top: '10mm', right: '10mm', bottom: '10mm', left: '10mm'}){
+async function convertHTMLToPDF(htmlContent, pdfFilePath, margins = {top: '10mm', right: '1mm', bottom: '10mm', left: '1mm'}){
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(htmlContent);
-    const pdf = await page.pdf({ format : 'A4', margin : margins });
+    const pdf = await page.pdf({ format : 'A4', margin : margins, printBackground: true }); // Added printBackground: true
     await browser.close();
     return pdf;
 }
