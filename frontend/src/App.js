@@ -14,6 +14,10 @@ import Selling from "./pages/admin pages/Selling/Selling";
 import CustomerHome from "./pages/customer pages/CustomerHome/CustomerHome";
 import CustomerPurchase from "./pages/customer pages/CustomerPurchase/CustomerPurchase";
 import CustomerDevice from "./pages/customer pages/CustomerDevice/CustomerDevice";
+import EHome from "./pages/employee pages/EHome/EHome";
+import EDevice from "./pages/employee pages/EDevice/EDevice";
+import EPayment from "./pages/employee pages/EPayment/EPayment";
+import ESelling from "./pages/employee pages/ESelling/ESelling";
 import { Login } from "./pages/Login/Login";
 
 
@@ -32,6 +36,11 @@ function App() {
         <Route exact path="/employee" element={<Employee/>} />
         <Route exact path="/payment" element={<Payment/>} />
         <Route exact path="/selling" element={<Selling/>} />
+
+        <Route exact path="/ehome" element={<EHome/>} />
+        <Route exact path="/edevice" element={<EDevice/>} />
+        <Route exact path="/epayment" element={<EPayment/>} />
+        <Route exact path="/eselling" element={<ESelling/>} />
         <Route exact path="/customerhome" element={<CustomerHome/>} />
         <Route exact path="/customerpurchase" element={<CustomerPurchase/>} />
         <Route exact path="/customerdevice" element={<CustomerDevice/>} />

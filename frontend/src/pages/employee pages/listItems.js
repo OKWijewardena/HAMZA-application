@@ -18,7 +18,7 @@ import { Link } from 'react-router-dom';
 
 export const mainListItems = (
   <React.Fragment>
-    <Link to="/home" style={{textDecoration: 'none', color:"black"}}>
+    <Link to="/ehome" style={{textDecoration: 'none', color:"black"}}>
     <ListItemButton>
       <ListItemIcon>
         <DashboardIcon />
@@ -26,15 +26,7 @@ export const mainListItems = (
       <ListItemText primary="Dashboard" />
     </ListItemButton>
     </Link>
-    <Link to="/customer" style={{textDecoration: 'none', color:"black"}}>
-    <ListItemButton>
-      <ListItemIcon>
-        <PersonAddAltIcon />
-      </ListItemIcon>
-      <ListItemText primary="Customers" />
-    </ListItemButton>
-    </Link>
-    <Link to="/device" style={{textDecoration: 'none', color:"black"}}>
+    <Link to="/edevice" style={{textDecoration: 'none', color:"black"}}>
     <ListItemButton>
       <ListItemIcon>
         <DevicesOtherIcon />
@@ -42,7 +34,7 @@ export const mainListItems = (
       <ListItemText primary="Devices" />
     </ListItemButton>
     </Link>
-    <Link to="/selling" style={{textDecoration: 'none', color:"black"}}>
+    <Link to="/eselling" style={{textDecoration: 'none', color:"black"}}>
     <ListItemButton>
       <ListItemIcon>
         <SellIcon />
@@ -50,7 +42,7 @@ export const mainListItems = (
       <ListItemText primary="Selling" />
     </ListItemButton>
     </Link>
-    <Link to="/payment" style={{textDecoration: 'none', color:"black"}}>
+    <Link to="/epayment" style={{textDecoration: 'none', color:"black"}}>
     <ListItemButton>
       <ListItemIcon>
         <PaidIcon />
@@ -58,39 +50,5 @@ export const mainListItems = (
       <ListItemText primary="Payments" />
     </ListItemButton>
     </Link>
-    <Link to="/employee" style={{textDecoration: 'none', color:"black"}}>
-    <ListItemButton>
-      <ListItemIcon>
-        <PeopleIcon />
-      </ListItemIcon>
-      <ListItemText primary="Employee" />
-    </ListItemButton>
-    </Link>
-  </React.Fragment>
-);
-
-export const secondaryListItems = (
-  <React.Fragment>
-    <ListSubheader component="div" inset>
-      Saved reports
-    </ListSubheader>
-    <ListItemButton>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Customer List" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Devices List" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Employee List" />
-    </ListItemButton>
   </React.Fragment>
 );

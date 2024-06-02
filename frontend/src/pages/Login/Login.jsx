@@ -48,7 +48,7 @@ export const Login = () => {
     margin:"0 auto",
     borderRadius: '15px', 
     textAlign: 'center',
-    backgroundColor: 'rgb(224 206 229)', // Glassy effect, little bit bluer and transparent
+    backgroundColor: 'white', // Glassy effect, little bit bluer and transparent
   }
   const avatarStyle={backgroundColor:'rgba(218 188 225)'}
   const btnstyle={margin:'8px 0'}
@@ -66,13 +66,13 @@ export const Login = () => {
   
       switch(res.data.user.role) { // Access role from user object
         case 'admin':
-          navigate('/admin');
+          navigate('/home');
           break;
         case 'employee':
-          navigate('/employee');
+          navigate('/ehome');
           break;
         case 'customer':
-          navigate('/customer');
+          navigate('/customerhome');
           break;
         default:
           throw new Error('Role not recognized');
