@@ -102,6 +102,25 @@ if(!customerData){
     res.status(200).json(customerData);
 });
 
+//@desc get customer data
+//@route get /api/customer/civil_id
+//@access public
+const getCivil_idCustomer =asyncHandler(async(req,res)=>{
+
+    const civil_id=req.params.civil_id; //get email from url parameters
+    console.log(`Searching for user with email: ${civil_id}`);
+    const customerData = await customerModel.findOne({ civil_id });
+    
+    
+    console.log(`Found user: ${JSON.stringify(customerData)}`);
+    if(!customerData){
+        res.status(404);
+        throw new Error("Customer email not found");
+    } 
+        res.status(200).json(customerData);
+    });
+    
+
 
 //@desc update customer data
 //@route put /api/customer/email
@@ -178,6 +197,6 @@ const deleteCustomer=asyncHandler(async(req,res)=>{
     res.status(200).json({ message: "User deleted successfully" });
 });
 
-module.exports={registerCustomer,getCustomer,updateCustomer,deleteCustomer,getusers};
+module.exports={registerCustomer,getCustomer,updateCustomer,deleteCustomer,getusers,getCivil_idCustomer};
 
       

@@ -30,7 +30,32 @@
 
 
 <style type="text/css">
+  @media print {
+  @page {
+    margin: 0;
+   
+  }
+  html, body, #content, #header, #footer, .page {
+    
+    -webkit-print-color-adjust: exact !important;
+  }
+  /* Add this to apply background color to the table header */
+  .table th {
+    background-color: rgb(218 188 225) !important;
+  }
+  .table td{
+    color: black !important;
+  }
+  .tbody th{
+    color: black !important;
+  }
+
+}
+
+
+
     	body {
+
   color: black !important;
   background: white !important;
   
@@ -59,7 +84,6 @@ body {
     display: table-cell;
     width: 1%
 }
-
 
 
 
@@ -129,8 +153,8 @@ body {
         }
         .table td, .table th {
             padding: .29rem;
-            font-size: x-small;
-            font-size: 11px;
+            font-size: small;
+            font-size: 12px;
             vertical-align: top;
             border-top: 1px solid #dee2e6;
             word-wrap: break-word;/* This will make the words go to the next line if they are too long */
@@ -143,8 +167,8 @@ body {
     <div class="col-md-44">
         <div class="invoice">
 
-            <div class="invoice-company text-inverse f-w-600">
-                <span class="pull-right hidden-print">
+          <div class="invoice-company text-inverse f-w-600"style="color: rgb(117 40 136);margin-top:30px;">
+                 <span class="pull-right hidden-print">
                   Generated Date: <span id="currentDate"></span>
                 </span>
                 <div style="align-items: center;">
@@ -157,8 +181,8 @@ body {
               </script>
               
 
-              <div class="invoice-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="text-align: left; font-size: 28px;">SMART CO</div>
+              <div class="invoice-header" style="display: flex; justify-content: space-between; align-items: center; background-color: rgb(224 206 229); border-radius: .5rem; color: rgb(117 40 136);font-family: 'Public Sans', sans-serif;">
+                <div style="text-align: left; font-size: 28px;">SMARTCO</div>
                 <div style="text-align: right;">
                 
                    
@@ -168,34 +192,32 @@ body {
       
 
             <div class="invoice-content">
-                <div class="table-responsive">
-                    <table class="table table-invoice">
-                        <thead>
-                            <tr>
-                                <th class="text-left">name</th>
-                                <th class="text-left">email</th>
-                               
-                                <th class="text-left">address</th>
-                                <th class="text-left">phone</th>
-                                <th class="text-left">role</th>
-                                
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#each data}}
-                            <tr>
-                                <th class="text-left">{{this.name}}</th>
-                                <td class="text-left">{{this.email}}</td>
-                              
-                                <td class="text-left">{{this.address}}</td>
-                                <td class="text-left">{{this.phone}}</td>
-                                <td class="text-left">{{this.role}}</td>
-                            </tr>
-                            {{/each}}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+              <div class="table-responsive">
+                <table class="table table-invoice"style="color: rgb(117 40 136)">
+                      <thead style="color: rgb(3, 3, 3) ">
+                          <tr style="background-color: rgb(218 188 225); -webkit-print-color-adjust: exact; ">
+                              <th class="text-left">Name</th>
+                              <th class="text-left">Email</th>
+                              <th class="text-left">Address</th>
+                              <th class="text-left">Phone</th>
+                              <th class="text-left">Role</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {{#each data}}
+                          <tr>
+                              <td class="text-left">{{this.name}}</td>
+                              <td class="text-left">{{this.email}}</td>
+                              <td class="text-left">{{this.address}}</td>
+                              <td class="text-left">{{this.phone}}</td>
+                              <td class="text-left">{{this.role}}</td>
+                          </tr>
+                          {{/each}}
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          
 
 
 
@@ -207,7 +229,7 @@ body {
 THANK YOU FOR YOUR BUSINESS
 </p>
 <p class="text-center">
-<span class="m-r-10"><i class="fa fa-fw fa-lg fa-globe"></i> Smart Co.com</span>
+<span class="m-r-10"><i class="fa fa-fw fa-lg fa-globe"></i> SmartCo.com</span>
 <span class="m-r-10"><i class="fa fa-fw fa-lg fa-phone-volume"></i> T:016-18192302</span>
 <span class="m-r-10"><i class="fa fa-fw fa-lg fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5624223f333b262516313b373f3a7835393b">[email&#160;protected]</a></span>
 </p>
