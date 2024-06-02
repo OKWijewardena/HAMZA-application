@@ -5,10 +5,6 @@ const device = new mongoose.Schema({
     deviceName : {
         type : String,
         required : true
-    }, 
-    quantity : {
-        type : String,
-        required : true
     },
     price : {
         type : String,
@@ -43,6 +39,10 @@ const device = new mongoose.Schema({
         required : true
     }, 
     expireDate : {
+        type : String,
+        required : true
+    },
+    imageName : {
         type : String,
         required : true
     }           

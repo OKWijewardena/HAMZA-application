@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
@@ -11,13 +12,11 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../listItems';
-import { MenuItem, Select, InputLabel, FormControl} from '@mui/material';
+import { MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
@@ -73,190 +72,272 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 const mdTheme = createTheme();
-  
 
-export default function Employee(){
+export default function Employee() {
+  const [open, setOpen] = useState(true);
+  const [employees, setEmployees] = useState([]);
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    address: '',
+    phone: '',
+    role: ''
+  });
 
-    const [open, setOpen] = React.useState(true);
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
-    return(
-        <div>
-            <ThemeProvider theme={mdTheme}>
-      <Box sx={{ display: 'flex' }}>
-        <CssBaseline />
-        <AppBar sx={{backgroundColor: 'white', color: '#637381'}}position="absolute" open={open}>
-          <Toolbar
-            sx={{
-              pr: '24px', // keep right padding when drawer closed
-            }}
-          >
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
+  const fetchEmployees = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/employee&admin/');
+      setEmployees(response.data);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+    }
+  };
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await axios.post('http://localhost:8000/api/employee&admin/register', form);
+      setForm({
+        name: '',
+        email: '',
+        password: '',
+        address: '',
+        phone: '',
+        role: ''
+      });
+      fetchEmployees();
+    } catch (error) {
+      console.error('Error adding employee:', error);
+    }
+  };
+
+  return (
+    <div>
+      <ThemeProvider theme={mdTheme}>
+        <Box sx={{ display: 'flex' }}>
+          <CssBaseline />
+          <AppBar sx={{ backgroundColor: 'white', color: '#637381' }} position="absolute" open={open}>
+            <Toolbar sx={{ pr: '24px' }}>
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="open drawer"
+                onClick={toggleDrawer}
+                sx={{
+                  marginRight: '36px',
+                  ...(open && { display: 'none' }),
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography
+                component="h1"
+                variant="h6"
+                noWrap
+                sx={{
+                  flexGrow: 1,
+                  background: 'linear-gradient(90deg, #C63DE7, #752888)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  fontFamily: 'Public Sans, sans-serif',
+                  fontWeight: 'bold',
+                }}
+              >
+                SMARTCO
+              </Typography>
+              <IconButton color="inherit">
+                <Badge badgeContent={4} color="secondary">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+            </Toolbar>
+          </AppBar>
+          <Drawer variant="permanent" open={open}>
+            <Toolbar
               sx={{
-                marginRight: '36px',
-                ...(open && { display: 'none' }),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                px: [1],
               }}
             >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-            component="h1"
-            variant="h6"
-            noWrap
-            sx={{ 
-              flexGrow: 1, 
-              background: 'linear-gradient(90deg, #C63DE7, #752888)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              fontFamily: 'Public Sans, sans-serif',
-              fontWeight: 'bold',
-            }}
-          >
-            SMARTCO
-          </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open}>
-          <Toolbar
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              px: [1],
-            }}
-          >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <List component="nav">
-            {mainListItems}
-            <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
-          </List>
-        </Drawer>
-        <Box
-          component="main"
-          sx={{
-            backgroundColor: (theme) =>
-              theme.palette.mode === 'light'
-                ? theme.palette.grey[100]
-                : theme.palette.grey[900],
-            flexGrow: 1,
-            height: '100vh',
-            overflow: 'auto',
-          }}
-        >
-          <Toolbar />
-          <Container>
+              <IconButton onClick={toggleDrawer}>
+                <ChevronLeftIcon />
+              </IconButton>
+            </Toolbar>
+            <Divider />
+            <List component="nav">
+              {mainListItems}
+              <Divider sx={{ my: 1 }} />
+              {secondaryListItems}
+            </List>
+          </Drawer>
           <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginTop: 4,
-          padding: 3,
-          backgroundColor: '#fff',
-          borderRadius: 1,
-          boxShadow: 3,
-          maxWidth: 500, // Adjust the maxWidth as needed
-          width: '100%',
-          mx: 'auto', // Center the box
-        }}>
-        <Typography component="h1" variant="h5" gutterBottom sx={{ fontFamily: 'Public Sans, sans-serif', fontWeight: 'bold', color:"#637381" }}>
-          Employee Details
-        </Typography>
-        <Box component="form" sx={{ mt: 1 }}>
-          <TextField margin="normal" required fullWidth label="User Name" />
-          <TextField margin="normal" required fullWidth label="E-mail" />
-          <TextField margin="normal" required fullWidth label="Mobile Number" />
-          <TextField margin="normal" required fullWidth label="Address" />
-          <FormControl margin="normal" required fullWidth>
-          <InputLabel id="role-label">Role</InputLabel>
-          <Select
-            labelId="role-label"
-            label="Role"
-          >
-            <MenuItem value="admin">Admin</MenuItem>
-            <MenuItem value="employee">Employee</MenuItem>
-          </Select>
-        </FormControl>
-          <TextField margin="normal" required fullWidth label="Password" type="password" />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
+            component="main"
             sx={{
-              mt: 3,
-              mb: 2,
-              backgroundColor: '#752888',
-              '&:hover': {
-                backgroundColor: '#C63DE7',
-              },
-              fontFamily: 'Public Sans, sans-serif',
-              fontWeight: 'bold',
+              backgroundColor: (theme) =>
+                theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+              flexGrow: 1,
+              height: '100vh',
+              overflow: 'auto',
             }}
           >
-            Register
-          </Button>
-        </Box>
-      </Box>
+            <Toolbar />
+            <Container>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  marginTop: 4,
+                  padding: 3,
+                  backgroundColor: '#fff',
+                  borderRadius: 1,
+                  boxShadow: 3,
+                  maxWidth: 500,
+                  width: '100%',
+                  mx: 'auto',
+                }}
+              >
+                <Typography component="h1" variant="h5" gutterBottom sx={{ fontFamily: 'Public Sans, sans-serif', fontWeight: 'bold', color: "#637381" }}>
+                  Employee Details
+                </Typography>
+                <Box component="form" sx={{ mt: 1 }} onSubmit={handleSubmit}>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="User Name"
+                    name="name"
+                    value={form.name}
+                    onChange={handleInputChange}
+                  />
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="E-mail"
+                    name="email"
+                    value={form.email}
+                    onChange={handleInputChange}
+                  />
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Mobile Number"
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleInputChange}
+                  />
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Address"
+                    name="address"
+                    value={form.address}
+                    onChange={handleInputChange}
+                  />
+                  <FormControl margin="normal" required fullWidth>
+                    <InputLabel id="role-label">Role</InputLabel>
+                    <Select
+                      labelId="role-label"
+                      label="Role"
+                      name="role"
+                      value={form.role}
+                      onChange={handleInputChange}
+                    >
+                      <MenuItem value="admin">Admin</MenuItem>
+                      <MenuItem value="employee">Employee</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Password"
+                    name="password"
+                    type="password"
+                    value={form.password}
+                    onChange={handleInputChange}
+                  />
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{
+                      mt: 3,
+                      mb: 2,
+                      backgroundColor: '#752888',
+                      '&:hover': {
+                        backgroundColor: '#C63DE7',
+                      },
+                      fontFamily: 'Public Sans, sans-serif',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Register
+                  </Button>
+                </Box>
+              </Box>
 
-      {/* Table Section */}
-      <Box sx={{ mt: 4 }}>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>User Name</TableCell>
-                <TableCell>E-mail</TableCell>
-                <TableCell>Mobile</TableCell>
-                <TableCell>Address</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Password</TableCell>
-                <TableCell>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {/* Example Data Row */}
-              {Array.from({ length: 2 }).map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell>xxx</TableCell>
-                  <TableCell>xxx</TableCell>
-                  <TableCell>xxx</TableCell>
-                  <TableCell>xxx</TableCell>
-                  <TableCell>xxx</TableCell>
-                  <TableCell>xxx</TableCell>
-                  <TableCell>
-                    <IconButton color="primary">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton color="secondary">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-          </Container>
+              {/* Table Section */}
+              <Box sx={{ mt: 4 }}>
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>User Name</TableCell>
+                        <TableCell>E-mail</TableCell>
+                        <TableCell>Mobile</TableCell>
+                        <TableCell>Address</TableCell>
+                        <TableCell>Role</TableCell>
+                        <TableCell>Password</TableCell>
+                        <TableCell>Action</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {employees.map((employee) => (
+                        <TableRow key={employee._id}>
+                          <TableCell>{employee.name}</TableCell>
+                          <TableCell>{employee.email}</TableCell>
+                          <TableCell>{employee.phone}</TableCell>
+                          <TableCell>{employee.address}</TableCell>
+                          <TableCell>{employee.role}</TableCell>
+                          <TableCell>{employee.password}</TableCell>
+                          <TableCell>
+                            <IconButton color="primary">
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton color="secondary">
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            </Container>
+          </Box>
         </Box>
-      </Box>
-    </ThemeProvider>
-        </div>
-    )
+      </ThemeProvider>
+    </div>
+  );
 }

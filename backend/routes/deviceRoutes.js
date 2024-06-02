@@ -14,6 +14,6 @@ router.put("/updateDevice/:id", deviceController.updateDevice);
 router.delete("/deleteDevice/:id", deviceController.deleteDevice);
 
 // Route for getting a single device by ID
-router.get("/getOneDevice/:id", deviceController.getOneDevice);
+router.get("/getOneDevice/:emiNumber", deviceController.getOneDevice);
 
 module.exports = router;

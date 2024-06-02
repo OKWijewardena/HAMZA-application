@@ -15,9 +15,12 @@ router.put("/updateSelling/:id", sellingController.updateSelling);
 router.delete("/deleteSelling/:id", sellingController.deleteSelling);
 
 // Route for getting a single selling record by ID
-router.get("/getOneSelling/:id", sellingController.getOneSelling);
+router.get("/getOneSelling/:civilID", sellingController.getOneSelling);
+
+// Route for getting a single selling record by ID
+router.get("/getOneSellingID/:id", sellingController.getOneSellingID);
 
 // Route for updating payment history in a selling record
-router.get("/paymentHistory", sellingController.updatePaymentHistory);
+router.post("/paymentHistory", sellingController.updatePaymentHistory);
 
 module.exports = router;

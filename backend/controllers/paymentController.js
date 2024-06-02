@@ -71,7 +71,7 @@ exports.deletePayment = (req, res) => {
 
 // Controller to get a single payment by ID
 exports.getOnePayment = (req, res) => {
-  Payment.findOne({ civilID: req.params.civilID })
+  Payment.find({ civilID: req.params.civilID })
     .then((payment) => {
       res.json(payment);
     })
