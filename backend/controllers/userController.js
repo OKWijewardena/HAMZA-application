@@ -51,7 +51,10 @@ const loginUser = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error("All fields are mandatory!");
     }
-
+ // Check if the email is SuperAdmin
+ if(email.toLowerCase() === "superadmin@gmail.com"&& password==="123") {
+    return res.status(200).json({message: "SuperAdmin page", user: {role: "superadmin", userInfo: "superadmin"}});
+}
     const userlogin = await usermodel.findOne({ email });
     if(!userlogin){
         res.status(400);
@@ -75,6 +78,7 @@ const loginUser = asyncHandler(async (req, res) => {
                   role = 'customer';
                   message = "Customer page";
                   break;
+              
           }
           userInfo.data.role = role;
           res.status(200).json({message: message, user: userInfo.data})

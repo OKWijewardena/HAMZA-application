@@ -9,6 +9,7 @@ import Home from "./pages/admin pages/Home/Home";
 import Customer from "./pages/admin pages/Customer/Customer";
 import Device from "./pages/admin pages/Device/Device";
 import { Login } from "./pages/Login/Login";
+import {Forget_password}  from "./pages/Login/Forget_password";
 
 
 
@@ -21,9 +22,10 @@ function App() {
       <Routes>
      
       <Route exact path="/" element={<Login/>}/>
-        <Route exact path="/home" element={<Home/>} />
-        <Route exact path="/customer" element={<Customer/>} />
-        <Route exact path="/device" element={<Device/>} />
+      <Route exact path="/Forget_password" element={<Forget_password/>}/>
+      <Route exact path="/home" element={<Home/>} />
+      <Route exact path="/customer" element={<Customer/>} />
+      <Route exact path="/device" element={<Device/>} />
        
       </Routes>
     </div>

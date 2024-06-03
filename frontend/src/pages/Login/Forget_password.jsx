@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+
 const useStyles = makeStyles({
     label: {
         color: 'rgb(117, 40, 136)',
@@ -32,10 +33,9 @@ const useStyles = makeStyles({
   },
 });
 
-export const Login = () => {
+export const Forget_password = () => {
 
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
 
@@ -57,39 +57,23 @@ export const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Log the email and password
-    console.log(`Email: ${email}`);
-    console.log(`Password: ${password}`);
-    try {
-      const res = await axios.post('http://localhost:8000/api/users/login', { email, password });
-      sessionStorage.setItem('user', JSON.stringify(res.data.user)); // Store user details in session
   
-      switch(res.data.user.role) { // Access role from user object
-        case 'admin':
-          navigate('/admin');
-          break;
-        case 'employee':
-          navigate('/employee');
-          break;
-        case 'customer':
-          navigate('/customer');
-          break;
-        case 'superadmin': // Add this case
-          navigate('/superadmin');
-          break;
-        default:
-          throw new Error('Role not recognized');
-      }
-    } catch (err) {
+    console.log(`Email: ${email}`);
+   
+    try {
+      axios
+      .post('http://localhost:8000/api/forgot-password', { email })
+      .then((res) => {
+        if (res.data.Status === 'Success') {
+          navigate('/login');
+        }
+      })
+      } 
+    catch (err) {
       console.error(err);
       alert('Password not matched!');
     }
   }
-
-
-
-
-
 
 
 
@@ -100,21 +84,12 @@ export const Login = () => {
 
         <Grid align='center'>
           <Avatar style={avatarStyle}><LockOutlinedIcon/></Avatar>
-          <h2 style={{color: 'rgb(117, 40, 136)'}}>Sign In</h2>
+          <h2 style={{color: 'rgb(117, 40, 136)'}}>Forget Password</h2>
    
         </Grid>
         <TextField className={classes.root} label='Username' placeholder='Enter username' fullWidth required value={email} onChange={(e) => setEmail(e.target.value)}/>
-        <TextField className={classes.root} label='Password' placeholder='Enter password' type='password' fullWidth required value={password} onChange={(e) => setPassword(e.target.value)}/>
-        <FormControlLabel
-  control={
-    <Checkbox
-      name="checkedB"
-      style={{color: 'rgb(117, 40, 136)'}}
-    />
-  }
-  label="Remember me"
-  style={{color: 'rgb(0, 0, 0)'}}
-/>
+       
+       
 
 <Button 
             type='submit' 
@@ -125,8 +100,8 @@ export const Login = () => {
   Sign in
 </Button>
         <Typography style={{color: 'rgb(117, 40, 136)'}}>
-          <Link href="/forget_password"  style={{color: 'rgb(117, 40, 136)'}}>
-            Forgot password ?
+          <Link href="/"  style={{color: 'rgb(117, 40, 136)'}}>
+            You want To Sign In
           </Link>
         </Typography>
         
