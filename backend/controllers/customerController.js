@@ -18,67 +18,69 @@ const getusers=asyncHandler(async(req, res) => {
 //@route post /api/ customer / register
 //@access public
 
-const registerCustomer = asyncHandler(async(req, res) => {
-    const { name, email, password, civil_id, nationality, mobile, whatsapp_no, telephone_no, address, paci_number } = req.body;
-    if (!name || !email || !password || !civil_id || !nationality || !mobile || !whatsapp_no || !telephone_no || !address || !paci_number) {
-        res.status(400);
-        throw new Error("All fields are mandatory");
-    }
-    // Validate name
-    if (!validator.isAlpha(name, 'en-US', {ignore: ' '})) {
-        res.status(400);
-        throw new Error("Name cannot have numbers");
-    }
+const registerCustomer = asyncHandler(async (req, res) => {
+  const { name, email, password, civil_id, nationality, mobile, whatsapp_no, telephone_no, address, paci_number } = req.body;
 
-    // Validate email
-    if (!validator.isEmail(email)) {
-        res.status(400);
-        throw new Error("Invalid email format");
-    }
+  // Check for all required fields
+  if (!name || !email || !password || !civil_id || !nationality || !mobile || !whatsapp_no || !telephone_no || !address || !paci_number) {
+    return res.status(400).json({ message: "All fields are mandatory" });
+  }
 
-    // Validate nationality
-    if (!validator.isAlpha(nationality, 'en-US')) {
-        res.status(400);
-        throw new Error("Nationality cannot have numbers");
-    }
+  // Validate name
+  if (!validator.isAlpha(name, 'en-US', { ignore: ' ' })) {
+    return res.status(400).json({ message: "Name cannot have numbers" });
+  }
 
-    // Validate mobile, whatsapp_no, and telephone_no
-    if (!validator.isNumeric(mobile.toString()) || !validator.isNumeric(whatsapp_no.toString()) || !validator.isNumeric(telephone_no.toString())) {
-        res.status(400);
-        throw new Error("Phone numbers cannot have letters");
-    }
+  // Validate email
+  if (!validator.isEmail(email)) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
 
-   const customerAvailable=await customerModel.findOne({email});
-   if(customerAvailable){
-    res.status(400);
-    throw new Error("users on mention email address already exist");
-   }
+  // Validate mobile, whatsapp_no, and telephone_no
+  if (!validator.isNumeric(mobile.toString()) || !validator.isNumeric(whatsapp_no.toString()) || !validator.isNumeric(telephone_no.toString())) {
+    return res.status(400).json({ message: "Phone numbers cannot have letters" });
+  }
 
-   //has password
-   const hashedPassword=await bcrypt.hash(password,10);
-   //create new customer
+  // Check if customer already exists
+  const customerAvailable = await customerModel.findOne({ email });
+  if (customerAvailable) {
+    return res.status(400).json({ message: "User with this email address already exists" });
+  }
 
-   try {
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Create new customer
+  try {
     const customer = await customerModel.create({
-        name,
-        email,
-        password: hashedPassword,
-        civil_id,
-        nationality,
-        address,
-        paci_number,
-        mobile,
-        whatsapp_no,
-        telephone_no
+      name,
+      email,
+      password: hashedPassword,
+      civil_id,
+      nationality,
+      address,
+      paci_number,
+      mobile,
+      whatsapp_no,
+      telephone_no,
     });
-    console.log("customer create success", customer)
+
     if (customer) {
-        res.status(201).json({ id: customer.id, email: customer.email, civil_id: customer.civil_id, nationality: customer.nationality, address: customer.address, mobile: customer.mobile, whatsapp_no: customer.whatsapp_no, telephone_no: customer.telephone_no, paci_number: customer.paci_number })
+      return res.status(201).json({ 
+        id: customer.id, 
+        email: customer.email, 
+        civil_id: customer.civil_id, 
+        nationality: customer.nationality, 
+        address: customer.address, 
+        mobile: customer.mobile, 
+        whatsapp_no: customer.whatsapp_no, 
+        telephone_no: customer.telephone_no, 
+        paci_number: customer.paci_number 
+      });
     }
-} catch (error) {
-    res.status(400);
-    throw new Error(error.message);
-}
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
 });
 
   
@@ -143,12 +145,6 @@ if (!validator.isEmail(updateData.email)) {
     throw new Error("Invalid email format");
 }
 
-// Validate nationality
-if (!validator.isAlpha(updateData.nationality, 'en-US')) {
-    res.status(400);
-    throw new Error("Nationality cannot have numbers");
-}
-
 // Validate mobile, whatsapp_no, and telephone_no
 if (!validator.isNumeric(updateData.mobile.toString()) || !validator.isNumeric(updateData.whatsapp_no.toString()) || !validator.isNumeric(updateData.telephone_no.toString())) {
     res.status(400);
@@ -194,6 +190,8 @@ const deleteCustomer=asyncHandler(async(req,res)=>{
 
     res.status(200).json({ message: "User deleted successfully" });
 });
+
+
 
 module.exports={registerCustomer,getCustomer,updateCustomer,deleteCustomer,getusers,getCivil_idCustomer};
 

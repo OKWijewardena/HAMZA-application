@@ -48,7 +48,7 @@ export const Login = () => {
     margin:"0 auto",
     borderRadius: '15px', 
     textAlign: 'center',
-    backgroundColor: 'rgb(224 206 229)', // Glassy effect, little bit bluer and transparent
+    backgroundColor: 'white', // Glassy effect, little bit bluer and transparent
   }
   const avatarStyle={backgroundColor:'rgba(218 188 225)'}
   const btnstyle={margin:'8px 0'}
@@ -63,16 +63,21 @@ export const Login = () => {
     try {
       const res = await axios.post('http://localhost:8000/api/users/login', { email, password });
       sessionStorage.setItem('user', JSON.stringify(res.data.user)); // Store user details in session
+      console.log(res.data.user);
   
       switch(res.data.user.role) { // Access role from user object
         case 'admin':
-          navigate('/admin');
+          navigate('/ehome');
           break;
         case 'employee':
-          navigate('/employee');
+          navigate('/ehome');
           break;
         case 'customer':
-          navigate('/customer');
+          
+          navigate('/customerhome');
+          break;
+          case 'superadmin':
+          navigate('/home');
           break;
         case 'superadmin': // Add this case
           navigate('/superadmin');
@@ -103,7 +108,7 @@ export const Login = () => {
           <h2 style={{color: 'rgb(117, 40, 136)'}}>Sign In</h2>
    
         </Grid>
-        <TextField className={classes.root} label='Username' placeholder='Enter username' fullWidth required value={email} onChange={(e) => setEmail(e.target.value)}/>
+        <TextField className={classes.root} label='Email' placeholder='Enter email' fullWidth required value={email} onChange={(e) => setEmail(e.target.value)}/>
         <TextField className={classes.root} label='Password' placeholder='Enter password' type='password' fullWidth required value={password} onChange={(e) => setPassword(e.target.value)}/>
         <FormControlLabel
   control={

@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
@@ -24,6 +25,11 @@ import image3 from '../../../images/3.png';
 import image4 from '../../../images/4.png';
 import image5 from '../../../images/5.png';
 import image from '../../../images/image.png';
+
+import {
+   Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow
+} from '@mui/material';
 
 const drawerWidth = 240;
 
@@ -75,6 +81,52 @@ const mdTheme = createTheme();
 
 function DashboardContent() {
   const [open, setOpen] = React.useState(true);
+  const [payments, setPayments] = useState([]);
+
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
+  const fetchPayments = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/payment/getPayment');
+      setPayments(response.data);
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+    }
+  };
+
+  const calculateDailyIncome = () => {
+    const today = new Date().toISOString().split('T')[0]; // Format as 'YYYY-MM-DD'
+    const totalDailyIncome = payments.reduce((total, payment) => {
+      const paymentDate = new Date(payment.date).toISOString().split('T')[0];
+      if (paymentDate === today) {
+        return total + parseFloat(payment.price);
+      }
+      return total;
+    }, 0);
+    return totalDailyIncome;
+  };
+  
+  const calculateMonthlyIncome = () => {
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1; // Months are 0-based, so add 1
+    const currentYear = today.getFullYear();
+    const totalMonthlyIncome = payments.reduce((total, payment) => {
+      const paymentDate = new Date(payment.date);
+      const paymentMonth = paymentDate.getMonth() + 1;
+      const paymentYear = paymentDate.getFullYear();
+      if (paymentMonth === currentMonth && paymentYear === currentYear) {
+        return total + parseFloat(payment.price);
+      }
+      return total;
+    }, 0);
+    return totalMonthlyIncome;
+  };
+  
+  const dailyIncome = calculateDailyIncome();
+  const monthlyIncome = calculateMonthlyIncome();
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -156,7 +208,7 @@ function DashboardContent() {
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Container maxWidth="" sx={{ mt: 4, mb: 4 }}>
           <Box sx={{ flexGrow: 1, p: 2 }}>
       <Grid container spacing={3}>
         {/* Welcome Card */}
@@ -204,7 +256,7 @@ function DashboardContent() {
               Daily Income
               </Typography>
               <Typography variant="h4" component="p">
-                18,765
+              {dailyIncome}
               </Typography>
             </Box>
             <Box>
@@ -220,7 +272,7 @@ function DashboardContent() {
                 Monthly Income
               </Typography>
               <Typography variant="h4" component="p">
-                18,765
+              {monthlyIncome}
               </Typography>
             </Box>
             <Box>

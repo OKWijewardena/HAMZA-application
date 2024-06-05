@@ -5,6 +5,10 @@ const selling = new mongoose.Schema({
     deviceName : {
         type : String,
         required : true
+    },
+    emiNumber : {
+      type : String,
+      required : true
     }, 
     customerName : {
         type : String,
@@ -29,6 +33,10 @@ const selling = new mongoose.Schema({
     advance : {
         type : String,
         required : true
+    },
+    imageName : {
+      type : String,
+      required : true
     },
     balance : {
         type : String,

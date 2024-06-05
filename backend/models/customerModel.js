@@ -14,7 +14,7 @@ const customerSchema = mongoose.Schema({
         required: [true, "Please add user password"],
     },
     civil_id:{
-        type:Number,
+        type:String,
         required:[true,"Please add the phone number"],
         unique:[true,"Email civil id already taken"],
     },
@@ -47,4 +47,4 @@ const customerSchema = mongoose.Schema({
 { timestamps: true }
 );
  
-module.exports=mongoose.model("customer",customerSchema); 
+module.exports=mongoose.model("customer",customerSchema);

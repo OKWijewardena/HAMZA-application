@@ -4,6 +4,7 @@ const errorHandler = require("./middleware/errorHandler");
 const dotenv=require("dotenv").config();
 const cors = require("cors"); 
 const puppeteer = require('puppeteer');
+const path = require('path');
 
 connectionDb();
 const app=express();
@@ -13,6 +14,12 @@ const PORT = process.env.PORT || 8000;
 
 //app.use =middeleware
 app.use(express.json());
+
+// Define the path to the images folder
+const imagesPath = path.join(__dirname, 'frontend/src/images/deviceImages');
+
+// Serve static files from the images directory
+app.use('/images/deviceImages', express.static(imagesPath));
 
 app.use("/api/device", require("./routes/deviceRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));

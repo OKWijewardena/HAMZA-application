@@ -1,8 +1,8 @@
 const Selling = require("../models/sellingModel");
-
+const asyncHandler = require("express-async-handler");
 // Controller to add a new selling record
 exports.addSelling = async (req, res) => {
-    const { deviceName, customerName, civilID, price, months, date, advance } = req.body;
+    const { deviceName, emiNumber, customerName, civilID, price, months, date, advance, imageName } = req.body;
     
     const currentbalance = parseFloat(price) * parseFloat(months);
     const balance = String(currentbalance);
@@ -25,12 +25,14 @@ exports.addSelling = async (req, res) => {
   
     const newAddSelling = new Selling({
       deviceName,
+      emiNumber,
       customerName,
       civilID,
       price,
       months,
       date,
       advance,
+      imageName,
       balance,
       customArray
     });
@@ -61,6 +63,7 @@ exports.updateSelling = async (req, res) => {
   const {
     deviceName,
     customerName,
+    emiNumber,
     price,
     months,
     date,
@@ -71,6 +74,7 @@ exports.updateSelling = async (req, res) => {
   const updateSellingRecord = {
     deviceName,
     customerName,
+    emiNumber,
     price,
     months,
     date,
@@ -99,8 +103,19 @@ exports.deleteSelling = (req, res) => {
     });
 };
 
-// Controller to get a single selling record by ID
 exports.getOneSelling = (req, res) => {
+  Selling.find({ civilID: req.params.civilID })
+    .then((sellingRecord) => {
+      res.json(sellingRecord);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: "Error retrieving selling record" });
+    });
+};
+
+// Controller to get a single selling record by ID
+exports.getOneSellingID = (req, res) => {
   Selling.findOne({ _id: req.params.id })
     .then((sellingRecord) => {
       res.json(sellingRecord);
@@ -112,10 +127,10 @@ exports.getOneSelling = (req, res) => {
 };
 
 exports.updatePaymentHistory = async (req, res) => {
-  const { civilID, date, payment } = req.body;
+  const { civilID, emiNumber, date, payment } = req.body;
 
   try {
-    const selling = await Selling.findOne({ civilID });
+    const selling = await Selling.findOne({ civilID, emiNumber });
 
     if (!selling) {
       return res.status(404).json({ message: "Selling record not found" });
