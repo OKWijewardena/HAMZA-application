@@ -18,14 +18,12 @@ const getusers=asyncHandler(async(req, res) => {
 //@route post /api/ customer / register
 //@access public
 
-const registerCustomer=asyncHandler(async(req,res)=>{
-   const{name,email,password,civil_id,nationality,area,block,street,building_no,mobile,whatsapp_no,telephone_no}=req.body;
-   if(!name||!email||!password||!civil_id||!nationality||!area||!street||!building_no||!mobile||!whatsapp_no||!telephone_no)
-   {
-    res.status(400);
-    throw new Error("All field are mendotory");
-   }
-   
+const registerCustomer = asyncHandler(async(req, res) => {
+    const { name, email, password, civil_id, nationality, mobile, whatsapp_no, telephone_no, address, paci_number } = req.body;
+    if (!name || !email || !password || !civil_id || !nationality || !mobile || !whatsapp_no || !telephone_no || !address || !paci_number) {
+        res.status(400);
+        throw new Error("All fields are mandatory");
+    }
     // Validate name
     if (!validator.isAlpha(name, 'en-US', {ignore: ' '})) {
         res.status(400);
@@ -60,27 +58,27 @@ const registerCustomer=asyncHandler(async(req,res)=>{
    const hashedPassword=await bcrypt.hash(password,10);
    //create new customer
 
-   const customer = await customerModel.create({
-    name,
-    email,
-    password:hashedPassword,
-    civil_id,
-    nationality,
-    area,
-    block,
-    street,
-    building_no,
-    mobile,
-    whatsapp_no,
-    telephone_no
-   });
-   console.log("customer create success",customer)
-   if(customer){
-    res.status(201).json({id:customer.id,email:customer.email,civil_id:customer.civil_id,nationality:customer.nationality,area:customer.area,block:customer.block,street:customer.street,building_no:customer.building_no,mobile:customer.mobile,whatsapp_no:customer.whatsapp_no,telephone_no:customer.telephone_no})
-   }else{
+   try {
+    const customer = await customerModel.create({
+        name,
+        email,
+        password: hashedPassword,
+        civil_id,
+        nationality,
+        address,
+        paci_number,
+        mobile,
+        whatsapp_no,
+        telephone_no
+    });
+    console.log("customer create success", customer)
+    if (customer) {
+        res.status(201).json({ id: customer.id, email: customer.email, civil_id: customer.civil_id, nationality: customer.nationality, address: customer.address, mobile: customer.mobile, whatsapp_no: customer.whatsapp_no, telephone_no: customer.telephone_no, paci_number: customer.paci_number })
+    }
+} catch (error) {
     res.status(400);
-    throw new Error("data is not valid")
-   }
+    throw new Error(error.message);
+}
 });
 
   

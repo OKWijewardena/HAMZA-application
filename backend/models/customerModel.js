@@ -22,21 +22,13 @@ const customerSchema = mongoose.Schema({
         type:String,
         required:[true,"Please add the civil id"],
     },
-    area:{
+    address:{
         type:String,
-        required:[true,"Please add the area"],
+        required:[true,"Please add the address"],
     },
-    block:{
+    paci_number:{
         type:String,
-        required:[true,"Please add the block"],
-    },
-    street:{
-        type:String,
-        required:[true,"Please add the street"],
-    },
-    building_no:{
-        type:Number,
-        required:[true,"Please add the building no"],
+        required:[true,"Please add the Paci number"],
     },
    mobile:{
     type:Number,
