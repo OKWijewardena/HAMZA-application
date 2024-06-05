@@ -449,14 +449,14 @@ sx={{
           <TableHead>
             <TableRow>
             <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Device Name</TableCell>
-        <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Quantity</TableCell>
+      
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Price </TableCell>
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Color </TableCell>
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Shop Name</TableCell>
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Model Number</TableCell>
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Storage</TableCell>
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Warrenty</TableCell>
-        <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>EMEI iNumber</TableCell>
+        <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>EMEI Number</TableCell>
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Purchase Date</TableCell>
             </TableRow>
           </TableHead>
@@ -464,7 +464,7 @@ sx={{
           {data.length > 0 && data.map((item, index) => (
               <TableRow key={index}>
                 <TableCell>{item.deviceName}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
+               
                 <TableCell>{item.price}</TableCell>
                 <TableCell>{item.color}</TableCell>
                 <TableCell>{item.shopName}</TableCell>

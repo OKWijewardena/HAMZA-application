@@ -294,22 +294,22 @@ sx={{
       <TextField margin="normal"  fullWidth label="E-mail" value={email} onChange={e => setemail(e.target.value)}  />
     </Grid>
     <Grid item xs={12} sm={3}>
-      <TextField margin="normal"  fullWidth label="civil_id" value={civil_id} onChange={e => setcivil_id(e.target.value)}  />
+      <TextField margin="normal"  fullWidth label="Civil_id" value={civil_id} onChange={e => setcivil_id(e.target.value)}  />
     </Grid>
     <Grid item xs={12} sm={3}>
-      <TextField margin="normal"  fullWidth label="nationality" value={nationality} onChange={e => setnationality(e.target.value)} />
+      <TextField margin="normal"  fullWidth label="Nationality" value={nationality} onChange={e => setnationality(e.target.value)} />
     </Grid>
     <Grid item xs={12} sm={3}>
-      <TextField margin="normal"  fullWidth label="address" value={address} onChange={e => setaddress(e.target.value)}  />
+      <TextField margin="normal"  fullWidth label="Address" value={address} onChange={e => setaddress(e.target.value)}  />
     </Grid>
     <Grid item xs={12} sm={3}>
-      <TextField margin="normal"  fullWidth label="mobile" value={mobile} onChange={e => setmobile(e.target.value)}/>
+      <TextField margin="normal"  fullWidth label="Mobile" value={mobile} onChange={e => setmobile(e.target.value)}/>
     </Grid>
     <Grid item xs={12} sm={3}>
-      <TextField margin="normal"  fullWidth label="whatsapp_no" value={whatsapp_no} onChange={e => setwhatsapp_no(e.target.value)}  />
+      <TextField margin="normal"  fullWidth label="Whatsapp Number" value={whatsapp_no} onChange={e => setwhatsapp_no(e.target.value)}  />
     </Grid>
     <Grid item xs={12} sm={3}>
-      <TextField margin="normal"  fullWidth label="telephone_no" value={telephone_no} onChange={e => settelephone_no(e.target.value)} />
+      <TextField margin="normal"  fullWidth label="Telephone Number" value={telephone_no} onChange={e => settelephone_no(e.target.value)} />
     </Grid>
     
   </Grid>
@@ -406,10 +406,10 @@ sx={{
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Civil Id</TableCell>
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Nationality</TableCell>
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Address</TableCell>
-        <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Paci No</TableCell>
+        <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Paci Number</TableCell>
         <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Mobile</TableCell>
-        <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Whatsapp No</TableCell>
-        <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Telephone No</TableCell>
+        <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Whatsapp Number</TableCell>
+        <TableCell style={{ backgroundColor: '#752888', color: 'white' }}>Telephone Number</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
