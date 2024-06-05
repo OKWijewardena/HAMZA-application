@@ -34,6 +34,7 @@ app.use("/", require("./routes/invoicePdfRouter"));
 app.use("/",require("./routes/devicePdfRoutes"));
 app.use("/",require("./routes/customerpdfRoutes"));
 app.use("/",require("./routes/employeeAndAdminPdfRoutes"));
+app.use("/api",require("./routes/forgetPassword"));
 //Run on port
 app.listen(PORT, () => {
   console.log(`Server is up and running on port number : ${PORT}`);

@@ -80,6 +80,7 @@ const loginUser = asyncHandler(async (req, res) => {
                   role = 'customer';
                   message = "Customer page";
                   break;
+              
           }
           userInfo.data.role = role;
           res.status(200).json({message: message, user: userInfo.data})

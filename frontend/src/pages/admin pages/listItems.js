@@ -74,23 +74,43 @@ export const secondaryListItems = (
     <ListSubheader component="div" inset>
       Saved reports
     </ListSubheader>
+
+    <Link to="/CustomerList" style={{textDecoration: 'none', color:"black"}}>
     <ListItemButton>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
       <ListItemText primary="Customer List" />
     </ListItemButton>
+    </Link>
+
+    
+    <Link to="/DeviceList" style={{textDecoration: 'none', color:"black"}}>
     <ListItemButton>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
       <ListItemText primary="Devices List" />
     </ListItemButton>
+    </Link>
+    
+    <Link to="/EmployeeList" style={{textDecoration: 'none', color:"black"}}>
     <ListItemButton>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
       <ListItemText primary="Employee List" />
     </ListItemButton>
+    </Link>
+
+    <Link to="/PaymentList" style={{textDecoration: 'none', color:"black"}}>
+    <ListItemButton>
+      <ListItemIcon>
+        <AssignmentIcon />
+      </ListItemIcon>
+      <ListItemText primary="Payment List" />
+    </ListItemButton>
+    </Link>
   </React.Fragment>
+  
 );

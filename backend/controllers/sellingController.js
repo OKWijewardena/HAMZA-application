@@ -1,5 +1,5 @@
 const Selling = require("../models/sellingModel");
-
+const asyncHandler = require("express-async-handler");
 // Controller to add a new selling record
 exports.addSelling = async (req, res) => {
     const { deviceName, emiNumber, customerName, civilID, price, months, date, advance, imageName } = req.body;

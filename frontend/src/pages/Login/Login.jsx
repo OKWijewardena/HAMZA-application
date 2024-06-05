@@ -79,6 +79,9 @@ export const Login = () => {
           case 'superadmin':
           navigate('/home');
           break;
+        case 'superadmin': // Add this case
+          navigate('/superadmin');
+          break;
         default:
           throw new Error('Role not recognized');
       }
@@ -127,15 +130,11 @@ export const Login = () => {
   Sign in
 </Button>
         <Typography style={{color: 'rgb(117, 40, 136)'}}>
-          <Link href="#"  style={{color: 'rgb(117, 40, 136)'}}>
+          <Link href="/forget_password"  style={{color: 'rgb(117, 40, 136)'}}>
             Forgot password ?
           </Link>
         </Typography>
-        <Typography style={{color: 'rgb(0, 0, 0)'}}> Do you have an account ?
-          <Link href="#" style={{color: 'rgb(117, 40, 136)'}}>
-            Sign Up 
-          </Link>
-        </Typography>
+        
         </form>
       </Paper>
     </Grid>

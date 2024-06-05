@@ -17,6 +17,7 @@ export default function CustomerHome() {
 if (user) {
   const email = user.email;
   console.log('Email:', email); // You can use the email as needed
+  
 } else {
   console.log('No user data found in session storage');
 }
