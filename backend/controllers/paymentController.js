@@ -20,7 +20,7 @@ exports.addPayment = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).json({ error: "Error adding new payment" });
+      res.status(5 m 00).json({ error: "Error adding new payment" });
     });
 };
 
@@ -82,4 +82,4 @@ exports.getOnePayment = (req, res) => {
 
 };
 
-const getPaymentsByCivilId= s
+
