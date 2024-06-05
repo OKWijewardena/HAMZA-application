@@ -130,6 +130,17 @@ exports.deleteDevice = async (req, res) => {
     }
   };
 
+  exports.deleteDeviceEMI = async (req, res) => {
+    try {
+      // You should provide a query object with the field and value you're looking for
+      await Device.findOneAndDelete({ emiNumber: req.params.emiNumber });
+      res.status(200).send({ status: "Device Deleted" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+
   exports.getOneDevice = (req, res) => {
     Device.find({ emiNumber: req.params.emiNumber })
       .then((device) => {

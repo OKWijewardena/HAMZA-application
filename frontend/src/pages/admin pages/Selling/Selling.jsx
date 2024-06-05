@@ -155,6 +155,7 @@ export default function Selling() {
     
     try {
       await axios.post('http://localhost:8000/selling/addSelling', NewPurchase);
+      await axios.delete(`http://localhost:8000/device/deleteDeviceemi/${NewPurchase.emiNumber}`);
       alert("New customer device purchased");
       fetchSellings(); // Refresh the selling list after submission
     } catch (err) {

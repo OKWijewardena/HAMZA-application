@@ -13,7 +13,6 @@ import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -82,9 +81,15 @@ const mdTheme = createTheme();
 function DashboardContent() {
   const [open, setOpen] = React.useState(true);
   const [payments, setPayments] = useState([]);
+  const [soldDevicesCount, setSoldDevicesCount] = useState(0);
+  const [unsoldDevicesCount, setUnSoldDevicesCount] = useState(0);
+  const [monthlyInstallments, setMonthlyInstallments] = useState(0)
 
   useEffect(() => {
     fetchPayments();
+    fetchSelinngDetails();
+    fetchDeviceDetails();
+    fetchMonthlySellingDetails();
   }, []);
 
   const fetchPayments = async () => {
@@ -95,6 +100,42 @@ function DashboardContent() {
       console.error('Error fetching payments:', error);
     }
   };
+
+  const fetchSelinngDetails = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/selling/getSelling');
+      setSoldDevicesCount(response.data.length); // Assuming each device represents a sold device
+    } catch (error) {
+      console.error('Error fetching device details:', error);
+    }
+  };
+
+  const fetchDeviceDetails = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/device/getDevice');
+      setUnSoldDevicesCount(response.data.length); // Assuming each device represents a sold device
+    } catch (error) {
+      console.error('Error fetching device details:', error);
+    }
+  };
+
+  const fetchMonthlySellingDetails = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/selling/getSelling');
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      
+      const currentMonthSellings = response.data.filter(selling => {
+        const sellingDate = new Date(selling.date);
+        return sellingDate.getMonth() === currentMonth && sellingDate.getFullYear() === currentYear;
+      });
+
+      setMonthlyInstallments(currentMonthSellings.length);
+    } catch (error) {
+      console.error('Error fetching selling details:', error);
+    }
+  };
+
 
   const calculateDailyIncome = () => {
     const today = new Date().toISOString().split('T')[0]; // Format as 'YYYY-MM-DD'
@@ -288,7 +329,7 @@ function DashboardContent() {
               Sold Devices
               </Typography>
               <Typography variant="h4" component="p">
-                18,765
+              {soldDevicesCount}
               </Typography>
             </Box>
             <Box>
@@ -304,7 +345,7 @@ function DashboardContent() {
               Unsold Devices
               </Typography>
               <Typography variant="h4" component="p">
-                18,765
+              {unsoldDevicesCount}
               </Typography>
             </Box>
             <Box>
@@ -320,7 +361,7 @@ function DashboardContent() {
               Monthly Installments
               </Typography>
               <Typography variant="h4" component="p">
-                18,765
+                {monthlyInstallments}
               </Typography>
             </Box>
             <Box>
