@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useParams } from "react-router-dom";
 import { Box, Typography, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button } from '@mui/material';
 
 export default function CustomerPurchase() {
+
+    const { id } = useParams();
 
     const [sellings, setSellings] = useState([]);
 
@@ -12,7 +15,7 @@ export default function CustomerPurchase() {
 
     const fetchSellings = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/selling/getOneSellingID/665959c19f3ac82b358da9a9');
+            const response = await axios.get(`http://localhost:8000/selling/getOneSellingID/${id}`);
             setSellings(response.data);
         } catch (error) {
             console.error('Error fetching devices:', error);

@@ -121,6 +121,17 @@ export default function Selling() {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8000/selling/deleteSelling/${id}`);
+      alert("Selling record deleted successfully");
+      fetchSellings(); // Refresh the selling list after deletion
+    } catch (error) {
+      console.error('Error deleting selling:', error);
+      alert("An error occurred while deleting the selling record.");
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     
@@ -380,7 +391,7 @@ export default function Selling() {
                             <IconButton color="primary">
                               <EditIcon />
                             </IconButton>
-                            <IconButton color="secondary">
+                            <IconButton color="secondary" onClick={() => handleDelete(selling._id)}>
                               <DeleteIcon />
                             </IconButton>
                           </TableCell>

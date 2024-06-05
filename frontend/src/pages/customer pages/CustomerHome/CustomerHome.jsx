@@ -6,8 +6,22 @@ import FindIcon from '@mui/icons-material/Search'; // Adjust based on your icon 
 
 export default function CustomerHome() {
     const [sellings, setSellings] = useState([]);
+    const [civilID, setCivilID] = useState([]);
+    const [customers, setCustomers] = useState([]);
     const [devices,setDevices] = useState([]);
     const [eminumbers,setEminumbers] = useState();
+
+    const user = JSON.parse(sessionStorage.getItem('user'));
+
+// Check if the user object exists and then access the email property
+if (user) {
+  const email = user.email;
+  console.log('Email:', email); // You can use the email as needed
+} else {
+  console.log('No user data found in session storage');
+}
+
+
 
     useEffect(() => {
         fetchSellings();
@@ -15,24 +29,23 @@ export default function CustomerHome() {
 
     const fetchSellings = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/selling/getOneSelling/cs20');
+          const res = await axios.get(`http://localhost:8000/api/customer/${user.email}`);
+    
+          // Log the response to check its structure
+          console.log('Response data:', res.data);
+      
+          // Since res.data is an object, update the state accordingly
+          setCustomers([res.data]);  // Store it in an array to maintain consistency if needed
+          setCivilID([res.data.civil_id]);  // Set civil_id from the object
+          const CIVILID = res.data.civil_id;
+      
+          console.log('Civil ID:', CIVILID);
+
+            const response = await axios.get(`http://localhost:8000/selling/getOneSelling/${CIVILID}`);
             setSellings(response.data);
             const emiNumbers = response.data.map(selling => selling.emiNumber);
             setEminumbers(emiNumbers);
             console.log(emiNumbers);
-        } catch (error) {
-            console.error('Error fetching devices:', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchDevices();
-    }, []);
-
-    const fetchDevices = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/device/getOneDevice/xq2123');
-            setDevices(response.data);
         } catch (error) {
             console.error('Error fetching devices:', error);
         }
@@ -74,7 +87,7 @@ export default function CustomerHome() {
           </Link>
         </Grid>
         <Grid item xs={12} md={4}>
-          <Box component="img" src="../../../images/image.png" alt="Illustration" sx={{ width: '100%', maxWidth: '200px', height: 'auto' }} />
+          <Box component="img" src="../../../images/customerImage.png" alt="Illustration" sx={{ width: '100%', maxWidth: '200px', height: 'auto' }} />
         </Grid>
       </Grid>
     </Box>
@@ -86,7 +99,7 @@ export default function CustomerHome() {
       <Grid container spacing={3}>
         {sellings.map((selling) => (
           <Grid item xs={12} sm={6} md={4} key={selling._id}>
-            <Link to="/customerpurchase" style={{textDecoration: 'none', color:"black"}}>
+            <Link to={`/customerpurchase/${selling._id}`} style={{textDecoration: 'none', color:"black"}}>
             <Card>
               <CardMedia
                 component="img"

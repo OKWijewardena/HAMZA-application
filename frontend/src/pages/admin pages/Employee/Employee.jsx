@@ -85,6 +85,18 @@ export default function Employee() {
     role: ''
   });
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8000/api/employee&admin/${id}`);
+      await axios.delete(`http://localhost:8000/api/users/${id}`)
+      alert("Employee record deleted successfully");
+      fetchEmployees();// Refresh the employee list after deletion
+    } catch (error) {
+      console.error('Error deleting employee:', error);
+      alert("An error occurred while deleting the selling record.");
+    }
+  };
+
   useEffect(() => {
     fetchEmployees();
   }, []);
@@ -324,7 +336,7 @@ export default function Employee() {
                             <IconButton color="primary">
                               <EditIcon />
                             </IconButton>
-                            <IconButton color="secondary">
+                            <IconButton color="secondary" onClick={() => handleDelete(employee.email)}>
                               <DeleteIcon />
                             </IconButton>
                           </TableCell>

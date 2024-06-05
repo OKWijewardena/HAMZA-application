@@ -101,6 +101,17 @@ export default function Payment() {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`https://hamza-application.onrender.com/payment/deletePayment/${id}`);
+      alert("Selling record deleted successfully");
+      fetchPayments(); // Refresh the selling list after deletion
+    } catch (error) {
+      console.error('Error deleting selling:', error);
+      alert("An error occurred while deleting the selling record.");
+    }
+  };
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -331,7 +342,7 @@ export default function Payment() {
                             <IconButton color="primary">
                               <EditIcon />
                             </IconButton>
-                            <IconButton color="secondary">
+                            <IconButton color="secondary" onClick={() => handleDelete(payment.civilID)}>
                               <DeleteIcon />
                             </IconButton>
                           </TableCell>

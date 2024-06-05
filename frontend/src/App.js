@@ -42,7 +42,7 @@ function App() {
         <Route exact path="/epayment" element={<EPayment/>} />
         <Route exact path="/eselling" element={<ESelling/>} />
         <Route exact path="/customerhome" element={<CustomerHome/>} />
-        <Route exact path="/customerpurchase" element={<CustomerPurchase/>} />
+        <Route exact path="/customerpurchase/:id" element={<CustomerPurchase/>} />
         <Route exact path="/customerdevice" element={<CustomerDevice/>} />
       </Routes>
     </div>

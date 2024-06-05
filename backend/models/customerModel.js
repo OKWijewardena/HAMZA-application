@@ -14,7 +14,7 @@ const customerSchema = mongoose.Schema({
         required: [true, "Please add user password"],
     },
     civil_id:{
-        type:Number,
+        type:String,
         required:[true,"Please add the phone number"],
         unique:[true,"Email civil id already taken"],
     },
@@ -22,21 +22,13 @@ const customerSchema = mongoose.Schema({
         type:String,
         required:[true,"Please add the civil id"],
     },
-    area:{
+    address:{
         type:String,
-        required:[true,"Please add the area"],
+        required:[true,"Please add the address"],
     },
-    block:{
+    paci_number:{
         type:String,
-        required:[true,"Please add the block"],
-    },
-    street:{
-        type:String,
-        required:[true,"Please add the street"],
-    },
-    building_no:{
-        type:Number,
-        required:[true,"Please add the building no"],
+        required:[true,"Please add the Paci number"],
     },
    mobile:{
     type:Number,
@@ -55,4 +47,4 @@ const customerSchema = mongoose.Schema({
 { timestamps: true }
 );
  
-module.exports=mongoose.model("customer",customerSchema); 
+module.exports=mongoose.model("customer",customerSchema);

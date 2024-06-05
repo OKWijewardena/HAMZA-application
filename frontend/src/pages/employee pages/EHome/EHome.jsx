@@ -178,7 +178,7 @@ function DashboardContent() {
               </Typography>
               <Typography variant="h6" component="h3" gutterBottom sx={{ color: '#752888', fontFamily: 'Public Sans, sans-serif',
               fontWeight: 'bold', }}>
-                Super Admin
+                Admin or Employee
               </Typography>
               <Typography variant="body1" component="p" gutterBottom sx={{ color: '#752888', fontFamily: 'Public Sans, sans-serif' }}>
                 If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything.
