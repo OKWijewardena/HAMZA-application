@@ -116,7 +116,7 @@ const DeviceList = () => {
     }, []);
     
     const downloadPDF = () => {
-      fetch('http://localhost:8000/convertdevicePDF', {
+      fetch('http://localhost:8000/api/devicepdf/convertdevicePDF', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'

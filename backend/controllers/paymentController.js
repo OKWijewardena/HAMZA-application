@@ -20,7 +20,7 @@ exports.addPayment = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(5 m 00).json({ error: "Error adding new payment" });
+      res.status().json({ error: "Error adding new payment" });
     });
 };
 
