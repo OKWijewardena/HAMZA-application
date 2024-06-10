@@ -74,6 +74,13 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
   const mdTheme = createTheme();
 const CustomerList = () => {
+  let date = new Date();
+  let day = date.getDate();
+  let month = date.getMonth() + 1; // JavaScript months are 0-based counting
+  let year = date.getFullYear();
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+
     const [originalData, setOriginalData] = useState([]);
 const [data, setData] = useState([]);
 const [name, setname] = useState('');
@@ -127,7 +134,9 @@ const downloadPDF = () => {
       const link = document.createElement('a');
       link.href = url;
       // The downloaded file name
-      link.download = 'CustomerReport.pdf';
+      let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
+
+      link.download = `Customer Report - ${formattedDateTime}.pdf`;
       // Append the link to the body
       document.body.appendChild(link);
       // Simulate click

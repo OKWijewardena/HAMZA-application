@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
+
 exports.convertToDevicePDF = async (req, res) => {
  
   let data = req.body;
