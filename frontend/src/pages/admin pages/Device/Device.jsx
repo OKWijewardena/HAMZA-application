@@ -24,6 +24,13 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
@@ -76,6 +83,8 @@ export default function Device(){
 
     const [open, setOpen] = React.useState(true);
     const [devices, setDevices] = useState([]);
+    const [purchaseDate, setPurchaseDate] = useState(null);
+  const [expireDate, setExpireDate] = useState(null);
     const [form, setForm] = useState({
         deviceName: '',
         price: '',
@@ -85,10 +94,23 @@ export default function Device(){
         storage: '',
         warrenty: '',
         emiNumber: '',
-        purchaseDate: '',
-        expireDate:'',
+        purchaseDate: null, // Clearing the purchaseDate field
+            expireDate:null, // Clearing the expireDate field
         imageName: ''
     });
+    const handlePurchaseDateChange = (date) => {
+        const formattedDate = date ? date.toISOString().split('T')[0] : '';
+        setForm({ ...form, purchaseDate: formattedDate });
+        setPurchaseDate(date); // Update the purchaseDate state
+    };
+    
+    const handleExpireDateChange = (date) => {
+        const formattedDate = date ? date.toISOString().split('T')[0] : '';
+        setForm({ ...form, expireDate: formattedDate });
+        setExpireDate(date); // Update the expireDate state
+    };
+    
+    
 
     const handleDelete = async (id) => {
         try {
@@ -152,6 +174,8 @@ export default function Device(){
                 expireDate:'',
                 imageName: ''
             });
+            setPurchaseDate(null);
+            setExpireDate(null);
             fetchDevices();
         } catch (error) {
             console.error('Error adding devices:', error);
@@ -301,22 +325,31 @@ export default function Device(){
                                         name="emiNumber"
                                         value={form.emiNumber}
                                         onChange={handleInputChange} />
-                                    <TextField margin="normal"
-                                        required
-                                        fullWidth
-                                        label="Purchase Date"
-                                        type="date"
-                                        name="purchaseDate"
-                                        value={form.purchaseDate}
-                                        onChange={handleInputChange} />
-                                    <TextField margin="normal"
-                                        required
-                                        fullWidth
-                                        label="Expire Date"
-                                        type="date"
-                                        name="expireDate"
-                                        value={form.expireDate}
-                                        onChange={handleInputChange} />
+                                   
+                                   <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <DatePicker
+        label="Purchase Date"
+        value={purchaseDate}
+        onChange={handlePurchaseDateChange}
+        renderInput={(params) => (
+            <TextField {...params} fullWidth margin="normal" />
+        )}
+        sx={{ mt: 1, mb: 2, width: '100%', maxWidth: 450 }} // Use 100% width for responsiveness and maxWidth for maximum size
+    />
+    <DatePicker
+        label="Expire Date"
+        value={expireDate}
+        onChange={handleExpireDateChange}
+        renderInput={(params) => (
+            <TextField {...params} fullWidth margin="normal" />
+        )}
+        sx={{ mt: 1, mb: 2, width: '100%', maxWidth: 450 }} // Consistent styling with the Purchase Date picker
+    />
+</LocalizationProvider>
+
+
+
+
                                     <TextField
                                         margin="normal"
                                         required
