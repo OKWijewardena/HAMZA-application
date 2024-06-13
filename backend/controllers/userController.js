@@ -100,13 +100,16 @@ const getregisterduser= asyncHandler(async(req,res)=>{
     console.log(`Searching for user with email: ${email}`);
     const userData = await usermodel.findOne({ email });
     
-    console.log(`Found user: ${JSON.stringify(userData)}`);
     if(!userData){
-        res.status(404);
-        throw new Error("Contact not Email");
-    } 
-    res.status(200).json(userData); // return the user data
+        console.log(`User with email: ${email} is not registered`);
+        res.status(404).json({ message: "User not found" }); // Send a response with the error message
+    } else {
+        console.log(`Found user: ${JSON.stringify(userData)}`);
+        res.status(200).json(userData); // return the user data
+    }
 });
+
+
 
 
 //@desc update user data

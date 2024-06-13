@@ -24,6 +24,8 @@ import CustomerList from "./pages/admin pages/List/customerList";
 import DeviceList from "./pages/admin pages/List/DeviceList"
 import EmployeeList from"./pages/admin pages/List/EmployeeList"
 import PaymentList from "./pages/admin pages/List/PaymentList"
+import {Resetpassword}  from "./pages/Login/Resetpassword";
+
 
 function App() {
   return (
@@ -43,7 +45,8 @@ function App() {
         <Route exact path="/employee" element={<Employee/>} />
         <Route exact path="/payment" element={<Payment/>} />
         <Route exact path="/selling" element={<Selling/>} />
-
+        <Route exact path="/Forget_password" element={<Forget_password/>} />
+        <Route exact path="/Reset_password" element={<Resetpassword/>} />
         <Route exact path="/ehome" element={<EHome/>} />
         <Route exact path="/edevice" element={<EDevice/>} />
         <Route exact path="/epayment" element={<EPayment/>} />
