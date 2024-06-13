@@ -24,6 +24,7 @@ import image3 from '../../../images/3.png';
 import image4 from '../../../images/4.png';
 import image5 from '../../../images/5.png';
 import image from '../../../images/image.png';
+import { Link, useNavigate } from 'react-router-dom';
 
 import {
    Table, TableBody, TableCell, TableContainer,
@@ -79,6 +80,24 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme();
 
 function DashboardContent() {
+
+  const navigate = useNavigate();
+
+  const user = JSON.parse(sessionStorage.getItem('user'));
+
+  if (user) {
+    const role = user.role;
+    console.log('Role:', role);
+    
+  } else {
+    console.log('No user data found in session storage');
+  }
+
+  // Check if the user's role is "superadmin"
+  if (!user || user.role !== "superadmin") {
+    navigate('/not-authorized');
+  }
+
   const [open, setOpen] = React.useState(true);
   const [payments, setPayments] = useState([]);
   const [soldDevicesCount, setSoldDevicesCount] = useState(0);
@@ -275,11 +294,16 @@ function DashboardContent() {
                 Super Admin
               </Typography>
               <Typography variant="body1" component="p" gutterBottom sx={{ color: '#752888', fontFamily: 'Public Sans, sans-serif' }}>
-                If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything.
+              As a Super Admin, you can manage customers, employees, devices, sales, payments, and reports.
               </Typography>
-              <Button variant="contained" sx={{ backgroundColor: '#752888', mt: 2 }}>
+              <Link to={'/report'} style={{textDecoration: 'none'}}>
+              <Button variant="contained" sx={{ backgroundColor: '#752888',
+                      '&:hover': {
+                        backgroundColor: '#C63DE7',
+                      }, mt: 2 }}>
                 Reports
               </Button>
+              </Link>
             </Box>
             <Box
               component="img"
