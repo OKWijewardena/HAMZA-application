@@ -18,6 +18,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../listItems';
 import { MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import { useParams, useNavigate } from "react-router-dom";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
@@ -93,13 +94,20 @@ export default function UpdateEmployee() {
     fetchEmployees();
   }, []);
 
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   function fetchEmployees() {
     let mounted = true;
-    fetch(`http://localhost:8000/api/employee&admin/${id}`)
+    fetch(`http://podsaas.online/api/employee&admin/${id}`)
       .then((res) => res.json())
       .then((result) => {
         console.log(result);
@@ -129,7 +137,7 @@ export default function UpdateEmployee() {
     };
 
     try {
-      await axios.put(`http://localhost:8000/api/employee&admin/${email}`, UpdatedEmployee);
+      await axios.put(`http://podsaas.online/api/employee&admin/${email}`, UpdatedEmployee);
       alert("Employee updated successfully");
       navigate('/employee');
     } catch (error) {
@@ -173,11 +181,11 @@ export default function UpdateEmployee() {
               >
                 SMARTCO
               </Typography>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+              <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
             </Toolbar>
           </AppBar>
           <Drawer variant="permanent" open={open}>

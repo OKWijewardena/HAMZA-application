@@ -16,7 +16,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems } from '../listItems';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
@@ -75,6 +76,8 @@ const mdTheme = createTheme();
 
 export default function EDevice(){
 
+    const navigate = useNavigate();
+
     const [open, setOpen] = React.useState(true);
     const [devices, setDevices] = useState([]);
     const [form, setForm] = useState({
@@ -93,7 +96,7 @@ export default function EDevice(){
 
     const handleDelete = async (id) => {
         try {
-          await axios.delete(`http://localhost:8000/device/deleteDevice/${id}`);
+          await axios.delete(`http://podsaas.online/device/deleteDevice/${id}`);
           alert("Dervice record deleted successfully");
           fetchDevices();// Refresh the selling list after deletion
         } catch (error) {
@@ -106,13 +109,20 @@ export default function EDevice(){
         fetchDevices();
     }, []);
 
+    const handleLogout = () => {
+        // Remove user details from session storage
+        sessionStorage.removeItem('user');
+        console.log('User details cleared from session storage');
+        navigate('/');
+      };
+
     const toggleDrawer = () => {
         setOpen(!open);
     };
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/device/getDevice');
+            const response = await axios.get('http://podsaas.online/device/getDevice');
             setDevices(response.data);
         } catch (error) {
             console.error('Error fetching devices:', error);
@@ -135,7 +145,7 @@ export default function EDevice(){
             formData.append(key, form[key]);
         });
         try {
-            await axios.post('http://localhost:8000/device/addDevice', formData, {
+            await axios.post('http://podsaas.online/device/addDevice', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -193,11 +203,11 @@ export default function EDevice(){
                             >
                                 SMARTCO
                             </Typography>
-                            <IconButton color="inherit">
-                                <Badge badgeContent={4} color="secondary">
-                                    <NotificationsIcon />
-                                </Badge>
-                            </IconButton>
+                            <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
                         </Toolbar>
                     </AppBar>
                     <Drawer variant="permanent" open={open}>
@@ -387,7 +397,7 @@ export default function EDevice(){
         )}
       </TableCell>
                                                     <TableCell>
-                                                        <Link to={`updatedevice/${device.emiNumber}`}>
+                                                        <Link to={`eupdatedevice/${device.emiNumber}`}>
                                                         <IconButton color="primary">
                                                             <EditIcon />
                                                         </IconButton>

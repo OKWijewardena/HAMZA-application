@@ -17,6 +17,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../listItems';
 import { useParams, useNavigate } from "react-router-dom";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
@@ -99,10 +100,17 @@ export default function UpdateDevice(){
         fetchDevices();
       }, []);
 
+      const handleLogout = () => {
+        // Remove user details from session storage
+        sessionStorage.removeItem('user');
+        console.log('User details cleared from session storage');
+        navigate('/');
+      };
+
     function fetchDevices() {
 
         let mounted = true;
-    fetch(`http://localhost:8000/device/getOneDevice/${id}`)
+    fetch(`http://podsaas.online/device/getOneDevice/${id}`)
       .then((res) => res.json())
       .then((result) => {
         console.log(result);
@@ -147,7 +155,7 @@ export default function UpdateDevice(){
           };
 
           axios
-            .put(`http://localhost:8000/device/updateDevice/${deviceID}`, UpdatedDevice)
+            .put(`http://podsaas.online/device/updateDevice/${deviceID}`, UpdatedDevice)
             .then(() => {
                 alert('Device updated successfully!');
               navigate('/device');
@@ -193,11 +201,11 @@ export default function UpdateDevice(){
                             >
                                 SMARTCO
                             </Typography>
-                            <IconButton color="inherit">
-                                <Badge badgeContent={4} color="secondary">
-                                    <NotificationsIcon />
-                                </Badge>
-                            </IconButton>
+                            <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
                         </Toolbar>
                     </AppBar>
                     <Drawer variant="permanent" open={open}>

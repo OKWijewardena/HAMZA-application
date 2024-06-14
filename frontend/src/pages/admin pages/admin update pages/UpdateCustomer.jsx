@@ -17,6 +17,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../listItems';
 import { useParams, useNavigate } from "react-router-dom";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import {
   TextField, Button
@@ -98,9 +99,16 @@ export default function UpdateCustomer(){
     fetchCustomers();
   }, []);
 
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
+
   function fetchCustomers() {
     let mounted = true;
-    fetch(`http://localhost:8000/api/customer/${id}`)
+    fetch(`http://podsaas.online/api/customer/${id}`)
       .then((res) => res.json())
       .then((result) => {
         console.log(result);
@@ -137,7 +145,7 @@ export default function UpdateCustomer(){
     };
 
     try {
-      await axios.put(`http://localhost:8000/api/customer/${email}`, UpdatedCustomer);
+      await axios.put(`http://podsaas.online/api/customer/${email}`, UpdatedCustomer);
       alert("New Customer updated successfully");
       navigate('/customer');
     } catch (error) {
@@ -184,9 +192,9 @@ export default function UpdateCustomer(){
           >
             SMARTCO
           </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
+            <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
               </Badge>
             </IconButton>
           </Toolbar>

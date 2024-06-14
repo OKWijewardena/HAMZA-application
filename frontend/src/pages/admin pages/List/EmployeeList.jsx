@@ -23,6 +23,9 @@ import {
   TableHead, TableRow, Paper
 } from '@mui/material';
 
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
+
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
@@ -71,6 +74,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const mdTheme = createTheme();
 const EmployeeList = () => {
+
+  const navigate = useNavigate();
+
   const [originalData, setOriginalData] = useState([]);
   const [data, setData] = useState([]);
   const [name, setname] = useState('');
@@ -80,7 +86,7 @@ const EmployeeList = () => {
   const [role, setrole] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/employee&admin/', {
+    fetch('http://podsaas.online/api/employee&admin/', {
         method: 'GET'
     })
     .then(response => {
@@ -98,8 +104,15 @@ const EmployeeList = () => {
     });
 }, []);
 
+const handleLogout = () => {
+  // Remove user details from session storage
+  sessionStorage.removeItem('user');
+  console.log('User details cleared from session storage');
+  navigate('/');
+};
+
 const downloadPDF = () => {
-  fetch('http://localhost:8000/employeeAndAdminPdf', {
+  fetch('http://podsaas.online/employeeAndAdminPdf', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
@@ -133,7 +146,7 @@ const downloadPDF = () => {
 
 const resetTable = () => {
   
-    fetch('http://localhost:8000/api/employee&admin/', {
+    fetch('http://podsaas.online/api/employee&admin/', {
         method: 'GET'
     })
     .then(response => {
@@ -212,11 +225,11 @@ return (
 >
   SMARTCO
 </Typography>
-  <IconButton color="inherit">
-    <Badge badgeContent={4} color="secondary">
-      <NotificationsIcon />
-    </Badge>
-  </IconButton>
+<IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
 </Toolbar>
 </AppBar>
 <Drawer variant="permanent" open={open}>

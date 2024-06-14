@@ -24,6 +24,9 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
+
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
@@ -73,6 +76,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme();
 
 export default function Selling() {
+
+  const navigate = useNavigate();
+
   const [open, setOpen] = useState(true);
   const [sellings, setSellings] = useState([]);
   const [deviceName, setDeviceName] = useState('');
@@ -91,6 +97,13 @@ export default function Selling() {
     fetchSellings();
   }, []);
 
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
+
   useEffect(() => {
     if (emiNumber) {
       fetchDeviceImage();
@@ -103,7 +116,7 @@ export default function Selling() {
 
   const fetchSellings = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/selling/getSelling');
+      const response = await axios.get('http://podsaas.online/selling/getSelling');
       setSellings(response.data);
     } catch (error) {
       console.error('Error fetching sellings:', error);
@@ -112,7 +125,7 @@ export default function Selling() {
 
   const fetchDeviceImage = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/device/getOneDevice/${emiNumber}`);
+      const response = await axios.get(`http://podsaas.online/device/getOneDevice/${emiNumber}`);
       setDevices(response.data);
       if (response.data.length > 0) {
         setImageName(response.data[0].imageName); // Assuming you want to set the first device's imageName by default
@@ -124,7 +137,7 @@ export default function Selling() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/selling/deleteSelling/${id}`);
+      await axios.delete(`http://podsaas.online/selling/deleteSelling/${id}`);
       alert("Selling record deleted successfully");
       fetchSellings(); // Refresh the selling list after deletion
     } catch (error) {
@@ -162,8 +175,8 @@ export default function Selling() {
     };
 
     try {
-      await axios.post('http://localhost:8000/selling/addSelling', NewPurchase);
-      await axios.delete(`http://localhost:8000/device/deleteDeviceemi/${NewPurchase.emiNumber}`);
+      await axios.post('http://podsaas.online/selling/addSelling', NewPurchase);
+      await axios.delete(`http://podsaas.online/device/deleteDeviceemi/${NewPurchase.emiNumber}`);
       alert("New customer device purchased");
       fetchSellings(); // Refresh the selling list after submission
       handleDialogClose();
@@ -208,11 +221,11 @@ export default function Selling() {
               >
                 SMARTCO
               </Typography>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+              <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
             </Toolbar>
           </AppBar>
           <Drawer variant="permanent" open={open}>

@@ -13,7 +13,6 @@ import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -25,6 +24,8 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const drawerWidth = 240;
 
@@ -75,6 +76,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme();
 
 export default function EPayment() {
+
+  const navigate = useNavigate();
+  
   const [open, setOpen] = useState(true);
   const [payments, setPayments] = useState([]);
   const [customerName, setCustomerName] = useState('');
@@ -92,6 +96,13 @@ export default function EPayment() {
     fetchCustomers();
   }, []);
 
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -107,7 +118,7 @@ export default function EPayment() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/customer/');
+      const response = await axios.get('http://podsaas.online/api/customer/');
       setCustomer(response.data);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -116,7 +127,7 @@ export default function EPayment() {
 
   const fetchPayments = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/payment/getPayment');
+      const response = await axios.get('http://podsaas.online/payment/getPayment');
       setPayments(response.data);
     } catch (error) {
       console.error('Error fetching payments:', error);
@@ -125,7 +136,7 @@ export default function EPayment() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/payment/deletePayment/${id}`);
+      await axios.delete(`http://podsaas.online/payment/deletePayment/${id}`);
       alert("Selling record deleted successfully");
       fetchPayments(); // Refresh the selling list after deletion
     } catch (error) {
@@ -155,8 +166,8 @@ export default function EPayment() {
     }
 
     try {
-      await axios.post('http://localhost:8000/selling/paymentHistory', UpdatePayment);
-      await axios.post('http://localhost:8000/payment/addPayment', NewPayment);
+      await axios.post('http://podsaas.online/selling/paymentHistory', UpdatePayment);
+      await axios.post('http://podsaas.online/payment/addPayment', NewPayment);
       handleCloseDialog();
       alert("New payment added successfully");
       fetchPayments();
@@ -200,11 +211,11 @@ export default function EPayment() {
               >
                 SMARTCO
               </Typography>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+              <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
             </Toolbar>
           </AppBar>
           <Drawer variant="permanent" open={open}>

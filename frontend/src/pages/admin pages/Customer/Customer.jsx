@@ -17,7 +17,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../listItems';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
@@ -77,6 +78,8 @@ const mdTheme = createTheme();
 
 export default function Customer(){
 
+  const navigate = useNavigate();
+
     const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -96,8 +99,8 @@ export default function Customer(){
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/customer/${id}`);
-      await axios.delete(`http://localhost:8000/api/users/${id}`);
+      await axios.delete(`http://podsaas.online/api/customer/${id}`);
+      await axios.delete(`http://podsaas.online/api/users/${id}`);
       alert("Customer record deleted successfully");
       fetchCustomers();// Refresh the customer list after deletion
     } catch (error) {
@@ -110,9 +113,16 @@ export default function Customer(){
     fetchCustomers();
   }, []);
 
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
+
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/customer/');
+      const response = await axios.get('http://podsaas.online/api/customer/');
       setCustomer(response.data);
     } catch (error) {
       console.error('Error fetching payments:', error);
@@ -143,8 +153,8 @@ export default function Customer(){
     }
 
     try {
-      await axios.post('http://localhost:8000/api/customer/register', NewCustomer);
-      await axios.post('http://localhost:8000/api/users/register', NewUser);
+      await axios.post('http://podsaas.online/api/customer/register', NewCustomer);
+      await axios.post('http://podsaas.online/api/users/register', NewUser);
       alert("New Customer added successfully");
     } catch (error) {
       console.error('Error adding customer:', error);
@@ -190,9 +200,9 @@ export default function Customer(){
           >
             SMARTCO
           </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
+            <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
               </Badge>
             </IconButton>
           </Toolbar>

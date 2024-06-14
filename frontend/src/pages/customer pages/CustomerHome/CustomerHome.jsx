@@ -28,6 +28,7 @@ export default function CustomerHome() {
     const [customers, setCustomers] = useState([]);
     const [devices,setDevices] = useState([]);
     const [eminumbers,setEminumbers] = useState();
+    const [unsoldDevicesCount, setUnSoldDevicesCount] = useState(0);
 
 // Check if the user object exists and then access the email property
 if (user) {
@@ -42,11 +43,12 @@ if (user) {
 
     useEffect(() => {
         fetchSellings();
+        fetchDeviceDetails();
     }, []);
 
     const fetchSellings = async () => {
         try {
-          const res = await axios.get(`http://localhost:8000/api/customer/${user.email}`);
+          const res = await axios.get(`http://podsaas.online/api/customer/${user.email}`);
     
           // Log the response to check its structure
           console.log('Response data:', res.data);
@@ -58,7 +60,7 @@ if (user) {
       
           console.log('Civil ID:', CIVILID);
 
-            const response = await axios.get(`http://localhost:8000/selling/getOneSelling/${CIVILID}`);
+            const response = await axios.get(`http://podsaas.online/selling/getOneSelling/${CIVILID}`);
             setSellings(response.data);
             const emiNumbers = response.data.map(selling => selling.emiNumber);
             setEminumbers(emiNumbers);
@@ -66,6 +68,15 @@ if (user) {
         } catch (error) {
             console.error('Error fetching devices:', error);
         }
+    };
+
+    const fetchDeviceDetails = async () => {
+      try {
+        const response = await axios.get('http://podsaas.online/device/getDevice');
+        setUnSoldDevicesCount(response.data.length); // Assuming each device represents a sold device
+      } catch (error) {
+        console.error('Error fetching device details:', error);
+      }
     };
 
 
@@ -95,10 +106,12 @@ if (user) {
             Number of devices you can buy from us
           </Typography>
           <Typography variant="h3" color="secondary" gutterBottom>
-            5,275
+          {unsoldDevicesCount}
           </Typography>
           <Link to="/customerdevice" style={{textDecoration: 'none', color:"black"}}>
-          <Button variant="contained" sx={{ backgroundColor: '#752888', mt: 2 }}>
+          <Button variant="contained" sx={{ backgroundColor: '#752888','&:hover': {
+                        backgroundColor: '#C63DE7',
+                      }, mt: 2 }}>
             Find your device
           </Button>
           </Link>
@@ -129,7 +142,7 @@ if (user) {
                   {selling.deviceName}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Payment Date: {selling.paymentDate}
+                  Purchase Date: {selling.date}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Remaining Balance: {selling.balance}

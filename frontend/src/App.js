@@ -27,6 +27,7 @@ import PaymentList from "./pages/admin pages/List/PaymentList"
 import UpdateCustomer from "./pages/admin pages/admin update pages/UpdateCustomer";
 import UpdateDevice from "./pages/admin pages/admin update pages/UpdateDevice";
 import UpdateEmployee from "./pages/admin pages/admin update pages/UpdateEmployee";
+import EUpdateDevices from "./pages/employee pages/employee update pages/EUpdateDevices";
 import Report from "./pages/admin pages/List/Report";
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
         <Route exact path="customer/updatecustomer/:id" element={<UpdateCustomer/>} />
         <Route exact path="device/updatedevice/:id" element={<UpdateDevice/>} />
         <Route exact path="employee/updateemployee/:id" element={<UpdateEmployee/>} />
+        <Route exact path="edevice/eupdatedevice/:id" element={<EUpdateDevices/>} />
 
         <Route exact path="/report" element={<Report/>} />
       </Routes>

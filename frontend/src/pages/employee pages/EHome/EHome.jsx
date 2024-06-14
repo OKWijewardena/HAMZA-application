@@ -25,6 +25,7 @@ import image4 from '../../../images/4.png';
 import image5 from '../../../images/5.png';
 import image from '../../../images/image.png';
 import { Link , useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const drawerWidth = 240;
 
@@ -105,10 +106,16 @@ function DashboardContent() {
     fetchDeviceDetails();
     fetchMonthlySellingDetails();
   }, []);
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
 
   const fetchPayments = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/payment/getPayment');
+      const response = await axios.get('http://podsaas.online/payment/getPayment');
       setPayments(response.data);
     } catch (error) {
       console.error('Error fetching payments:', error);
@@ -117,7 +124,7 @@ function DashboardContent() {
 
   const fetchSelinngDetails = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/selling/getSelling');
+      const response = await axios.get('http://podsaas.online/selling/getSelling');
       setSoldDevicesCount(response.data.length); // Assuming each device represents a sold device
     } catch (error) {
       console.error('Error fetching device details:', error);
@@ -126,7 +133,7 @@ function DashboardContent() {
 
   const fetchDeviceDetails = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/device/getDevice');
+      const response = await axios.get('http://podsaas.online/device/getDevice');
       setUnSoldDevicesCount(response.data.length); // Assuming each device represents a sold device
     } catch (error) {
       console.error('Error fetching device details:', error);
@@ -135,7 +142,7 @@ function DashboardContent() {
 
   const fetchMonthlySellingDetails = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/selling/getSelling');
+      const response = await axios.get('http://podsaas.online/selling/getSelling');
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       
@@ -223,9 +230,9 @@ function DashboardContent() {
           >
             SMARTCO
           </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
+            <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
               </Badge>
             </IconButton>
           </Toolbar>
