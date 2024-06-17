@@ -78,6 +78,22 @@ export default function Device(){
 
     const navigate = useNavigate();
 
+
+  const user = JSON.parse(sessionStorage.getItem('user'));
+
+  if (user) {
+    const role = user.role;
+    console.log('Role:', role);
+    
+  } else {
+    console.log('No user data found in session storage');
+  }
+
+  // Check if the user's role is "superadmin"
+  if (!user || user.role !== "superadmin") {
+    navigate('/not-authorized');
+  }
+
     const [open, setOpen] = React.useState(true);
     const [devices, setDevices] = useState([]);
     const [form, setForm] = useState({
@@ -87,16 +103,16 @@ export default function Device(){
         shopName: '',
         modelNumber: '',
         storage: '',
+        ram:'',
         warrenty: '',
         emiNumber: '',
         purchaseDate: '',
-        expireDate:'',
         imageName: ''
     });
 
     const handleDelete = async (id) => {
         try {
-          await axios.delete(`http://podsaas.online/device/deleteDevice/${id}`);
+          await axios.delete(`http://localhost:8000/device/deleteDevice/${id}`);
           alert("Dervice record deleted successfully");
           fetchDevices();// Refresh the selling list after deletion
         } catch (error) {
@@ -122,7 +138,7 @@ export default function Device(){
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get('http://podsaas.online/device/getDevice');
+            const response = await axios.get('http://localhost:8000/device/getDevice');
             setDevices(response.data);
         } catch (error) {
             console.error('Error fetching devices:', error);
@@ -145,7 +161,7 @@ export default function Device(){
             formData.append(key, form[key]);
         });
         try {
-            await axios.post('http://podsaas.online/device/addDevice', formData, {
+            await axios.post('http://localhost:8000/device/addDevice', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -157,10 +173,10 @@ export default function Device(){
                 shopName: '',
                 modelNumber: '',
                 storage: '',
+                ram:'',
                 warrenty: '',
                 emiNumber: '',
                 purchaseDate: '',
-                expireDate:'',
                 imageName: ''
             });
             fetchDevices();
@@ -301,6 +317,13 @@ export default function Device(){
                                     <TextField margin="normal"
                                         required
                                         fullWidth
+                                        label="Ram"
+                                        name="ram"
+                                        value={form.ram}
+                                        onChange={handleInputChange} />
+                                    <TextField margin="normal"
+                                        required
+                                        fullWidth
                                         label="Warrenty"
                                         name="warrenty"
                                         value={form.warrenty}
@@ -319,14 +342,6 @@ export default function Device(){
                                         type="date"
                                         name="purchaseDate"
                                         value={form.purchaseDate}
-                                        onChange={handleInputChange} />
-                                    <TextField margin="normal"
-                                        required
-                                        fullWidth
-                                        label="Expire Date"
-                                        type="date"
-                                        name="expireDate"
-                                        value={form.expireDate}
                                         onChange={handleInputChange} />
                                     <TextField
                                         margin="normal"
@@ -367,10 +382,10 @@ export default function Device(){
                                                 <TableCell>Shop Name</TableCell>
                                                 <TableCell>Model Number</TableCell>
                                                 <TableCell>Storage</TableCell>
+                                                <TableCell>Ram</TableCell>
                                                 <TableCell>Warrenty</TableCell>
                                                 <TableCell>Emi Number</TableCell>
                                                 <TableCell>Purchase Date</TableCell>
-                                                <TableCell>Expire Date</TableCell>
                                                 <TableCell>Image Name</TableCell>
                                                 <TableCell>Action</TableCell>
                                             </TableRow>
@@ -384,14 +399,14 @@ export default function Device(){
                                                     <TableCell>{device.shopName}</TableCell>
                                                     <TableCell>{device.modelNumber}</TableCell>
                                                     <TableCell>{device.storage}</TableCell>
+                                                    <TableCell>{device.ram}</TableCell>
                                                     <TableCell>{device.warrenty}</TableCell>
                                                     <TableCell>{device.emiNumber}</TableCell>
                                                     <TableCell>{device.purchaseDate}</TableCell>
-                                                    <TableCell>{device.expireDate}</TableCell>
                                                     <TableCell>
         {device.imageName && (
           <img
-            src={`/images/deviceImages/${device.imageName}`}
+            src={`../../../../backend/deviceImages/${device.imageName}`}
             alt={device.deviceName}
             style={{ width: '100px', height: '100px' }}
           />

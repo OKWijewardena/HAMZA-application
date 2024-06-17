@@ -80,6 +80,22 @@ export default function Customer(){
 
   const navigate = useNavigate();
 
+
+  const user = JSON.parse(sessionStorage.getItem('user'));
+
+  if (user) {
+    const role = user.role;
+    console.log('Role:', role);
+    
+  } else {
+    console.log('No user data found in session storage');
+  }
+
+  // Check if the user's role is "superadmin"
+  if (!user || user.role !== "superadmin") {
+    navigate('/not-authorized');
+  }
+
     const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);

@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const usermodel = require("../models/userModel");
 const bcrypt=require("bcryptjs");
 const axios = require('axios');
+const jwt = require("jsonwebtoken");
 
 //@desc register a user
 //@route post /api/ users / register
@@ -90,6 +91,9 @@ const loginUser = asyncHandler(async (req, res) => {
         res.status(400);
         throw new Error("password not matched!");
     }
+
+    const jwtToken = jwt.sign({email: userlogin.email, id: userlogin._id}, process.env.JWT_SECRET);
+    res.json({message: "wecome back!", token: jwtToken});
 });
   
 //@desc get user data

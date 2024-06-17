@@ -2,10 +2,10 @@ const Device = require("../models/deviceModel");
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-// const dscf = require('../../frontend/src/images/deviceImages')
+// const dscf = require('../DeviceImages')
 
 // Define the upload path
-const uploadPath = path.join(__dirname, '../../frontend/public/images/deviceImages');
+const uploadPath = path.join(__dirname, '../DeviceImages');
 
 // Ensure the upload path exists
 if (!fs.existsSync(uploadPath)) {
@@ -38,10 +38,10 @@ exports.addDevice = async (req, res) => {
         shopName,
         modelNumber,
         storage,
+        ram,
         warrenty,
         emiNumber,
-        purchaseDate,
-        expireDate
+        purchaseDate
       } = req.body;
 
       const newDevice = new Device({
@@ -51,10 +51,10 @@ exports.addDevice = async (req, res) => {
         shopName,
         modelNumber,
         storage,
+        ram,
         warrenty,
         emiNumber,
         purchaseDate,
-        expireDate,
         imageName: req.file ? req.file.filename : ''
       });
 
@@ -91,10 +91,10 @@ exports.updateDevice = async (req, res) => {
         shopName,
         modelNumber,
         storage,
+        ram,
         warrenty,
         emiNumber,
-        purchaseDate,
-        expireDate
+        purchaseDate
       } = req.body;
 
       const updatedDevice = {
@@ -104,10 +104,10 @@ exports.updateDevice = async (req, res) => {
         shopName,
         modelNumber,
         storage,
+        ram,
         warrenty,
         emiNumber,
         purchaseDate,
-        expireDate,
         imageName: req.file ? req.file.filename : req.body.imageName
       };
 
