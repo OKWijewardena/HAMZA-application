@@ -100,6 +100,7 @@ export default function Selling() {
   const handleLogout = () => {
     // Remove user details from session storage
     sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
     console.log('User details cleared from session storage');
     navigate('/');
   };
@@ -402,7 +403,7 @@ export default function Selling() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {sellings.map((selling) => (
+                      {sellings.slice().reverse().map((selling) => (
                         <TableRow key={selling._id}>
                           <TableCell>{selling.deviceName}</TableCell>
                           <TableCell>{selling.emiNumber}</TableCell>

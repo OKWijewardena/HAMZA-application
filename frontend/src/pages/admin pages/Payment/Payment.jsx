@@ -99,6 +99,7 @@ export default function Payment() {
   const handleLogout = () => {
     // Remove user details from session storage
     sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
     console.log('User details cleared from session storage');
     navigate('/');
   };
@@ -408,7 +409,7 @@ export default function Payment() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {payments.map((payment) => (
+                      {payments.slice().reverse().map((payment) => (
                         <TableRow key={payment._id}>
                           <TableCell>{payment.customerName}</TableCell>
                           <TableCell>{payment.civilID}</TableCell>

@@ -102,6 +102,7 @@ export default function UpdateCustomer(){
   const handleLogout = () => {
     // Remove user details from session storage
     sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
     console.log('User details cleared from session storage');
     navigate('/');
   };
@@ -278,7 +279,7 @@ export default function UpdateCustomer(){
           <TextField margin="normal" required fullWidth label="Paci Number" value={paci_number} InputLabelProps={{ shrink: true }}  onChange={(e) => {
                       setPaci_number(e.target.value);
                     }}/>
-          <TextField margin="normal" required fullWidth label="Password" type="password" value={password} InputLabelProps={{ shrink: true }}  onChange={(e) => {
+          <TextField sx={{ display: 'none' }} margin="normal" required fullWidth label="Password" type="password" value={password} InputLabelProps={{ shrink: true }}  onChange={(e) => {
                       setPassword(e.target.value);
                     }}/>
           <Button

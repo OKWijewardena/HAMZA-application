@@ -112,6 +112,7 @@ export default function EDevice(){
     const handleLogout = () => {
         // Remove user details from session storage
         sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
         console.log('User details cleared from session storage');
         navigate('/');
       };
@@ -374,7 +375,7 @@ export default function EDevice(){
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {devices.map((device) => (
+                                            {devices.slice().reverse().map((device) => (
                                                 <TableRow key={device._id}>
                                                     <TableCell>{device.deviceName}</TableCell>
                                                     <TableCell>{device.price}</TableCell>

@@ -123,6 +123,7 @@ export default function Employee() {
   const handleLogout = () => {
     // Remove user details from session storage
     sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
     console.log('User details cleared from session storage');
     navigate('/');
   };
@@ -363,19 +364,17 @@ export default function Employee() {
                         <TableCell>Mobile</TableCell>
                         <TableCell>Address</TableCell>
                         <TableCell>Role</TableCell>
-                        <TableCell>Password</TableCell>
                         <TableCell>Action</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {employees.map((employee) => (
+                      {employees.slice().reverse().map((employee) => (
                         <TableRow key={employee._id}>
                           <TableCell>{employee.name}</TableCell>
                           <TableCell>{employee.email}</TableCell>
                           <TableCell>{employee.phone}</TableCell>
                           <TableCell>{employee.address}</TableCell>
                           <TableCell>{employee.role}</TableCell>
-                          <TableCell>{employee.password}</TableCell>
                           <TableCell>
                             <Link to={`updateemployee/${employee.email}`}>
                             <IconButton color="primary">

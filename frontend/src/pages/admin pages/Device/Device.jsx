@@ -112,7 +112,7 @@ export default function Device(){
 
     const handleDelete = async (id) => {
         try {
-          await axios.delete(`http://localhost:8000/device/deleteDevice/${id}`);
+          await axios.delete(`http://podsaas.online/device/deleteDevice/${id}`);
           alert("Dervice record deleted successfully");
           fetchDevices();// Refresh the selling list after deletion
         } catch (error) {
@@ -128,6 +128,7 @@ export default function Device(){
     const handleLogout = () => {
         // Remove user details from session storage
         sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
         console.log('User details cleared from session storage');
         navigate('/');
       };
@@ -138,7 +139,7 @@ export default function Device(){
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/device/getDevice');
+            const response = await axios.get('http://podsaas.online/device/getDevice');
             setDevices(response.data);
         } catch (error) {
             console.error('Error fetching devices:', error);
@@ -161,7 +162,7 @@ export default function Device(){
             formData.append(key, form[key]);
         });
         try {
-            await axios.post('http://localhost:8000/device/addDevice', formData, {
+            await axios.post('http://podsaas.online/device/addDevice', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -391,7 +392,7 @@ export default function Device(){
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {devices.map((device) => (
+                                            {devices.slice().reverse().map((device) => (
                                                 <TableRow key={device._id}>
                                                     <TableCell>{device.deviceName}</TableCell>
                                                     <TableCell>{device.price}</TableCell>
@@ -406,7 +407,7 @@ export default function Device(){
                                                     <TableCell>
         {device.imageName && (
           <img
-            src={`../../../../backend/deviceImages/${device.imageName}`}
+            src={`http://localhost:8000/DeviceImages/${device.imageName}`}
             alt={device.deviceName}
             style={{ width: '100px', height: '100px' }}
           />
