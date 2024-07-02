@@ -112,7 +112,7 @@ export default function Device(){
 
     const handleDelete = async (id) => {
         try {
-          await axios.delete(`http://podsaas.online/device/deleteDevice/${id}`);
+          await axios.delete(`http://localhost:8000/device/deleteDevice/${id}`);
           alert("Dervice record deleted successfully");
           fetchDevices();// Refresh the selling list after deletion
         } catch (error) {
@@ -139,7 +139,7 @@ sessionStorage.removeItem('token');
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get('http://podsaas.online/device/getDevice');
+            const response = await axios.get('http://localhost:8000/device/getDevice');
             setDevices(response.data);
         } catch (error) {
             console.error('Error fetching devices:', error);
@@ -152,33 +152,24 @@ sessionStorage.removeItem('token');
     };
 
     const handleFileChange = (event) => {
-        setForm({ ...form, imageName: event.target.files[0] });
-    };
+        setForm({ ...form, imageName: event.target.files[0]});
+    };    
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        console.log(form);
+
         const formData = new FormData();
         Object.keys(form).forEach(key => {
             formData.append(key, form[key]);
         });
+        console.log(formData);
         try {
-            await axios.post('http://podsaas.online/device/addDevice', formData, {
+            await axios.post('http://localhost:8000/device/addDevice', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
-            });
-            setForm({
-                deviceName: '',
-                price: '',
-                color: '',
-                shopName: '',
-                modelNumber: '',
-                storage: '',
-                ram:'',
-                warrenty: '',
-                emiNumber: '',
-                purchaseDate: '',
-                imageName: ''
             });
             fetchDevices();
         } catch (error) {
@@ -407,7 +398,7 @@ sessionStorage.removeItem('token');
                                                     <TableCell>
         {device.imageName && (
           <img
-            src={`http://localhost:8000/DeviceImages/${device.imageName}`}
+            src={`${device.imageName}`}
             alt={device.deviceName}
             style={{ width: '100px', height: '100px' }}
           />

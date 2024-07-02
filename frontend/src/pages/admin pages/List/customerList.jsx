@@ -93,7 +93,7 @@ const [whatsapp_no, setwhatsapp_no] = useState('');
 const [telephone_no, settelephone_no] = useState('');
 
 useEffect(() => {
-    fetch('http://podsaas.online/api/customer/', {
+    fetch('http://localhost:8000/api/customer/', {
         method: 'GET'
     })
     .then(response => {
@@ -120,7 +120,7 @@ sessionStorage.removeItem('token');
 };
 
 const downloadPDF = () => {
-  fetch('http://podsaas.online/convertcustomerPDF', {
+  fetch('http://localhost:8000/convertcustomerPDF', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
@@ -154,7 +154,7 @@ const downloadPDF = () => {
 
 const resetTable = () => {
   
-    fetch('http://podsaas.online/api/customer/', {
+    fetch('http://localhost:8000/api/customer/', {
         method: 'GET'
     })
     .then(response => {

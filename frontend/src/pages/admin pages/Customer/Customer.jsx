@@ -112,8 +112,8 @@ export default function Customer() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://podsaas.online/api/customer/${id}`);
-      await axios.delete(`http://podsaas.online/api/users/${id}`);
+      await axios.delete(`http://localhost:8000/api/customer/${id}`);
+      await axios.delete(`http://localhost:8000/api/users/${id}`);
       alert("Customer record deleted successfully");
       fetchCustomers();// Refresh the customer list after deletion
     } catch (error) {
@@ -136,7 +136,7 @@ export default function Customer() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://podsaas.online/api/customer/');
+      const response = await axios.get('http://localhost:8000/api/customer/');
       setCustomer(response.data);
     } catch (error) {
       console.error('Error fetching payments:', error);
@@ -167,8 +167,8 @@ export default function Customer() {
     }
 
     try {
-      await axios.post('http://podsaas.online/api/customer/register', NewCustomer);
-      await axios.post('http://podsaas.online/api/users/register', NewUser);
+      await axios.post('http://localhost:8000/api/customer/register', NewCustomer);
+      await axios.post('http://localhost:8000/api/users/register', NewUser);
       alert("New Customer added successfully");
       fetchCustomers();
     } catch (error) {

@@ -4,7 +4,8 @@ const asyncHandler = require("express-async-handler");
 exports.addSelling = async (req, res) => {
     const { deviceName, emiNumber, customerName, civilID, price, months, date, advance, imageName } = req.body;
     
-    const currentbalance = parseFloat(price) * parseFloat(months);
+    const currentbalance = (parseFloat(price) - parseFloat(advance)).toFixed(2);
+    const installment = (currentbalance / parseFloat(months)).toFixed(2);
     const balance = String(currentbalance);
     const customArray = [];
   
@@ -16,7 +17,7 @@ exports.addSelling = async (req, res) => {
       
       const monthData = { 
         date: formattedNextMonthDate,
-        price: String(price),
+        price: String(installment),
         status: 'unpaid'
       };
       
@@ -148,13 +149,15 @@ exports.updatePaymentHistory = async (req, res) => {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
         balance -= parseFloat(payment);
+        balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
         isPaymentUpdated = true;
         break;
       } else if (itemDate >= new Date(date) && itemPrice > parseFloat(payment) && customArray[i].status === "unpaid") {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
-        const newPrice = 2 * itemPrice - parseFloat(payment);
+        const newPrice = (2 * itemPrice - parseFloat(payment)).toFixed(2);
         balance -= parseFloat(payment);
+        balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
 
         if (customArray[i + 1]) {
           customArray[i + 1].price = newPrice.toString();
@@ -167,8 +170,9 @@ exports.updatePaymentHistory = async (req, res) => {
       } else if (itemDate >= new Date(date) && itemPrice < parseFloat(payment) && customArray[i].status === "unpaid") {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
-        const newPrice = itemPrice - (parseFloat(payment) - itemPrice);
+        const newPrice = (itemPrice - (parseFloat(payment) - itemPrice)).toFixed(2);
         balance -= parseFloat(payment);
+        balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
 
         if (customArray[i + 1]) {
           customArray[i + 1].price = newPrice.toString();
@@ -194,3 +198,4 @@ exports.updatePaymentHistory = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+

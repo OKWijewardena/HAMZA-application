@@ -116,7 +116,7 @@ function DashboardContent() {
 
   const fetchPayments = async () => {
     try {
-      const response = await axios.get('http://podsaas.online/payment/getPayment');
+      const response = await axios.get('http://localhost:8000/payment/getPayment');
       setPayments(response.data);
     } catch (error) {
       console.error('Error fetching payments:', error);
@@ -125,7 +125,7 @@ function DashboardContent() {
 
   const fetchSelinngDetails = async () => {
     try {
-      const response = await axios.get('http://podsaas.online/selling/getSelling');
+      const response = await axios.get('http://localhost:8000/selling/getSelling');
       setSoldDevicesCount(response.data.length); // Assuming each device represents a sold device
     } catch (error) {
       console.error('Error fetching device details:', error);
@@ -134,7 +134,7 @@ function DashboardContent() {
 
   const fetchDeviceDetails = async () => {
     try {
-      const response = await axios.get('http://podsaas.online/device/getDevice');
+      const response = await axios.get('http://localhost:8000/device/getDevice');
       setUnSoldDevicesCount(response.data.length); // Assuming each device represents a sold device
     } catch (error) {
       console.error('Error fetching device details:', error);
@@ -143,7 +143,7 @@ function DashboardContent() {
 
   const fetchMonthlySellingDetails = async () => {
     try {
-      const response = await axios.get('http://podsaas.online/selling/getSelling');
+      const response = await axios.get('http://localhost:8000/selling/getSelling');
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       

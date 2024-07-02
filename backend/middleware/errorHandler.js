@@ -35,7 +35,7 @@ res.json({
     stackTrace:err.stack
 });
 default:
-    console.log("NO ERROR ALL GOOD !");
+    console.log(err);
 break;
 
 }

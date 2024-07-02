@@ -61,7 +61,7 @@ if (user) {
 
     const fetchSellings = async () => {
         try {
-          const res = await axios.get(`http://podsaas.online/api/customer/${user.email}`);
+          const res = await axios.get(`http://localhost:8000/api/customer/${user.email}`);
     
           // Log the response to check its structure
           console.log('Response data:', res.data);
@@ -73,7 +73,7 @@ if (user) {
       
           console.log('Civil ID:', CIVILID);
 
-            const response = await axios.get(`http://podsaas.online/selling/getOneSelling/${CIVILID}`);
+            const response = await axios.get(`http://localhost:8000/selling/getOneSelling/${CIVILID}`);
             setSellings(response.data);
             const emiNumbers = response.data.map(selling => selling.emiNumber);
             setEminumbers(emiNumbers);
@@ -85,7 +85,7 @@ if (user) {
 
     const fetchDeviceDetails = async () => {
       try {
-        const response = await axios.get('http://podsaas.online/device/getDevice');
+        const response = await axios.get('http://localhost:8000/device/getDevice');
         setUnSoldDevicesCount(response.data.length); // Assuming each device represents a sold device
       } catch (error) {
         console.error('Error fetching device details:', error);
@@ -191,7 +191,7 @@ if (user) {
               <CardMedia
                 component="img"
                 height="140"
-                image={`/images/deviceImages/${selling.imageName}`}
+                image={`${selling.imageName}`}
                 alt={selling.emiNumber}               
               />
               <CardContent>
@@ -200,6 +200,12 @@ if (user) {
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Purchase Date: {selling.date}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Device Price: {selling.price}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Advance: {selling.advance}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Remaining Balance: {selling.balance}
