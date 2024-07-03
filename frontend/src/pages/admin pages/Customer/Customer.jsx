@@ -306,21 +306,34 @@ export default function Customer() {
               </Box>
 
               {/* Table Section */}
-              <Box sx={{ mt: 4 }}>
+              <Box sx={{ 
+       mt: 6,
+       display: 'flex',
+       flexDirection: 'column',
+       alignItems: 'center',
+       marginTop: 4,
+       padding: 3,
+       backgroundColor: '#fff',
+       borderRadius: 1,
+       boxShadow: 3,
+       maxWidth: 1500, // Adjust this value as needed
+       flexGrow: 1,
+       mx: 'auto',  
+    }}>
                 <TableContainer component={Paper}>
-                  <Table sx={{ minWidth: 650 }}>
+                  <Table >
                     <TableHead>
                       <TableRow>
-                        <TableCell>User Name</TableCell>
-                        <TableCell>E-mail</TableCell>
-                        <TableCell>Mobile</TableCell>
-                        <TableCell>Whatsapp Number</TableCell>
-                        <TableCell>Telephone Number</TableCell>
-                        <TableCell>Address</TableCell>
-                        <TableCell>Nationality</TableCell>
-                        <TableCell>Civil ID</TableCell>
-                        <TableCell>Paci Number</TableCell>
-                        <TableCell>Action</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >User Name</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >E-mail</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Mobile</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Whatsapp Number</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Telephone Number</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Address</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Nationality</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Civil ID</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Paci Number</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Action</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -333,8 +346,8 @@ export default function Customer() {
                           <TableCell>{customer.telephone_no}</TableCell>
                           <TableCell>{customer.address}</TableCell>
                           <TableCell>{customer.nationality}</TableCell>
-                          <TableCell>{customer.paci_number}</TableCell>
                           <TableCell>{customer.civil_id}</TableCell>
+                          <TableCell>{customer.paci_number}</TableCell>
                           <TableCell>
                             <Link to={`updatecustomer/${customer.email}`}>
                               <IconButton color="primary">

@@ -32,6 +32,7 @@ app.use("/api/invoice",require("./routes/invoiceRote"));
 app.use(errorHandler);
 app.use("/", require("./routes/invoicePdfRouter"));
 app.use("/api/devicepdf",require("./routes/devicePdfRoutes"));
+app.use("/api/salespdf",require("./routes/salespdfRoutes"));
 app.use("/",require("./routes/customerpdfRoutes"));
 app.use("/",require("./routes/employeeAndAdminPdfRoutes"));
 app.use("/api",require("./routes/forgetPassword"));

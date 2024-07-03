@@ -195,6 +195,12 @@ sessionStorage.removeItem('token');
                         </Table>
                     </TableContainer>
                     <Typography variant="body1" align="right" sx={{ mt: 2 }}>
+                        Device price: {sellings.price}/=
+                    </Typography>
+                    <Typography variant="body1" align="right" sx={{ mt: 2 }}>
+                        Advance: {sellings.advance}/=
+                    </Typography>
+                    <Typography variant="body1" align="right" sx={{ mt: 2 }}>
                         Remaining Balance: {sellings.balance}/=
                     </Typography>
                 </CardContent>
