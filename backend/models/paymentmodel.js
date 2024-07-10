@@ -14,10 +14,6 @@ const payment = new mongoose.Schema({
         type : String,
         required : true
     },
-    emiNumber : {
-        type : String,
-        required : true
-    },
     price : {
         type : String,
         required : true
