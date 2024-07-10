@@ -127,6 +127,26 @@ exports.getOneSellingID = (req, res) => {
     });
 };
 
+exports.getonesellingByIdEmi = (req, res) => {
+  const { civilID, emiNumber } = req.params;
+  console.log("Searching for civil_id:", civilID, "and emi_no:", emiNumber);
+
+  Selling.findOne({ civilID, emiNumber })
+    .then((sellingRecord) => {
+      if (!sellingRecord) {
+        console.log("No record found.");
+        return res.status(404).json({ message: "Record not found" });
+      }
+      console.log("Found record:", sellingRecord);
+      res.json(sellingRecord);
+    })
+    .catch((err) => {
+      console.error("Error retrieving selling record:", err);
+      res.status(500).json({ error: "Error retrieving selling record" });
+    });
+};
+
+
 exports.updatePaymentHistory = async (req, res) => {
   const { civilID, emiNumber, date, payment } = req.body;
 
@@ -140,50 +160,71 @@ exports.updatePaymentHistory = async (req, res) => {
     let isPaymentUpdated = false;
     const customArray = selling.customArray;
     let balance = parseFloat(selling.balance);
+    let Payment = parseFloat(payment);
 
     for (let i = 0; i < customArray.length; i++) {
       const itemDate = new Date(customArray[i].date);
       const itemPrice = parseFloat(customArray[i].price);
+      console.log("itemPrice",itemPrice);
+      const nextPrice = parseFloat(customArray[i+1].price);
+      console.log("nextPrice",nextPrice);
+      console.log("Payment",Payment);
 
-      if (itemDate >= new Date(date) && itemPrice === parseFloat(payment) && customArray[i].status === "unpaid") {
-        customArray[i].status = "paid";
-        customArray[i].price = payment.toString();
-        balance -= parseFloat(payment);
-        balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
-        isPaymentUpdated = true;
-        break;
-      } else if (itemDate >= new Date(date) && itemPrice > parseFloat(payment) && customArray[i].status === "unpaid") {
-        customArray[i].status = "paid";
-        customArray[i].price = payment.toString();
-        const newPrice = (2 * itemPrice - parseFloat(payment)).toFixed(2);
-        balance -= parseFloat(payment);
-        balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
-
-        if (customArray[i + 1]) {
-          customArray[i + 1].price = newPrice.toString();
-        } else {
-          console.error('No next item to update the price for.');
-        }
-
-        isPaymentUpdated = true;
-        break;
-      } else if (itemDate >= new Date(date) && itemPrice < parseFloat(payment) && customArray[i].status === "unpaid") {
-        customArray[i].status = "paid";
-        customArray[i].price = payment.toString();
-        const newPrice = (itemPrice - (parseFloat(payment) - itemPrice)).toFixed(2);
-        balance -= parseFloat(payment);
-        balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
-
-        if (customArray[i + 1]) {
-          customArray[i + 1].price = newPrice.toString();
-        } else {
-          console.error('No next item to update the price for.');
-        }
-
+      if (Payment === 0) {
         isPaymentUpdated = true;
         break;
       }
+      else if (itemDate >= new Date(date) && itemPrice === Payment && customArray[i].status === "unpaid") {
+        customArray[i].status = "paid";
+        customArray[i].price = payment.toString();
+        Payment = 0;
+
+      } else if (itemDate >= new Date(date) && itemPrice > Payment && customArray[i].status === "unpaid") {
+        customArray[i].status = "paid";
+        customArray[i].price = payment.toString();
+        const newPrice = (nextPrice + (itemPrice - Payment)).toFixed(2);
+
+        if (customArray[i + 1]) {
+          customArray[i + 1].price = newPrice.toString();
+        } else {
+          console.error('No next item to update the price for.');
+        }
+        Payment = 0;
+
+      } else if (itemDate >= new Date(date) && itemPrice < Payment && customArray[i].status === "unpaid") {
+        customArray[i].status = "paid";
+        customArray[i].price = Payment.toString();
+        let tempPrice = (Payment - itemPrice).toFixed(2);
+
+        if(tempPrice > nextPrice) {
+
+          if (customArray[i + 1]) {
+            Payment -= itemPrice;
+
+          } else {
+            console.error('No next item to update the price for.');
+          }
+          
+        }
+        else {
+
+        const newPrice = (nextPrice - tempPrice).toFixed(2);
+
+        if (customArray[i + 1]) {
+          customArray[i + 1].price = newPrice.toString();
+        } else {
+          console.error('No next item to update the price for.');
+        }
+
+        Payment = 0;
+
+      }
+
+      }
     }
+
+        balance -= parseFloat(payment);
+        balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
 
     if (!isPaymentUpdated) {
       return res.status(404).json({ message: "No matching unpaid record found with the given date and payment amount" });

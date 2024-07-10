@@ -28,9 +28,6 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-import { Link, useNavigate } from 'react-router-dom';
-import LogoutIcon from '@mui/icons-material/Logout';
-
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -84,9 +81,12 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
   const mdTheme = createTheme();
 const DeviceList = () => {
-
-  const navigate = useNavigate();
-
+  let date = new Date();
+  let day = date.getDate();
+  let month = date.getMonth() + 1; // JavaScript months are 0-based counting
+  let year = date.getFullYear();
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
     const [originalData, setOriginalData] = useState([]);
     const [data, setData] = useState([]);
     const [deviceName, setDeviceName] = useState('');
@@ -120,14 +120,6 @@ const DeviceList = () => {
             console.error('Error fetching data:', error);
         });
     }, []);
-
-    const handleLogout = () => {
-      // Remove user details from session storage
-      sessionStorage.removeItem('user');
-sessionStorage.removeItem('token');
-      console.log('User details cleared from session storage');
-      navigate('/');
-    };
     
     const downloadPDF = () => {
       fetch('http://localhost:8000/api/devicepdf/convertdevicePDF', {
@@ -150,8 +142,9 @@ sessionStorage.removeItem('token');
           // Create a link element
           const link = document.createElement('a');
           link.href = url;
-          // The downloaded file name
-          link.download = 'DeviceReport.pdf';
+          let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
+         
+          link.download = `Device Report - ${formattedDateTime}.pdf`;
           // Append the link to the body
           document.body.appendChild(link);
           // Simulate click
@@ -160,6 +153,39 @@ sessionStorage.removeItem('token');
           document.body.removeChild(link);
       })
       .catch(error => alert(error));
+  };
+  const downloadExcel = () => {
+    fetch('http://localhost:8000/api/excel/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data) // Send current data to the backend
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob(); // If the response is OK, get the Excel blob
+        } else {
+            throw new Error('Error converting to Excel');
+        }
+    })
+    .then(blob => {
+        // Create a blob URL
+        const url = window.URL.createObjectURL(blob);
+        // Create a link element
+        const link = document.createElement('a');
+        link.href = url;
+        let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
+       
+        link.download = `Device Report - ${formattedDateTime}.xlsx`;
+        // Append the link to the body
+        document.body.appendChild(link);
+        // Simulate click
+        link.click();
+        // Remove the link when done
+        document.body.removeChild(link);
+    })
+    .catch(error => alert(error));
   };
   
   
@@ -191,6 +217,7 @@ const handleFetch = () => {
             const itemPurchaseDate = new Date(item.purchaseDate);
             const itemExpiryDate = new Date(item.expireDate);
             return (deviceName === '' || item.deviceName.includes(deviceName)) &&
+                (quantity === '' || item.quantity.includes(quantity)) &&
                 (price === '' || item.price.includes(price)) &&
                 (color === '' || item.color.includes(color)) &&
                 (shopName === '' || item.shopName.includes(shopName)) &&
@@ -207,6 +234,7 @@ const handleFetch = () => {
 
         // Clear all fields after fetch
         setDeviceName('');
+        setQuantity('');
         setPrice('');
         setColor('');
         setShopName('');
@@ -261,11 +289,11 @@ const handleFetch = () => {
   >
     SMARTCO
   </Typography>
-  <IconButton color="inherit" onClick={handleLogout}>
-              <Badge color="secondary">
-                <LogoutIcon />
-              </Badge>
-            </IconButton>
+    <IconButton color="inherit">
+      <Badge badgeContent={4} color="secondary">
+        <NotificationsIcon />
+      </Badge>
+    </IconButton>
   </Toolbar>
 </AppBar>
 <Drawer variant="permanent" open={open}>
@@ -325,6 +353,9 @@ sx={{
     <TextField margin="normal" fullWidth label="Device Name" value={deviceName} onChange={e => setDeviceName(e.target.value)} />
     </Grid>
     <Grid item xs={12} sm={3}>
+      <TextField margin="normal"  fullWidth label="Quantity" value={quantity} onChange={e => setQuantity(e.target.value)}  />
+    </Grid>
+    <Grid item xs={12} sm={3}>
       <TextField margin="normal"  fullWidth label="Price" value={price} onChange={e => setPrice(e.target.value)}  />
     </Grid>
     <Grid item xs={12} sm={3}>
@@ -371,7 +402,7 @@ sx={{
   </Grid>
  
   <Grid container spacing={2} direction="row" justifyContent="space-between">
-    <Grid item xs={12} sm={4}>
+    <Grid item xs={12} sm={3}>
       <Button
         
         onClick={handleFetch}
@@ -391,7 +422,7 @@ sx={{
         Fetch
       </Button>
     </Grid>
-    <Grid item xs={12} sm={4}>
+    <Grid item xs={12} sm={3}>
       <Button
        
         onClick={resetTable}
@@ -411,7 +442,7 @@ sx={{
         Reset
       </Button>
     </Grid>
-    <Grid item xs={12} sm={4}>
+    <Grid item xs={12} sm={3}>
       <Button
       
     
@@ -432,6 +463,27 @@ sx={{
         Download PDF
       </Button>
     </Grid>
+    <Grid item xs={12} sm={3}>
+    <Button
+    
+  
+      onClick={downloadExcel}
+      fullWidth
+      variant="contained"
+      sx={{
+        mt: 3,
+        mb: 2,
+        backgroundColor: '#752888',
+        '&:hover': {
+          backgroundColor: '#C63DE7',
+        },
+        fontFamily: 'Public Sans, sans-serif',
+        fontWeight: 'bold',
+      }}
+    >
+      Download Excel
+    </Button>
+  </Grid>
   </Grid>
 </Box>
 </Box>
