@@ -13,7 +13,6 @@ import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -21,10 +20,12 @@ import { mainListItems } from '../listItems';
 
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper
+  TableHead, TableRow, Paper, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const drawerWidth = 240;
 
@@ -75,6 +76,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme();
 
 export default function EPayment() {
+
+  const navigate = useNavigate();
+
   const [open, setOpen] = useState(true);
   const [payments, setPayments] = useState([]);
   const [customerName, setCustomerName] = useState('');
@@ -83,26 +87,67 @@ export default function EPayment() {
   const [emiNumber, setEmiNumber] = useState('');
   const [price, setPrice] = useState('');
   const [date, setDate] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const [customer, setCustomer] = useState([]);
 
   useEffect(() => {
     fetchPayments();
+    fetchCustomers();
   }, []);
+
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
+  const handleOpenDialog = (event) => {
+    event.preventDefault();
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await axios.get('http://podsaas.online/api/customer/');
+      setCustomer(response.data);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    }
+  };
+
   const fetchPayments = async () => {
     try {
-      const response = await axios.get('https://hamza-application.onrender.com/payment/getPayment');
+      const response = await axios.get('http://podsaas.online/payment/getPayment');
       setPayments(response.data);
     } catch (error) {
       console.error('Error fetching payments:', error);
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://podsaas.online/payment/deletePayment/${id}`);
+      alert("Selling record deleted successfully");
+      fetchPayments(); // Refresh the selling list after deletion
+    } catch (error) {
+      console.error('Error deleting selling:', error);
+      alert("An error occurred while deleting the selling record.");
+    }
+  };
 
   const handleSubmit = async (event) => {
+
     event.preventDefault();
 
     const NewPayment = {
@@ -122,11 +167,13 @@ export default function EPayment() {
     }
 
     try {
-      await axios.post('https://hamza-application.onrender.com/payment/addPayment', NewPayment);
-      await axios.post('http://localhost:8000/selling/paymentHistory',UpdatePayment);
+      await axios.post('http://podsaas.online/selling/paymentHistory', UpdatePayment);
+      await axios.post('http://podsaas.online/payment/addPayment', NewPayment);
+      handleCloseDialog();
       alert("New payment added successfully");
       fetchPayments();
     } catch (error) {
+      alert("CivilID and Emi Number not match");
       console.error('Error adding payment:', error);
     }
   };
@@ -165,11 +212,11 @@ export default function EPayment() {
               >
                 SMARTCO
               </Typography>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+              <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
             </Toolbar>
           </AppBar>
           <Drawer variant="permanent" open={open}>
@@ -221,7 +268,7 @@ export default function EPayment() {
                 <Typography component="h1" variant="h5" gutterBottom sx={{ fontFamily: 'Public Sans, sans-serif', fontWeight: 'bold', color: "#637381" }}>
                   Payment Details
                 </Typography>
-                <Box component="form" sx={{ mt: 1 }} onSubmit={handleSubmit}>
+                <Box component="form" sx={{ mt: 1 }} onSubmit={handleOpenDialog}>
                   <TextField
                     margin="normal"
                     required
@@ -304,22 +351,77 @@ export default function EPayment() {
                 </Box>
               </Box>
 
+              <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+                <DialogTitle>Confirm Payment</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Please confirm the payment details below:
+                  </DialogContentText>
+                  <Typography variant="body1"><strong>Customer Name:</strong> {customerName}</Typography>
+                  <Typography variant="body1"><strong>Civil ID:</strong> {civilID}</Typography>
+                  <Typography variant="body1"><strong>Device Name:</strong> {deviceName}</Typography>
+                  <Typography variant="body1"><strong>EMI Number:</strong> {emiNumber}</Typography>
+                  <Typography variant="body1"><strong>Price:</strong> {price}</Typography>
+                  <Typography variant="body1"><strong>Date:</strong> {date}</Typography>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleCloseDialog} color="primary" sx={{
+                      mt: 3,
+                      mb: 2,
+                      backgroundColor: '#FF2727',
+                      '&:hover': {
+                        backgroundColor: '#FF4646',
+                      },
+                      fontFamily: 'Public Sans, sans-serif',
+                      fontWeight: 'bold',
+                      color: 'white',
+                    }}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSubmit} color="primary" variant="contained" sx={{
+                      mt: 3,
+                      mb: 2,
+                      backgroundColor: '#752888',
+                      '&:hover': {
+                        backgroundColor: '#C63DE7',
+                      },
+                      fontFamily: 'Public Sans, sans-serif',
+                      fontWeight: 'bold',
+                    }}>
+                    Confirm
+                  </Button>
+                </DialogActions>
+              </Dialog>
+
               {/* Table Section */}
-              <Box sx={{ mt: 4 }}>
+              <Box sx={{ 
+       mt: 6,
+       display: 'flex',
+       flexDirection: 'column',
+       alignItems: 'center',
+       marginTop: 4,
+       padding: 3,
+       backgroundColor: '#fff',
+       borderRadius: 1,
+       boxShadow: 3,
+       maxWidth: 1500, // Adjust this value as needed
+       flexGrow: 1,
+       mx: 'auto',  
+    }}>
                 <TableContainer component={Paper}>
                   <Table sx={{ minWidth: 650 }}>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Customer Name</TableCell>
-                        <TableCell>Civil ID</TableCell>
-                        <TableCell>Device Name</TableCell>
-                        <TableCell>Price</TableCell>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Action</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Customer Name</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Civil ID</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Device Name</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Price</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Date</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Action</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {payments.map((payment) => (
+                      {payments.slice().reverse().map((payment) => (
                         <TableRow key={payment._id}>
                           <TableCell>{payment.customerName}</TableCell>
                           <TableCell>{payment.civilID}</TableCell>
@@ -327,10 +429,10 @@ export default function EPayment() {
                           <TableCell>{payment.price}</TableCell>
                           <TableCell>{payment.date}</TableCell>
                           <TableCell>
-                            <IconButton color="primary">
+                            {/* <IconButton color="primary">
                               <EditIcon />
-                            </IconButton>
-                            <IconButton color="secondary">
+                            </IconButton> */}
+                            <IconButton color="secondary" onClick={() => handleDelete(payment._id)}>
                               <DeleteIcon />
                             </IconButton>
                           </TableCell>

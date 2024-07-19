@@ -26,19 +26,20 @@ const device = new mongoose.Schema({
         type : String,
         required : true
     },
+    ram : {
+        type : String,
+        required : true
+    },
     warrenty : {
         type : String,
         required : true
     },
     emiNumber : {
         type : String,
-        required : true
+        required : true,
+        unique:[true,"EMI Number already taken"],
     },
     purchaseDate : {
-        type : String,
-        required : true
-    }, 
-    expireDate : {
         type : String,
         required : true
     },

@@ -22,7 +22,8 @@ import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper
 } from '@mui/material';
-
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 
 
@@ -74,6 +75,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
   const mdTheme = createTheme();
 const CustomerList = () => {
+  const navigate = useNavigate();
   let date = new Date();
   let day = date.getDate();
   let month = date.getMonth() + 1; // JavaScript months are 0-based counting
@@ -94,7 +96,7 @@ const [whatsapp_no, setwhatsapp_no] = useState('');
 const [telephone_no, settelephone_no] = useState('');
 
 useEffect(() => {
-    fetch('http://localhost:8000/api/customer/', {
+    fetch('http://podsaas.online/api/customer/', {
         method: 'GET'
     })
     .then(response => {
@@ -111,9 +113,16 @@ useEffect(() => {
         console.error('Error fetching data:', error);
     });
 }, []);
+const handleLogout = () => {
+  // Remove user details from session storage
+  sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+  console.log('User details cleared from session storage');
+  navigate('/');
+};
 
 const downloadPDF = () => {
-  fetch('http://localhost:8000/convertcustomerPDF', {
+  fetch('http://podsaas.online/convertcustomerPDF', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
@@ -147,9 +156,43 @@ const downloadPDF = () => {
   .catch(error => alert(error));
 };
 
+const downloadExcel = () => {
+  fetch('http://podsaas.online/api/customer/customerexcel', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data) // Send current data to the backend
+  })
+  .then(response => {
+      if (response.ok) {
+          return response.blob(); // If the response is OK, get the Excel blob
+      } else {
+          throw new Error('Error converting to Excel');
+      }
+  })
+  .then(blob => {
+      // Create a blob URL
+      const url = window.URL.createObjectURL(blob);
+      // Create a link element
+      const link = document.createElement('a');
+      link.href = url;
+      let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
+     
+      link.download = `Customer Report - ${formattedDateTime}.xlsx`;
+      // Append the link to the body
+      document.body.appendChild(link);
+      // Simulate click
+      link.click();
+      // Remove the link when done
+      document.body.removeChild(link);
+  })
+  .catch(error => alert(error));
+};
+
 const resetTable = () => {
   
-    fetch('http://localhost:8000/api/customer/', {
+    fetch('http://podsaas.online/api/customer/', {
         method: 'GET'
     })
     .then(response => {
@@ -171,7 +214,7 @@ const handleFetch = () => {
     let filteredData = originalData.filter(item => {
         return (name === '' || item.name === name) &&
             (email === '' || item.email === email) &&
-            (civil_id === '' || item.civil_id === Number(civil_id)) &&
+            (civil_id === '' || item.civil_id === (civil_id)) &&
             (nationality === '' || item.nationality === nationality) &&
             (address === '' || item.address === address) &&
             (mobile === '' || item.mobile === Number(mobile)) &&
@@ -236,9 +279,9 @@ const handleFetch = () => {
   >
     SMARTCO
   </Typography>
-    <IconButton color="inherit">
-      <Badge badgeContent={4} color="secondary">
-        <NotificationsIcon />
+  <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
       </Badge>
     </IconButton>
   </Toolbar>
@@ -324,10 +367,10 @@ sx={{
   </Grid>
  
   <Grid container spacing={2} direction="row" justifyContent="space-between">
-    <Grid item xs={12} sm={4}>
+    <Grid item xs={12} sm={3}>
       <Button
         
-        onClick={handleFetch}
+        onClick={handleFetch} m
         fullWidth
         variant="contained"
         sx={{
@@ -344,7 +387,7 @@ sx={{
         Fetch
       </Button>
     </Grid>
-    <Grid item xs={12} sm={4}>
+    <Grid item xs={12} sm={3}>
       <Button
        
         onClick={resetTable}
@@ -364,7 +407,7 @@ sx={{
         Reset
       </Button>
     </Grid>
-    <Grid item xs={12} sm={4}>
+    <Grid item xs={12} sm={3}>
       <Button
       
     
@@ -383,6 +426,27 @@ sx={{
         }}
       >
         Download PDF
+      </Button>
+    </Grid>
+    <Grid item xs={12} sm={3}>
+      <Button
+      
+    
+        onClick={downloadExcel}
+        fullWidth
+        variant="contained"
+        sx={{
+          mt: 3,
+          mb: 2,
+          backgroundColor: '#752888',
+          '&:hover': {
+            backgroundColor: '#C63DE7',
+          },
+          fontFamily: 'Public Sans, sans-serif',
+          fontWeight: 'bold',
+        }}
+      >
+        Download Excel
       </Button>
     </Grid>
   </Grid>

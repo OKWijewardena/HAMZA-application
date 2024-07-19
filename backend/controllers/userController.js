@@ -1,7 +1,8 @@
 const asyncHandler = require("express-async-handler");
-const usermodel = require("../models/usermodel");
+const usermodel = require("../models/userModel");
 const bcrypt=require("bcryptjs");
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
 
 //@desc register a user
 //@route post /api/ users / register
@@ -71,19 +72,23 @@ const loginUser = asyncHandler(async (req, res) => {
           switch(userlogin.role) {
               case 'admin':
               case 'employee':
-                  userInfo = await axios.get(`http://localhost:8000/api/employee&admin/${email}`);
+                  userInfo = await axios.get(`http://podsaas.online/api/employee&admin/${email}`);
                   role = userlogin.role;
                   message = `${role.charAt(0).toUpperCase() + role.slice(1)} page`;
                   break;
               case 'customer':
-                  userInfo = await axios.get(`http://localhost:8000/api/customer/${email}`);
+                  userInfo = await axios.get(`http://podsaas.online/api/customer/${email}`);
                   role = 'customer';
                   message = "Customer page";
                   break;
               
           }
           userInfo.data.role = role;
-          res.status(200).json({message: message, user: userInfo.data})
+          //   const jwtToken = jwt.sign({ email: userlogin.email, id: userlogin._id }, process.env.JWT_SECRET);
+          const token = jwt.sign({ role: role, userInfo: userInfo.data }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Send the response once
+        res.status(200).json({ message: message, user: userInfo.data, token: token });
         
 
     } else {
@@ -100,16 +105,13 @@ const getregisterduser= asyncHandler(async(req,res)=>{
     console.log(`Searching for user with email: ${email}`);
     const userData = await usermodel.findOne({ email });
     
+    console.log(`Found user: ${JSON.stringify(userData)}`);
     if(!userData){
-        console.log(`User with email: ${email} is not registered`);
-        res.status(404).json({ message: "User not found" }); // Send a response with the error message
-    } else {
-        console.log(`Found user: ${JSON.stringify(userData)}`);
-        res.status(200).json(userData); // return the user data
-    }
+        res.status(404);
+        throw new Error("Contact not Email");
+    } 
+    res.status(200).json(userData); // return the user data
 });
-
-
 
 
 //@desc update user data

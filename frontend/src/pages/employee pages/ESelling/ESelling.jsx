@@ -19,10 +19,13 @@ import { mainListItems } from '../listItems';
 
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper
+  TableHead, TableRow, Paper, Dialog, DialogActions, DialogContent,
+  DialogContentText, DialogTitle
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Link, useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -73,6 +76,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme();
 
 export default function ESelling() {
+
+  const navigate = useNavigate();
+
   const [open, setOpen] = useState(true);
   const [sellings, setSellings] = useState([]);
   const [deviceName, setDeviceName] = useState('');
@@ -85,10 +91,19 @@ export default function ESelling() {
   const [advance, setAdvance] = useState('');
   const [imageName, setImageName] = useState('');
   const [devices, setDevices] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
 
   useEffect(() => {
     fetchSellings();
   }, []);
+
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
 
   useEffect(() => {
     if (emiNumber) {
@@ -102,7 +117,7 @@ export default function ESelling() {
 
   const fetchSellings = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/selling/getSelling');
+      const response = await axios.get('http://podsaas.online/selling/getSelling');
       setSellings(response.data);
     } catch (error) {
       console.error('Error fetching sellings:', error);
@@ -111,7 +126,7 @@ export default function ESelling() {
 
   const fetchDeviceImage = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/device/getOneDevice/${emiNumber}`);
+      const response = await axios.get(`http://podsaas.online/device/getOneDevice/${emiNumber}`);
       setDevices(response.data);
       if (response.data.length > 0) {
         setImageName(response.data[0].imageName); // Assuming you want to set the first device's imageName by default
@@ -121,9 +136,27 @@ export default function ESelling() {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://podsaas.online/selling/deleteSelling/${id}`);
+      alert("Selling record deleted successfully");
+      fetchSellings(); // Refresh the selling list after deletion
+    } catch (error) {
+      console.error('Error deleting selling:', error);
+      alert("An error occurred while deleting the selling record.");
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+    setOpenDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+  };
+
+  const handleConfirmSubmit = async () => {
     // Check if imageName is set
     if (!imageName) {
       alert("Image name is required. Please check the EMI Number.");
@@ -141,14 +174,17 @@ export default function ESelling() {
       advance,
       imageName
     };
-    
+
     try {
-      await axios.post('http://localhost:8000/selling/addSelling', NewPurchase);
+      await axios.post('http://podsaas.online/selling/addSelling', NewPurchase);
+      await axios.delete(`http://podsaas.online/device/deleteDeviceemi/${NewPurchase.emiNumber}`);
       alert("New customer device purchased");
       fetchSellings(); // Refresh the selling list after submission
+      handleDialogClose();
     } catch (err) {
       console.error(err.response ? err.response.data : err);
       alert("An error occurred while adding the item to the stores.");
+      handleDialogClose();
     }
   };
 
@@ -186,11 +222,11 @@ export default function ESelling() {
               >
                 SMARTCO
               </Typography>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+              <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
             </Toolbar>
           </AppBar>
           <Drawer variant="permanent" open={open}>
@@ -326,7 +362,7 @@ export default function ESelling() {
                       setAdvance(e.target.value);
                     }}
                   />
-                  
+
                   <Button
                     type="submit"
                     fullWidth
@@ -348,26 +384,41 @@ export default function ESelling() {
               </Box>
 
               {/* Table Section */}
-              <Box sx={{ mt: 4 }}>
+              <Box sx={{ 
+       mt: 6,
+       display: 'flex',
+       flexDirection: 'column',
+       alignItems: 'center',
+       marginTop: 4,
+       padding: 3,
+       backgroundColor: '#fff',
+       borderRadius: 1,
+       boxShadow: 3,
+       maxWidth: 1500, // Adjust this value as needed
+       flexGrow: 1,
+       mx: 'auto',  
+    }}>
                 <TableContainer component={Paper}>
                   <Table sx={{ minWidth: 650 }}>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Device Name</TableCell>
-                        <TableCell>Customer Name</TableCell>
-                        <TableCell>Civil ID</TableCell>
-                        <TableCell>Price</TableCell>
-                        <TableCell>Months</TableCell>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Advance</TableCell>
-                        <TableCell>Balance</TableCell>
-                        <TableCell>Action</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Device Name</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Emi Number</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Customer Name</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Civil ID</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Price</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Months</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Date</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Advance</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Balance</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Action</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {sellings.map((selling) => (
+                      {sellings.slice().reverse().map((selling) => (
                         <TableRow key={selling._id}>
                           <TableCell>{selling.deviceName}</TableCell>
+                          <TableCell>{selling.emiNumber}</TableCell>
                           <TableCell>{selling.customerName}</TableCell>
                           <TableCell>{selling.civilID}</TableCell>
                           <TableCell>{selling.price}</TableCell>
@@ -376,10 +427,7 @@ export default function ESelling() {
                           <TableCell>{selling.advance}</TableCell>
                           <TableCell>{selling.balance}</TableCell>
                           <TableCell>
-                            <IconButton color="primary">
-                              <EditIcon />
-                            </IconButton>
-                            <IconButton color="secondary">
+                            <IconButton color="secondary" onClick={() => handleDelete(selling._id)}>
                               <DeleteIcon />
                             </IconButton>
                           </TableCell>
@@ -393,6 +441,80 @@ export default function ESelling() {
           </Box>
         </Box>
       </ThemeProvider>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={openDialog} onClose={handleDialogClose}>
+        <DialogTitle>Confirm Selling Details</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Please confirm the following details before submitting:
+          </DialogContentText>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell>Device Name:</TableCell>
+                <TableCell>{deviceName}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>EMI Number:</TableCell>
+                <TableCell>{emiNumber}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Customer Name:</TableCell>
+                <TableCell>{customerName}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Civil ID:</TableCell>
+                <TableCell>{civilID}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Price:</TableCell>
+                <TableCell>{price}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Months:</TableCell>
+                <TableCell>{months}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Date:</TableCell>
+                <TableCell>{date}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Advance:</TableCell>
+                <TableCell>{advance}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary" sx={{
+                      mt: 3,
+                      mb: 2,
+                      backgroundColor: '#FF2727',
+                      '&:hover': {
+                        backgroundColor: '#FF4646',
+                      },
+                      fontFamily: 'Public Sans, sans-serif',
+                      fontWeight: 'bold',
+                      color: 'white',
+                    }}>
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmSubmit} color="primary" sx={{
+                      mt: 3,
+                      mb: 2,
+                      backgroundColor: '#752888',
+                      '&:hover': {
+                        backgroundColor: '#C63DE7',
+                      },
+                      fontFamily: 'Public Sans, sans-serif',
+                      fontWeight: 'bold',
+                      color: 'white',
+                    }}>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

@@ -2,49 +2,62 @@ const Selling = require("../models/sellingModel");
 const asyncHandler = require("express-async-handler");
 // Controller to add a new selling record
 exports.addSelling = async (req, res) => {
-    const { deviceName, emiNumber, customerName, civilID, price, months, date, advance, imageName } = req.body;
-    
-    const currentbalance = parseFloat(price) * parseFloat(months);
-    const balance = String(currentbalance);
-    const customArray = [];
-  
-    for (let i = 0; i < months; i++) {
-      const nextMonthDate = new Date(date);
-      nextMonthDate.setMonth(nextMonthDate.getMonth() + (i+1));
-  
-      const formattedNextMonthDate = `${nextMonthDate.getFullYear()}-${String(nextMonthDate.getMonth() + 1).padStart(2, '0')}-${String(nextMonthDate.getDate()).padStart(2, '0')}`;
-      
-      const monthData = { 
-        date: formattedNextMonthDate,
-        price: String(price),
-        status: 'unpaid'
-      };
-      
-      customArray.push(monthData);
-    }
-  
-    const newAddSelling = new Selling({
-      deviceName,
-      emiNumber,
-      customerName,
-      civilID,
-      price,
-      months,
-      date,
-      advance,
-      imageName,
-      balance,
-      customArray
-    });
-  
-    try {
-      await newAddSelling.save();
-      res.json("New customer device purchased");
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  };
+  const {
+    deviceName,
+    emiNumber,
+    customerName,
+    civilID,
+    price,
+    months,
+    date,
+    advance,
+    imageName,
+  } = req.body;
+
+  const currentbalance = (parseFloat(price) - parseFloat(advance)).toFixed(2);
+  const installment = (currentbalance / parseFloat(months)).toFixed(2);
+  const balance = String(currentbalance);
+  const customArray = [];
+
+  for (let i = 0; i < months; i++) {
+    const nextMonthDate = new Date(date);
+    nextMonthDate.setMonth(nextMonthDate.getMonth() + (i + 1));
+
+    const formattedNextMonthDate = `${nextMonthDate.getFullYear()}-${String(
+      nextMonthDate.getMonth() + 1
+    ).padStart(2, "0")}-${String(nextMonthDate.getDate()).padStart(2, "0")}`;
+
+    const monthData = {
+      date: formattedNextMonthDate,
+      price: String(installment),
+      status: "unpaid",
+    };
+
+    customArray.push(monthData);
+  }
+
+  const newAddSelling = new Selling({
+    deviceName,
+    emiNumber,
+    customerName,
+    civilID,
+    price,
+    months,
+    date,
+    advance,
+    imageName,
+    balance,
+    customArray,
+  });
+
+  try {
+    await newAddSelling.save();
+    res.json("New customer device purchased");
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 // Controller to get all selling records
 exports.getAllSelling = (req, res) => {
@@ -68,7 +81,7 @@ exports.updateSelling = async (req, res) => {
     months,
     date,
     advance,
-    balance
+    balance,
   } = req.body;
 
   const updateSellingRecord = {
@@ -79,7 +92,7 @@ exports.updateSelling = async (req, res) => {
     months,
     date,
     advance,
-    balance
+    balance,
   };
 
   try {
@@ -87,7 +100,10 @@ exports.updateSelling = async (req, res) => {
     res.status(200).send({ status: "Customer device purchase record updated" });
   } catch (err) {
     console.log(err);
-    res.status(500).send({ status: "Error with updating selling record", error: err.message });
+    res.status(500).send({
+      status: "Error with updating selling record",
+      error: err.message,
+    });
   }
 };
 
@@ -95,7 +111,9 @@ exports.updateSelling = async (req, res) => {
 exports.deleteSelling = (req, res) => {
   Selling.findOneAndDelete({ _id: req.params.id })
     .then(() => {
-      res.status(200).send({ status: "Customer device purchase record deleted" });
+      res
+        .status(200)
+        .send({ status: "Customer device purchase record deleted" });
     })
     .catch((err) => {
       console.log(err);
@@ -114,6 +132,25 @@ exports.getOneSelling = (req, res) => {
     });
 };
 
+exports.getonesellingByIdEmi = (req, res) => {
+  const { civilID, emiNumber } = req.params;
+  console.log("Searching for civil_id:", civilID, "and emi_no:", emiNumber);
+
+  Selling.findOne({ civilID, emiNumber })
+    .then((sellingRecord) => {
+      if (!sellingRecord) {
+        console.log("No record found.");
+        return res.status(404).json({ message: "Record not found" });
+      }
+      console.log("Found record:", sellingRecord);
+      res.json(sellingRecord);
+    })
+    .catch((err) => {
+      console.error("Error retrieving selling record:", err);
+      res.status(500).json({ error: "Error retrieving selling record" });
+    });
+};
+
 // Controller to get a single selling record by ID
 exports.getOneSellingID = (req, res) => {
   Selling.findOne({ _id: req.params.id })
@@ -122,6 +159,24 @@ exports.getOneSellingID = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
+      res.status(500).json({ error: "Error retrieving selling record" });
+    });
+};
+
+exports.getonesellingByIdEminumber = (req, res) => {
+  const { emi } = req.params;
+  console.log({ emi });
+  Selling.findOne({ emiNumber: emi })
+    .then((sellingRecord) => {
+      if (!sellingRecord) {
+        console.log("No record found.");
+        return res.status(200).json({ message: "data not available" });
+      }
+      console.log("Found record:", sellingRecord);
+      res.json(sellingRecord);
+    })
+    .catch((err) => {
+      console.error("Error retrieving selling record:", err);
       res.status(500).json({ error: "Error retrieving selling record" });
     });
 };
@@ -139,56 +194,71 @@ exports.updatePaymentHistory = async (req, res) => {
     let isPaymentUpdated = false;
     const customArray = selling.customArray;
     let balance = parseFloat(selling.balance);
+    let Payment = parseFloat(payment);
 
     for (let i = 0; i < customArray.length; i++) {
       const itemDate = new Date(customArray[i].date);
       const itemPrice = parseFloat(customArray[i].price);
+      const nextItem = customArray[i + 1];
+      const nextPrice = nextItem ? parseFloat(nextItem.price) : undefined;
 
-      if (itemDate >= new Date(date) && itemPrice === parseFloat(payment) && customArray[i].status === "unpaid") {
-        customArray[i].status = "paid";
-        customArray[i].price = payment.toString();
-        balance -= parseFloat(payment);
-        isPaymentUpdated = true;
-        break;
-      } else if (itemDate >= new Date(date) && itemPrice > parseFloat(payment) && customArray[i].status === "unpaid") {
-        customArray[i].status = "paid";
-        customArray[i].price = payment.toString();
-        const newPrice = 2 * itemPrice - parseFloat(payment);
-        balance -= parseFloat(payment);
-
-        if (customArray[i + 1]) {
-          customArray[i + 1].price = newPrice.toString();
-        } else {
-          console.error('No next item to update the price for.');
-        }
-
-        isPaymentUpdated = true;
-        break;
-      } else if (itemDate >= new Date(date) && itemPrice < parseFloat(payment) && customArray[i].status === "unpaid") {
-        customArray[i].status = "paid";
-        customArray[i].price = payment.toString();
-        const newPrice = itemPrice - (parseFloat(payment) - itemPrice);
-        balance -= parseFloat(payment);
-
-        if (customArray[i + 1]) {
-          customArray[i + 1].price = newPrice.toString();
-        } else {
-          console.error('No next item to update the price for.');
-        }
-
+      if (Payment === 0) {
         isPaymentUpdated = true;
         break;
       }
+
+      if (itemDate >= new Date(date) && customArray[i].status === "unpaid") {
+        if (itemPrice === Payment) {
+          customArray[i].status = "paid";
+          customArray[i].price = payment.toFixed(2);
+          Payment = 0;
+        } else if (itemPrice > Payment) {
+          customArray[i].status = "paid";
+          customArray[i].price = Payment.toFixed(2);
+          const remainingPrice = itemPrice - Payment;
+
+          if (nextItem) {
+            nextItem.price = (nextPrice + remainingPrice).toFixed(2);
+          }
+          Payment = 0;
+        } else {
+          customArray[i].status = "paid";
+          customArray[i].price = itemPrice.toFixed(2);
+          Payment -= itemPrice;
+
+          if (nextItem && Payment > 0) {
+            const remainingPrice = nextPrice - Payment;
+            if (remainingPrice >= 0) {
+              nextItem.price = remainingPrice.toFixed(2);
+              Payment = 0;
+            } else {
+              nextItem.status = "paid";
+              nextItem.price = nextPrice.toFixed(2);
+              Payment = Math.abs(remainingPrice);
+            }
+          }
+        }
+        isPaymentUpdated = true;
+      }
     }
 
+    balance -= parseFloat(payment);
+    balance = balance.toFixed(2);
+
     if (!isPaymentUpdated) {
-      return res.status(404).json({ message: "No matching unpaid record found with the given date and payment amount" });
+      return res.status(404).json({
+        message:
+          "No matching unpaid record found with the given date and payment amount",
+      });
     }
 
     selling.balance = balance.toString();
     await selling.save();
 
-    res.json({ message: "Payment status updated successfully", customArray: selling.customArray });
+    res.json({
+      message: "Payment status updated successfully",
+      customArray: selling.customArray,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });

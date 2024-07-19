@@ -16,6 +16,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems } from '../listItems';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
@@ -74,6 +76,8 @@ const mdTheme = createTheme();
 
 export default function EDevice(){
 
+    const navigate = useNavigate();
+
     const [open, setOpen] = React.useState(true);
     const [devices, setDevices] = useState([]);
     const [form, setForm] = useState({
@@ -83,16 +87,35 @@ export default function EDevice(){
         shopName: '',
         modelNumber: '',
         storage: '',
+        ram:'',
         warrenty: '',
         emiNumber: '',
         purchaseDate: '',
-        expireDate:'',
         imageName: ''
     });
+
+    const handleDelete = async (id) => {
+        try {
+          await axios.delete(`http://podsaas.online/device/deleteDevice/${id}`);
+          alert("Dervice record deleted successfully");
+          fetchDevices();// Refresh the selling list after deletion
+        } catch (error) {
+          console.error('Error deleting selling:', error);
+          alert("An error occurred while deleting the selling record.");
+        }
+      };
 
     useEffect(() => {
         fetchDevices();
     }, []);
+
+    const handleLogout = () => {
+        // Remove user details from session storage
+        sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+        console.log('User details cleared from session storage');
+        navigate('/');
+      };
 
     const toggleDrawer = () => {
         setOpen(!open);
@@ -100,7 +123,7 @@ export default function EDevice(){
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/device/getDevice');
+            const response = await axios.get('http://podsaas.online/device/getDevice');
             setDevices(response.data);
         } catch (error) {
             console.error('Error fetching devices:', error);
@@ -113,7 +136,7 @@ export default function EDevice(){
     };
 
     const handleFileChange = (event) => {
-        setForm({ ...form, imageName: event.target.files[0] });
+        setForm({ ...form, imageName: event.target.files[0]});
     };
 
     const handleSubmit = async (event) => {
@@ -123,24 +146,12 @@ export default function EDevice(){
             formData.append(key, form[key]);
         });
         try {
-            await axios.post('http://localhost:8000/device/addDevice', formData, {
+            await axios.post('http://podsaas.online/device/addDevice', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            setForm({
-                deviceName: '',
-                price: '',
-                color: '',
-                shopName: '',
-                modelNumber: '',
-                storage: '',
-                warrenty: '',
-                emiNumber: '',
-                purchaseDate: '',
-                expireDate:'',
-                imageName: ''
-            });
+            alert("New Device added successfully");
             fetchDevices();
         } catch (error) {
             console.error('Error adding devices:', error);
@@ -181,11 +192,11 @@ export default function EDevice(){
                             >
                                 SMARTCO
                             </Typography>
-                            <IconButton color="inherit">
-                                <Badge badgeContent={4} color="secondary">
-                                    <NotificationsIcon />
-                                </Badge>
-                            </IconButton>
+                            <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
                         </Toolbar>
                     </AppBar>
                     <Drawer variant="permanent" open={open}>
@@ -278,6 +289,13 @@ export default function EDevice(){
                                     <TextField margin="normal"
                                         required
                                         fullWidth
+                                        label="Ram"
+                                        name="ram"
+                                        value={form.ram}
+                                        onChange={handleInputChange} />
+                                    <TextField margin="normal"
+                                        required
+                                        fullWidth
                                         label="Warrenty"
                                         name="warrenty"
                                         value={form.warrenty}
@@ -296,14 +314,6 @@ export default function EDevice(){
                                         type="date"
                                         name="purchaseDate"
                                         value={form.purchaseDate}
-                                        onChange={handleInputChange} />
-                                    <TextField margin="normal"
-                                        required
-                                        fullWidth
-                                        label="Expire Date"
-                                        type="date"
-                                        name="expireDate"
-                                        value={form.expireDate}
                                         onChange={handleInputChange} />
                                     <TextField
                                         margin="normal"
@@ -333,27 +343,40 @@ export default function EDevice(){
                                 </Box>
                             </Box>
                             {/* Table Section */}
-                            <Box sx={{ mt: 4 }}>
+                            <Box sx={{ 
+       mt: 6,
+       display: 'flex',
+       flexDirection: 'column',
+       alignItems: 'center',
+       marginTop: 4,
+       padding: 3,
+       backgroundColor: '#fff',
+       borderRadius: 1,
+       boxShadow: 3,
+       maxWidth: 1500, // Adjust this value as needed
+       flexGrow: 1,
+       mx: 'auto',  
+    }}>
                                 <TableContainer component={Paper}>
                                     <Table sx={{ minWidth: 650 }}>
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell>Device Name</TableCell>
-                                                <TableCell>Price</TableCell>
-                                                <TableCell>Colour</TableCell>
-                                                <TableCell>Shop Name</TableCell>
-                                                <TableCell>Model Number</TableCell>
-                                                <TableCell>Storage</TableCell>
-                                                <TableCell>Warrenty</TableCell>
-                                                <TableCell>Emi Number</TableCell>
-                                                <TableCell>Purchase Date</TableCell>
-                                                <TableCell>Expire Date</TableCell>
-                                                <TableCell>Image Name</TableCell>
-                                                <TableCell>Action</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Device Name</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Price</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Colour</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Shop Name</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Model Number</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Storage</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Ram</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Warrenty</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Emi Number</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Purchase Date</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Image Name</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Action</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {devices.map((device) => (
+                                            {devices.slice().reverse().map((device) => (
                                                 <TableRow key={device._id}>
                                                     <TableCell>{device.deviceName}</TableCell>
                                                     <TableCell>{device.price}</TableCell>
@@ -361,24 +384,26 @@ export default function EDevice(){
                                                     <TableCell>{device.shopName}</TableCell>
                                                     <TableCell>{device.modelNumber}</TableCell>
                                                     <TableCell>{device.storage}</TableCell>
+                                                    <TableCell>{device.ram}</TableCell>
                                                     <TableCell>{device.warrenty}</TableCell>
                                                     <TableCell>{device.emiNumber}</TableCell>
                                                     <TableCell>{device.purchaseDate}</TableCell>
-                                                    <TableCell>{device.expireDate}</TableCell>
                                                     <TableCell>
         {device.imageName && (
           <img
-            src={`/images/deviceImages/${device.imageName}`}
+            src={`${device.imageName}`}
             alt={device.deviceName}
             style={{ width: '100px', height: '100px' }}
           />
         )}
       </TableCell>
                                                     <TableCell>
+                                                        <Link to={`updatedevice/${device.emiNumber}`}>
                                                         <IconButton color="primary">
                                                             <EditIcon />
                                                         </IconButton>
-                                                        <IconButton color="secondary">
+                                                        </Link>
+                                                        <IconButton color="secondary" onClick={() => handleDelete(device._id)}>
                                                             <DeleteIcon />
                                                         </IconButton>
                                                     </TableCell>

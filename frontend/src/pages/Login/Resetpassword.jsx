@@ -31,7 +31,7 @@ const useStyles = makeStyles({
   },
 });
 
-export const Resetpassword = () => {
+export default function Resetpassword() {
   const [newPassword, setNewPassword] = useState('');
   const [reEnterPassword, setReEnterPassword] = useState('');
   const [user, setUser] = useState(null);
@@ -69,7 +69,7 @@ export const Resetpassword = () => {
     }
 
     try {
-      const res = await axios.put(`http://localhost:8000/api/users/${user.email}`, { password: newPassword });
+      const res = await axios.put(`http://podsaas.online/api/users/${user.email}`, { password: newPassword });
       if (res.status === 200) {
         alert("Update successful");
         navigate("/");

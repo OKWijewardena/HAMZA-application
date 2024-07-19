@@ -1,17 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { Container, Grid, Typography, Box, Button, Card, CardContent, CardMedia } from '@mui/material';
-import FindIcon from '@mui/icons-material/Search'; // Adjust based on your icon choice
+import { Link , useNavigate } from 'react-router-dom';
+import { Toolbar, IconButton,Container, Badge, Grid, Typography, Box, Button, Card, CardContent, CardMedia } from '@mui/material';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 export default function CustomerHome() {
+
+  const navigate = useNavigate();
+
+  const user = JSON.parse(sessionStorage.getItem('user'));
+
+  if (user) {
+    const role = user.role;
+    console.log('Role:', role);
+    
+  } else {
+    console.log('No user data found in session storage');
+  }
+
+  // Check if the user's role is "customer"
+  if (!user || user.role !== "customer") {
+    navigate('/not-authorized');
+  }
+
     const [sellings, setSellings] = useState([]);
     const [civilID, setCivilID] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [devices,setDevices] = useState([]);
     const [eminumbers,setEminumbers] = useState();
-
-    const user = JSON.parse(sessionStorage.getItem('user'));
+    const [unsoldDevicesCount, setUnSoldDevicesCount] = useState(0);
 
 // Check if the user object exists and then access the email property
 if (user) {
@@ -26,11 +44,24 @@ if (user) {
 
     useEffect(() => {
         fetchSellings();
+        fetchDeviceDetails();
     }, []);
+
+    const NavProfile = () => {
+      navigate('/customerprofile');
+    }
+
+    const handleLogout = () => {
+      // Remove user details from session storage
+      sessionStorage.removeItem('user');
+  sessionStorage.removeItem('token');
+      console.log('User details cleared from session storage');
+      navigate('/');
+    };
 
     const fetchSellings = async () => {
         try {
-          const res = await axios.get(`http://localhost:8000/api/customer/${user.email}`);
+          const res = await axios.get(`http://podsaas.online/api/customer/${user.email}`);
     
           // Log the response to check its structure
           console.log('Response data:', res.data);
@@ -42,7 +73,7 @@ if (user) {
       
           console.log('Civil ID:', CIVILID);
 
-            const response = await axios.get(`http://localhost:8000/selling/getOneSelling/${CIVILID}`);
+            const response = await axios.get(`http://podsaas.online/selling/getOneSelling/${CIVILID}`);
             setSellings(response.data);
             const emiNumbers = response.data.map(selling => selling.emiNumber);
             setEminumbers(emiNumbers);
@@ -52,26 +83,79 @@ if (user) {
         }
     };
 
+    const fetchDeviceDetails = async () => {
+      try {
+        const response = await axios.get('http://podsaas.online/device/getDevice');
+        setUnSoldDevicesCount(response.data.length); // Assuming each device represents a sold device
+      } catch (error) {
+        console.error('Error fetching device details:', error);
+      }
+    };
+
 
   return (
     <Container>
+      <Toolbar
+  sx={{
+    pr: '24px',
+    marginTop: '20px' // keep right padding when drawer closed
+  }}
+>
+  <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+  <IconButton sx={{ marginRight: 'auto' }} onClick={NavProfile} >
+  <Box 
+    sx={{
+      background: 'linear-gradient(90deg, rgba(198, 61, 231, 0.2), rgba(117, 40, 136, 0.2))',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 40,
+      height: 40,
+    }}
+  >
+    <AccountCircleOutlinedIcon 
+    />
+  </Box>
+</IconButton>
+
+
+    <Typography
+      component="h1"
+      variant="h6"
+      noWrap
+      sx={{ 
+        flexGrow: 1, 
+        textAlign: 'center', 
+        background: 'linear-gradient(90deg, #C63DE7, #752888)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        fontFamily: 'Public Sans, sans-serif',
+        fontWeight: 'bold'
+      }}
+    >
+      SMARTCO
+    </Typography>
+    
+    <IconButton onClick={handleLogout} sx={{ marginLeft: 'auto' }}>
+    <Box 
+    sx={{
+      background: 'linear-gradient(90deg, rgba(198, 61, 231, 0.2), rgba(117, 40, 136, 0.2))',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 40,
+      height: 40,
+    }}
+  >
+        <LogoutIcon />
+      </Box>
+    </IconButton>
+  </Box>
+</Toolbar>
+
       <Box textAlign="center" mb={4}>
-      <Typography
-            component="h1"
-            variant="h6"
-            noWrap
-            sx={{ 
-              flexGrow: 1, 
-              background: 'linear-gradient(90deg, #C63DE7, #752888)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              fontFamily: 'Public Sans, sans-serif',
-              fontWeight: 'bold',
-              marginTop:'20px'
-            }}
-          >
-            SMARTCO
-          </Typography>
           <Box bgcolor="secondary.light" p={4} borderRadius={2} textAlign="center" sx={{ background: 'linear-gradient(90deg, rgba(198, 61, 231, 0.2), rgba(117, 40, 136, 0.2))', marginTop: "20px", position: 'relative' }}>
       <Grid container spacing={2} alignItems="center" justifyContent="center">
         <Grid item xs={12} md={8}>
@@ -79,10 +163,12 @@ if (user) {
             Number of devices you can buy from us
           </Typography>
           <Typography variant="h3" color="secondary" gutterBottom>
-            5,275
+          {unsoldDevicesCount}
           </Typography>
           <Link to="/customerdevice" style={{textDecoration: 'none', color:"black"}}>
-          <Button variant="contained" sx={{ backgroundColor: '#752888', mt: 2 }}>
+          <Button variant="contained" sx={{ backgroundColor: '#752888','&:hover': {
+                        backgroundColor: '#C63DE7',
+                      }, mt: 2 }}>
             Find your device
           </Button>
           </Link>
@@ -105,7 +191,7 @@ if (user) {
               <CardMedia
                 component="img"
                 height="140"
-                image={`/images/deviceImages/${selling.imageName}`}
+                image={`${selling.imageName}`}
                 alt={selling.emiNumber}               
               />
               <CardContent>
@@ -113,7 +199,13 @@ if (user) {
                   {selling.deviceName}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Payment Date: {selling.paymentDate}
+                  Purchase Date: {selling.date}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Device Price: {selling.price}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Advance: {selling.advance}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Remaining Balance: {selling.balance}

@@ -17,6 +17,8 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../listItems';
 import { MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
@@ -74,21 +76,38 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme();
 
 export default function Employee() {
+
+  const navigate = useNavigate();
+
+
+  const user = JSON.parse(sessionStorage.getItem('user'));
+
+  if (user) {
+    const role = user.role;
+    console.log('Role:', role);
+    
+  } else {
+    console.log('No user data found in session storage');
+  }
+
+  // Check if the user's role is "superadmin"
+  if (!user || user.role !== "superadmin") {
+    navigate('/not-authorized');
+  }
+
   const [open, setOpen] = useState(true);
   const [employees, setEmployees] = useState([]);
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-    address: '',
-    phone: '',
-    role: ''
-  });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [address, setAddress] = useState('');
+  const [phone, setPhone] = useState('');
+  const [role, setRole] = useState('');
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/employee&admin/${id}`);
-      await axios.delete(`http://localhost:8000/api/users/${id}`)
+      await axios.delete(`http://podsaas.online/api/employee&admin/${id}`);
+      await axios.delete(`http://podsaas.online/api/users/${id}`)
       alert("Employee record deleted successfully");
       fetchEmployees();// Refresh the employee list after deletion
     } catch (error) {
@@ -101,39 +120,53 @@ export default function Employee() {
     fetchEmployees();
   }, []);
 
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/employee&admin/');
+      const response = await axios.get('http://podsaas.online/api/employee&admin/');
       setEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
     }
   };
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setForm({ ...form, [name]: value });
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    const NewEmployee = {
+      name,
+      email,
+      password,
+      address,
+      phone,
+      role
+    };
+
+    const NewUser = {
+      name,
+      email,
+      password,
+      role
+    }
+
     try {
-      await axios.post('http://localhost:8000/api/employee&admin/register', form);
-      setForm({
-        name: '',
-        email: '',
-        password: '',
-        address: '',
-        phone: '',
-        role: ''
-      });
-      fetchEmployees();
+      await axios.post('http://podsaas.online/api/employee&admin/register', NewEmployee);
+      await axios.post('http://podsaas.online/api/users/register', NewUser);
+      alert("New Employee added successfully");
     } catch (error) {
       console.error('Error adding employee:', error);
+      alert(`Error adding employee: ${error.response ? error.response.data.message : error.message}`);
     }
   };
 
@@ -171,11 +204,11 @@ export default function Employee() {
               >
                 SMARTCO
               </Typography>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+              <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
             </Toolbar>
           </AppBar>
           <Drawer variant="permanent" open={open}>
@@ -235,8 +268,10 @@ export default function Employee() {
                     fullWidth
                     label="User Name"
                     name="name"
-                    value={form.name}
-                    onChange={handleInputChange}
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                    }}
                   />
                   <TextField
                     margin="normal"
@@ -244,8 +279,10 @@ export default function Employee() {
                     fullWidth
                     label="E-mail"
                     name="email"
-                    value={form.email}
-                    onChange={handleInputChange}
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                    }}
                   />
                   <TextField
                     margin="normal"
@@ -253,8 +290,10 @@ export default function Employee() {
                     fullWidth
                     label="Mobile Number"
                     name="phone"
-                    value={form.phone}
-                    onChange={handleInputChange}
+                    value={phone}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                    }}
                   />
                   <TextField
                     margin="normal"
@@ -262,8 +301,10 @@ export default function Employee() {
                     fullWidth
                     label="Address"
                     name="address"
-                    value={form.address}
-                    onChange={handleInputChange}
+                    value={address}
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                    }}
                   />
                   <FormControl margin="normal" required fullWidth>
                     <InputLabel id="role-label">Role</InputLabel>
@@ -271,8 +312,10 @@ export default function Employee() {
                       labelId="role-label"
                       label="Role"
                       name="role"
-                      value={form.role}
-                      onChange={handleInputChange}
+                      value={role}
+                      onChange={(e) => {
+                      setRole(e.target.value);
+                    }}
                     >
                       <MenuItem value="admin">Admin</MenuItem>
                       <MenuItem value="employee">Employee</MenuItem>
@@ -285,8 +328,10 @@ export default function Employee() {
                     label="Password"
                     name="password"
                     type="password"
-                    value={form.password}
-                    onChange={handleInputChange}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                    }}
                   />
                   <Button
                     type="submit"
@@ -309,33 +354,46 @@ export default function Employee() {
               </Box>
 
               {/* Table Section */}
-              <Box sx={{ mt: 4 }}>
+              <Box sx={{ 
+       mt: 6,
+       display: 'flex',
+       flexDirection: 'column',
+       alignItems: 'center',
+       marginTop: 4,
+       padding: 3,
+       backgroundColor: '#fff',
+       borderRadius: 1,
+       boxShadow: 3,
+       maxWidth: 1500, // Adjust this value as needed
+       flexGrow: 1,
+       mx: 'auto',  
+    }}>
                 <TableContainer component={Paper}>
                   <Table sx={{ minWidth: 650 }}>
                     <TableHead>
                       <TableRow>
-                        <TableCell>User Name</TableCell>
-                        <TableCell>E-mail</TableCell>
-                        <TableCell>Mobile</TableCell>
-                        <TableCell>Address</TableCell>
-                        <TableCell>Role</TableCell>
-                        <TableCell>Password</TableCell>
-                        <TableCell>Action</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >User Name</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >E-mail</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Mobile</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Address</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Role</TableCell>
+                        <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Action</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {employees.map((employee) => (
+                      {employees.slice().reverse().map((employee) => (
                         <TableRow key={employee._id}>
                           <TableCell>{employee.name}</TableCell>
                           <TableCell>{employee.email}</TableCell>
                           <TableCell>{employee.phone}</TableCell>
                           <TableCell>{employee.address}</TableCell>
                           <TableCell>{employee.role}</TableCell>
-                          <TableCell>{employee.password}</TableCell>
                           <TableCell>
+                            <Link to={`updateemployee/${employee.email}`}>
                             <IconButton color="primary">
                               <EditIcon />
                             </IconButton>
+                            </Link>
                             <IconButton color="secondary" onClick={() => handleDelete(employee.email)}>
                               <DeleteIcon />
                             </IconButton>

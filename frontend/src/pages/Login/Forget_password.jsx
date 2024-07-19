@@ -33,7 +33,7 @@ const useStyles = makeStyles({
   },
 });
 
-export const Forget_password = () => {
+export default function Forget_password(){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -62,7 +62,7 @@ const handleSubmit = async (e) => {
   e.preventDefault();
   console.log(`Email: ${email}`);
   try {
-    const res = await axios.get(`http://localhost:8000/api/users/${email}`);
+    const res = await axios.get(`http://podsaas.online/api/users/${email}`);
     if (res.data) {
       sessionStorage.setItem('user', JSON.stringify(res.data));
       console.log(res.data);

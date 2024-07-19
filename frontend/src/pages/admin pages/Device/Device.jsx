@@ -16,6 +16,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../listItems';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
@@ -23,13 +25,6 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import dayjs from 'dayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-
 
 const drawerWidth = 240;
 
@@ -81,10 +76,26 @@ const mdTheme = createTheme();
 
 export default function Device(){
 
+    const navigate = useNavigate();
+
+
+  const user = JSON.parse(sessionStorage.getItem('user'));
+
+  if (user) {
+    const role = user.role;
+    console.log('Role:', role);
+    
+  } else {
+    console.log('No user data found in session storage');
+  }
+
+  // Check if the user's role is "superadmin"
+  if (!user || user.role !== "superadmin") {
+    navigate('/not-authorized');
+  }
+
     const [open, setOpen] = React.useState(true);
     const [devices, setDevices] = useState([]);
-    const [purchaseDate, setPurchaseDate] = useState(null);
-  const [expireDate, setExpireDate] = useState(null);
     const [form, setForm] = useState({
         deviceName: '',
         price: '',
@@ -92,29 +103,16 @@ export default function Device(){
         shopName: '',
         modelNumber: '',
         storage: '',
+        ram:'',
         warrenty: '',
         emiNumber: '',
-        purchaseDate: null, // Clearing the purchaseDate field
-            expireDate:null, // Clearing the expireDate field
+        purchaseDate: '',
         imageName: ''
     });
-    const handlePurchaseDateChange = (date) => {
-        const formattedDate = date ? date.toISOString().split('T')[0] : '';
-        setForm({ ...form, purchaseDate: formattedDate });
-        setPurchaseDate(date); // Update the purchaseDate state
-    };
-    
-    const handleExpireDateChange = (date) => {
-        const formattedDate = date ? date.toISOString().split('T')[0] : '';
-        setForm({ ...form, expireDate: formattedDate });
-        setExpireDate(date); // Update the expireDate state
-    };
-    
-    
 
     const handleDelete = async (id) => {
         try {
-          await axios.delete(`http://localhost:8000/device/deleteDevice/${id}`);
+          await axios.delete(`http://podsaas.online/device/deleteDevice/${id}`);
           alert("Dervice record deleted successfully");
           fetchDevices();// Refresh the selling list after deletion
         } catch (error) {
@@ -127,13 +125,21 @@ export default function Device(){
         fetchDevices();
     }, []);
 
+    const handleLogout = () => {
+        // Remove user details from session storage
+        sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+        console.log('User details cleared from session storage');
+        navigate('/');
+      };
+
     const toggleDrawer = () => {
         setOpen(!open);
     };
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/device/getDevice');
+            const response = await axios.get('http://podsaas.online/device/getDevice');
             setDevices(response.data);
         } catch (error) {
             console.error('Error fetching devices:', error);
@@ -146,36 +152,62 @@ export default function Device(){
     };
 
     const handleFileChange = (event) => {
-        setForm({ ...form, imageName: event.target.files[0] });
-    };
+        setForm({ ...form, imageName: event.target.files[0]});
+    };    
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        console.log(form);
+
+        const { emiNumber } = form; // Assuming 'emiNumber' is a key in your form data
+    
+        try {
+          // Check if EMI number is available in the selling table
+          const sellingResponse = await axios.get(
+            `http://podsaas.online/selling/getbyEmi/${emiNumber}`
+          );
+    
+          if (sellingResponse.data.message !== "data not available") {
+            alert("This EMI number is already taken in the selling table.");
+            return; // Stop the function execution
+          } else {
+            console.log("EMI number not found in the selling table.");
+          }
+        } catch (error) {
+          console.error("Error checking EMI number in the selling table:", error);
+          return; // Stop the function execution if there is a different error
+        }
+    
+        try {
+          // Check if EMI number is available in the device table
+          const deviceResponse = await axios.get(
+            `http://podsaas.online/device/getOneDevicebyemi/${emiNumber}`
+          );
+    
+          if (deviceResponse.data.message !== "data not available") {
+            alert("This EMI number is already taken in the device table.");
+            return; // Stop the function execution
+          } else {
+            console.log("EMI number not found in the device table.");
+          }
+        } catch (error) {
+          console.error("Error checking EMI number in the device table:", error);
+          return; // Stop the function execution if there is a different error
+        }
+
         const formData = new FormData();
         Object.keys(form).forEach(key => {
             formData.append(key, form[key]);
         });
+        console.log(formData);
         try {
-            await axios.post('http://localhost:8000/device/addDevice', formData, {
+            await axios.post('http://podsaas.online/device/addDevice', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            setForm({
-                deviceName: '',
-                price: '',
-                color: '',
-                shopName: '',
-                modelNumber: '',
-                storage: '',
-                warrenty: '',
-                emiNumber: '',
-                purchaseDate: '',
-                expireDate:'',
-                imageName: ''
-            });
-            setPurchaseDate(null);
-            setExpireDate(null);
+            alert("New Device added successfully");
             fetchDevices();
         } catch (error) {
             console.error('Error adding devices:', error);
@@ -216,11 +248,11 @@ export default function Device(){
                             >
                                 SMARTCO
                             </Typography>
-                            <IconButton color="inherit">
-                                <Badge badgeContent={4} color="secondary">
-                                    <NotificationsIcon />
-                                </Badge>
-                            </IconButton>
+                            <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+              </Badge>
+            </IconButton>
                         </Toolbar>
                     </AppBar>
                     <Drawer variant="permanent" open={open}>
@@ -314,6 +346,13 @@ export default function Device(){
                                     <TextField margin="normal"
                                         required
                                         fullWidth
+                                        label="Ram"
+                                        name="ram"
+                                        value={form.ram}
+                                        onChange={handleInputChange} />
+                                    <TextField margin="normal"
+                                        required
+                                        fullWidth
                                         label="Warrenty"
                                         name="warrenty"
                                         value={form.warrenty}
@@ -325,31 +364,14 @@ export default function Device(){
                                         name="emiNumber"
                                         value={form.emiNumber}
                                         onChange={handleInputChange} />
-                                   
-                                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-    <DatePicker
-        label="Purchase Date"
-        value={purchaseDate}
-        onChange={handlePurchaseDateChange}
-        renderInput={(params) => (
-            <TextField {...params} fullWidth margin="normal" />
-        )}
-        sx={{ mt: 1, mb: 2, width: '100%', maxWidth: 450 }} // Use 100% width for responsiveness and maxWidth for maximum size
-    />
-    <DatePicker
-        label="Expire Date"
-        value={expireDate}
-        onChange={handleExpireDateChange}
-        renderInput={(params) => (
-            <TextField {...params} fullWidth margin="normal" />
-        )}
-        sx={{ mt: 1, mb: 2, width: '100%', maxWidth: 450 }} // Consistent styling with the Purchase Date picker
-    />
-</LocalizationProvider>
-
-
-
-
+                                    <TextField margin="normal"
+                                        required
+                                        fullWidth
+                                        label="Purchase Date"
+                                        type="date"
+                                        name="purchaseDate"
+                                        value={form.purchaseDate}
+                                        onChange={handleInputChange} />
                                     <TextField
                                         margin="normal"
                                         required
@@ -378,27 +400,40 @@ export default function Device(){
                                 </Box>
                             </Box>
                             {/* Table Section */}
-                            <Box sx={{ mt: 4 }}>
+                            <Box sx={{ 
+       mt: 6,
+       display: 'flex',
+       flexDirection: 'column',
+       alignItems: 'center',
+       marginTop: 4,
+       padding: 3,
+       backgroundColor: '#fff',
+       borderRadius: 1,
+       boxShadow: 3,
+       maxWidth: 1500, // Adjust this value as needed
+       flexGrow: 1,
+       mx: 'auto',  
+    }}>
                                 <TableContainer component={Paper}>
                                     <Table sx={{ minWidth: 650 }}>
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell>Device Name</TableCell>
-                                                <TableCell>Price</TableCell>
-                                                <TableCell>Colour</TableCell>
-                                                <TableCell>Shop Name</TableCell>
-                                                <TableCell>Model Number</TableCell>
-                                                <TableCell>Storage</TableCell>
-                                                <TableCell>Warrenty</TableCell>
-                                                <TableCell>Emi Number</TableCell>
-                                                <TableCell>Purchase Date</TableCell>
-                                                <TableCell>Expire Date</TableCell>
-                                                <TableCell>Image Name</TableCell>
-                                                <TableCell>Action</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Device Name</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Price</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Colour</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Shop Name</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Model Number</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Storage</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Ram</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Warrenty</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Emi Number</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Purchase Date</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Image Name</TableCell>
+                                                <TableCell style={{ backgroundColor: '#752888', color: 'white' }} >Action</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {devices.map((device) => (
+                                            {devices.slice().reverse().map((device) => (
                                                 <TableRow key={device._id}>
                                                     <TableCell>{device.deviceName}</TableCell>
                                                     <TableCell>{device.price}</TableCell>
@@ -406,23 +441,25 @@ export default function Device(){
                                                     <TableCell>{device.shopName}</TableCell>
                                                     <TableCell>{device.modelNumber}</TableCell>
                                                     <TableCell>{device.storage}</TableCell>
+                                                    <TableCell>{device.ram}</TableCell>
                                                     <TableCell>{device.warrenty}</TableCell>
                                                     <TableCell>{device.emiNumber}</TableCell>
                                                     <TableCell>{device.purchaseDate}</TableCell>
-                                                    <TableCell>{device.expireDate}</TableCell>
                                                     <TableCell>
         {device.imageName && (
           <img
-            src={`/images/deviceImages/${device.imageName}`}
+            src={`${device.imageName}`}
             alt={device.deviceName}
             style={{ width: '100px', height: '100px' }}
           />
         )}
       </TableCell>
                                                     <TableCell>
+                                                        <Link to={`updatedevice/${device.emiNumber}`}>
                                                         <IconButton color="primary">
                                                             <EditIcon />
                                                         </IconButton>
+                                                        </Link>
                                                         <IconButton color="secondary" onClick={() => handleDelete(device._id)}>
                                                             <DeleteIcon />
                                                         </IconButton>
