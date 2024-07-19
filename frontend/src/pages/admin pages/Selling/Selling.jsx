@@ -156,6 +156,42 @@ sessionStorage.removeItem('token');
     setOpenDialog(false);
   };
 
+  const dealendSubmit = async (id,deviceName,
+    emiNumber,
+    customerName,
+    civilID,
+    price,
+    months,
+    date,
+    advance,
+    imageName) => { 
+
+      const DealendPurchase = {
+        deviceName,
+        emiNumber,
+        customerName,
+        civilID,
+        price,
+        months,
+        date,
+        advance,
+        imageName
+      };
+
+      try {
+        await axios.post('http://localhost:8000/dealend/addDealend', DealendPurchase);
+        await axios.delete(`http://localhost:8000/selling/deleteSelling/${id}`);
+        alert("Deal ended successfully");
+        fetchSellings();
+        
+      } catch (error) {
+        console.error(error.response ? error.response.data : error);
+        alert("An error occurred while adding the item to the stores.");
+        
+      }
+
+  }
+
   const handleConfirmSubmit = async () => {
     // Check if imageName is set
     if (!imageName) {
@@ -431,6 +467,7 @@ sessionStorage.removeItem('token');
                             <IconButton color="secondary" onClick={() => handleDelete(selling._id)}>
                               <DeleteIcon />
                             </IconButton>
+                            <Button onClick={() => dealendSubmit(selling._id,selling.deviceName,selling.emiNumber,selling.customerName,selling.civilID,selling.price,selling.months,selling.date,selling.advance,selling.imageName)}>Deal end</Button>
                           </TableCell>
                         </TableRow>
                       ))}

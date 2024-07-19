@@ -27,7 +27,8 @@ import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -81,6 +82,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
   const mdTheme = createTheme();
 const DeviceList = () => {
+  const navigate = useNavigate();
   let date = new Date();
   let day = date.getDate();
   let month = date.getMonth() + 1; // JavaScript months are 0-based counting
@@ -120,7 +122,13 @@ const DeviceList = () => {
             console.error('Error fetching data:', error);
         });
     }, []);
-    
+    const handleLogout = () => {
+      // Remove user details from session storage
+      sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+      console.log('User details cleared from session storage');
+      navigate('/');
+    };
     const downloadPDF = () => {
       fetch('http://localhost:8000/api/devicepdf/convertdevicePDF', {
           method: 'POST',
@@ -217,13 +225,11 @@ const handleFetch = () => {
             const itemPurchaseDate = new Date(item.purchaseDate);
             const itemExpiryDate = new Date(item.expireDate);
             return (deviceName === '' || item.deviceName.includes(deviceName)) &&
-                (quantity === '' || item.quantity.includes(quantity)) &&
                 (price === '' || item.price.includes(price)) &&
                 (color === '' || item.color.includes(color)) &&
                 (shopName === '' || item.shopName.includes(shopName)) &&
                 (modelNumber === '' || item.modelNumber.includes(modelNumber)) &&
                 (storage === '' || item.storage.includes(storage)) &&
-                (warrenty === '' || item.warrenty.includes(warrenty)) &&
                 (emiNumber === '' || item.emiNumber.includes(emiNumber)) &&
                 (!purchaseDateFrom || itemPurchaseDate >= purchaseDateFrom) && 
                 (!purchaseDateTo || itemPurchaseDate <= purchaseDateTo ) &&
@@ -234,13 +240,11 @@ const handleFetch = () => {
 
         // Clear all fields after fetch
         setDeviceName('');
-        setQuantity('');
         setPrice('');
         setColor('');
         setShopName('');
         setModelNumber('');
         setStorage('');
-        setWarrenty('');
         setEmiNumber('');
         setPurchaseDateFrom(null); // Set to null to clear the date picker
         setPurchaseDateTo(null); // Set to null to clear the date picker
@@ -289,9 +293,9 @@ const handleFetch = () => {
   >
     SMARTCO
   </Typography>
-    <IconButton color="inherit">
-      <Badge badgeContent={4} color="secondary">
-        <NotificationsIcon />
+  <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
       </Badge>
     </IconButton>
   </Toolbar>
@@ -353,9 +357,6 @@ sx={{
     <TextField margin="normal" fullWidth label="Device Name" value={deviceName} onChange={e => setDeviceName(e.target.value)} />
     </Grid>
     <Grid item xs={12} sm={3}>
-      <TextField margin="normal"  fullWidth label="Quantity" value={quantity} onChange={e => setQuantity(e.target.value)}  />
-    </Grid>
-    <Grid item xs={12} sm={3}>
       <TextField margin="normal"  fullWidth label="Price" value={price} onChange={e => setPrice(e.target.value)}  />
     </Grid>
     <Grid item xs={12} sm={3}>
@@ -369,9 +370,6 @@ sx={{
     </Grid>
     <Grid item xs={12} sm={3}>
       <TextField margin="normal"  fullWidth label="Storage" value={storage} onChange={e => setStorage(e.target.value)}  />
-    </Grid>
-    <Grid item xs={12} sm={3}>
-      <TextField margin="normal"  fullWidth label="Warrenty" value={warrenty} onChange={e => setWarrenty(e.target.value)}  />
     </Grid>
     <Grid item xs={12} sm={3}>
       <TextField margin="normal"  fullWidth label="EMEI Number" value={emiNumber} onChange={e => setEmiNumber(e.target.value)}  />

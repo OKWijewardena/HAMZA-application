@@ -33,6 +33,9 @@ app.use("/api/employee&admin",require("./routes/employee&adminRoutes"));
 app.use("/api/customer",require("./routes/customerRoutes"));
 app.use("/device",require("./routes/deviceRoutes"));
 app.use("/selling",require("./routes/sellingRoutes"));
+app.use("/dealend",require("./routes/dealendRoutes"));
+app.use("/inventory",require("./routes/inventoryRoute"));
+
 app.use("/payment",require("./routes/paymentRoutes"));
 app.use("/api/invoice",require("./routes/invoiceRote"));
 app.use(errorHandler);
