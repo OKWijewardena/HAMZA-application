@@ -178,69 +178,51 @@ exports.updatePaymentHistory = async (req, res) => {
     let isPaymentUpdated = false;
     const customArray = selling.customArray;
     let balance = parseFloat(selling.balance);
-    let Payment = parseFloat(payment);
 
     for (let i = 0; i < customArray.length; i++) {
       const itemDate = new Date(customArray[i].date);
       const itemPrice = parseFloat(customArray[i].price);
-      console.log("itemPrice", itemPrice);
-      const nextPrice = customArray[i + 1] ? parseFloat(customArray[i + 1].price) : undefined;
-      console.log("nextPrice", nextPrice);
-      console.log("Payment", Payment);
+      const nextPrice = parseFloat(customArray[i+1].price);
 
-      if (Payment === 0) {
+      if (itemDate >= new Date(date) && itemPrice === parseFloat(payment) && customArray[i].status === "unpaid") {
+        customArray[i].status = "paid";
+        customArray[i].price = payment.toString();
+        balance -= parseFloat(payment);
+        balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
         isPaymentUpdated = true;
         break;
-      } else if (itemDate >= new Date(date) && itemPrice === Payment && customArray[i].status === "unpaid") {
+      } else if (itemDate >= new Date(date) && itemPrice > parseFloat(payment) && customArray[i].status === "unpaid") {
         customArray[i].status = "paid";
-        customArray[i].price = payment.toFixed(2);
-        Payment = 0;
-
-      } else if (itemDate >= new Date(date) && itemPrice > Payment && customArray[i].status === "unpaid") {
-        customArray[i].status = "paid";
-        customArray[i].price = payment.toFixed(2);
-        const newPrice = (nextPrice + (itemPrice - Payment));
+        customArray[i].price = payment.toString();
+        const newPrice = (nextPrice + (itemPrice - parseFloat(payment))).toFixed(2);
+        balance -= parseFloat(payment);
+        balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
 
         if (customArray[i + 1]) {
-          customArray[i + 1].price = newPrice.toFixed(2);
+          customArray[i + 1].price = newPrice.toString();
         } else {
           console.error('No next item to update the price for.');
-          isPaymentUpdated = true;
-          break;
         }
-        Payment = 0;
 
-      } else if (itemDate >= new Date(date) && itemPrice < Payment && customArray[i].status === "unpaid") {
+        isPaymentUpdated = true;
+        break;
+      } else if (itemDate >= new Date(date) && itemPrice < parseFloat(payment) && customArray[i].status === "unpaid") {
         customArray[i].status = "paid";
-        customArray[i].price = Payment.toFixed(2);
-        let tempPrice = (Payment - itemPrice);
+        customArray[i].price = payment.toString();
+        const newPrice = (nextPrice - (parseFloat(payment) - itemPrice)).toFixed(2);
+        balance -= parseFloat(payment);
+        balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
 
-        if (tempPrice > nextPrice) {
-          if (customArray[i + 1]) {
-            Payment -= itemPrice;
-          } else {
-            console.error('No next item to update the price for.');
-            isPaymentUpdated = true;
-            break;
-          }
+        if (customArray[i + 1]) {
+          customArray[i + 1].price = newPrice.toString();
         } else {
-          const newPrice = (nextPrice - tempPrice);
-
-          if (customArray[i + 1]) {
-            customArray[i + 1].price = newPrice.toFixed(2);
-          } else {
-            console.error('No next item to update the price for.');
-            isPaymentUpdated = true;
-            break;
-          }
-
-          Payment = 0;
+          console.error('No next item to update the price for.');
         }
+
+        isPaymentUpdated = true;
+        break;
       }
     }
-
-    balance -= parseFloat(payment);
-    balance = balance.toFixed(2);  // Ensure balance is rounded to 2 decimals
 
     if (!isPaymentUpdated) {
       return res.status(404).json({ message: "No matching unpaid record found with the given date and payment amount" });

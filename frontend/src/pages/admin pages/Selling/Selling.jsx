@@ -123,6 +123,7 @@ sessionStorage.removeItem('token');
       console.error('Error fetching sellings:', error);
     }
   };
+  
 
   const fetchDeviceImage = async () => {
     try {
