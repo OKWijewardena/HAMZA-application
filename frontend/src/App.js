@@ -22,6 +22,7 @@ import DeviceList from "./pages/admin pages/List/DeviceList"
 import EmployeeList from "./pages/admin pages/List/EmployeeList"
 import PaymentList from "./pages/admin pages/List/PaymentList"
 import SaleList from "./pages/admin pages/List/SaleList"
+
 import UpdateCustomer from "./pages/admin pages/admin update pages/UpdateCustomer";
 import UpdateDevice from "./pages/admin pages/admin update pages/UpdateDevice";
 import UpdateEmployee from "./pages/admin pages/admin update pages/UpdateEmployee";

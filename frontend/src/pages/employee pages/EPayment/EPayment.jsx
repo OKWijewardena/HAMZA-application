@@ -119,7 +119,7 @@ sessionStorage.removeItem('token');
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://podsaas.online/api/customer/');
+      const response = await axios.get('http://localhost:8000/api/customer/');
       setCustomer(response.data);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -128,7 +128,7 @@ sessionStorage.removeItem('token');
 
   const fetchPayments = async () => {
     try {
-      const response = await axios.get('http://podsaas.online/payment/getPayment');
+      const response = await axios.get('http://localhost:8000/payment/getPayment');
       setPayments(response.data);
     } catch (error) {
       console.error('Error fetching payments:', error);
@@ -137,7 +137,7 @@ sessionStorage.removeItem('token');
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://podsaas.online/payment/deletePayment/${id}`);
+      await axios.delete(`http://localhost:8000/payment/deletePayment/${id}`);
       alert("Selling record deleted successfully");
       fetchPayments(); // Refresh the selling list after deletion
     } catch (error) {
@@ -167,8 +167,8 @@ sessionStorage.removeItem('token');
     }
 
     try {
-      await axios.post('http://podsaas.online/selling/paymentHistory', UpdatePayment);
-      await axios.post('http://podsaas.online/payment/addPayment', NewPayment);
+      await axios.post('http://localhost:8000/selling/paymentHistory', UpdatePayment);
+      await axios.post('http://localhost:8000/payment/addPayment', NewPayment);
       handleCloseDialog();
       alert("New payment added successfully");
       fetchPayments();

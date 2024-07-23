@@ -156,7 +156,7 @@ sessionStorage.removeItem('token');
     .catch(error => alert(error));
 };
 const downloadExcel = () => {
-  fetch('http://podsaas.online/api/paymentExcel/paymentExcel', {
+  fetch('http://localhost:8000/api/paymentExcel/paymentExcel', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'

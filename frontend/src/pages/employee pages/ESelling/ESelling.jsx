@@ -138,7 +138,7 @@ sessionStorage.removeItem('token');
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://podsaas.online/selling/deleteSelling/${id}`);
+      await axios.delete(`http://localhost:8000/selling/deleteSelling/${id}`);
       alert("Selling record deleted successfully");
       fetchSellings(); // Refresh the selling list after deletion
     } catch (error) {
@@ -176,8 +176,8 @@ sessionStorage.removeItem('token');
     };
 
     try {
-      await axios.post('http://podsaas.online/selling/addSelling', NewPurchase);
-      await axios.delete(`http://podsaas.online/device/deleteDeviceemi/${NewPurchase.emiNumber}`);
+      await axios.post('http://localhost:8000/selling/addSelling', NewPurchase);
+      await axios.delete(`http://localhost:8000/device/deleteDeviceemi/${NewPurchase.emiNumber}`);
       alert("New customer device purchased");
       fetchSellings(); // Refresh the selling list after submission
       handleDialogClose();

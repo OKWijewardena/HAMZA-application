@@ -75,7 +75,6 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
   const mdTheme = createTheme();
 const CustomerList = () => {
-  const navigate = useNavigate();
   let date = new Date();
   let day = date.getDate();
   let month = date.getMonth() + 1; // JavaScript months are 0-based counting
@@ -157,7 +156,7 @@ const downloadPDF = () => {
 };
 
 const downloadExcel = () => {
-  fetch('http://podsaas.online/api/customer/customerexcel', {
+  fetch('http://localhost:8000/api/customer/customerexcel', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'

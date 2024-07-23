@@ -130,7 +130,7 @@ sessionStorage.removeItem('token');
       navigate('/');
     };
     const downloadPDF = () => {
-      fetch('http://podsaas.online/api/devicepdf/convertdevicePDF', {
+      fetch('http://localhost:8000/api/devicepdf/convertdevicePDF', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'
@@ -163,7 +163,7 @@ sessionStorage.removeItem('token');
       .catch(error => alert(error));
   };
   const downloadExcel = () => {
-    fetch('http://podsaas.online/api/excel/add', {
+    fetch('http://localhost:8000/api/excel/add', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

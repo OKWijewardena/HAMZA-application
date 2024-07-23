@@ -165,7 +165,7 @@ sessionStorage.removeItem('token');
         try {
           // Check if EMI number is available in the selling table
           const sellingResponse = await axios.get(
-            `http://podsaas.online/selling/getbyEmi/${emiNumber}`
+            `http://localhost:8000/selling/getbyEmi/${emiNumber}`
           );
     
           if (sellingResponse.data.message !== "data not available") {
@@ -182,7 +182,7 @@ sessionStorage.removeItem('token');
         try {
           // Check if EMI number is available in the device table
           const deviceResponse = await axios.get(
-            `http://podsaas.online/device/getOneDevicebyemi/${emiNumber}`
+            `http://localhost:8000/device/getOneDevicebyemi/${emiNumber}`
           );
     
           if (deviceResponse.data.message !== "data not available") {

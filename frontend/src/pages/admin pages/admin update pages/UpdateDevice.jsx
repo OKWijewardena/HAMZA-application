@@ -111,7 +111,7 @@ sessionStorage.removeItem('token');
     function fetchDevices() {
 
         let mounted = true;
-    fetch(`http://podsaas.online/device/getOneDevice/${id}`)
+    fetch(`http://localhost:8000/device/getOneDevice/${id}`)
       .then((res) => res.json())
       .then((result) => {
         console.log(result);
@@ -156,7 +156,7 @@ sessionStorage.removeItem('token');
           };
 
           axios
-            .put(`http://podsaas.online/device/updateDevice/${deviceID}`, UpdatedDevice)
+            .put(`http://localhost:8000/device/updateDevice/${deviceID}`, UpdatedDevice)
             .then(() => {
                 alert('Device updated successfully!');
               navigate('/device');

@@ -85,7 +85,7 @@ if (user) {
 
     const fetchDeviceDetails = async () => {
       try {
-        const response = await axios.get('http://podsaas.online/device/getDevice');
+        const response = await axios.get('http://localhost:8000/device/getDevice');
         setUnSoldDevicesCount(response.data.length); // Assuming each device represents a sold device
       } catch (error) {
         console.error('Error fetching device details:', error);

@@ -161,8 +161,8 @@ sessionStorage.removeItem('token');
     }
 
     try {
-      await axios.post('http://podsaas.online/api/employee&admin/register', NewEmployee);
-      await axios.post('http://podsaas.online/api/users/register', NewUser);
+      await axios.post('http://localhost:8000/api/employee&admin/register', NewEmployee);
+      await axios.post('http://localhost:8000/api/users/register', NewUser);
       alert("New Employee added successfully");
     } catch (error) {
       console.error('Error adding employee:', error);

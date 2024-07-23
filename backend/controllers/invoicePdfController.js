@@ -131,6 +131,14 @@ const convertToPaymentInvoicePDF = async (req, res) => {
     item.sellingData = sellingData;
   }
 
+  for (let item of data) {
+    const response = await axios.get(
+      `http://localhost:8000/selling/getbyCIDEMI/${item.civilID}/${item.emiNumber}`
+    );
+    const sellingData = response.data;
+    item.sellingData = sellingData;
+  }
+
   // Calculate the total price first
   let totalPrice = data.reduce((total, item) => total + Number(item.price), 0);
 

@@ -163,6 +163,25 @@ exports.getOneSellingID = (req, res) => {
     });
 };
 
+exports.getonesellingByIdEmi = (req, res) => {
+  const { civilID, emiNumber } = req.params;
+  console.log("Searching for civil_id:", civilID, "and emi_no:", emiNumber);
+
+  Selling.findOne({ civilID, emiNumber })
+    .then((sellingRecord) => {
+      if (!sellingRecord) {
+        console.log("No record found.");
+        return res.status(404).json({ message: "Record not found" });
+      }
+      console.log("Found record:", sellingRecord);
+      res.json(sellingRecord);
+    })
+    .catch((err) => {
+      console.error("Error retrieving selling record:", err);
+      res.status(500).json({ error: "Error retrieving selling record" });
+    });
+};
+
 exports.getonesellingByIdEminumber = (req, res) => {
   const { emi } = req.params;
   console.log({ emi });
@@ -199,51 +218,76 @@ exports.updatePaymentHistory = async (req, res) => {
     for (let i = 0; i < customArray.length; i++) {
       const itemDate = new Date(customArray[i].date);
       const itemPrice = parseFloat(customArray[i].price);
-      const nextItem = customArray[i + 1];
-      const nextPrice = nextItem ? parseFloat(nextItem.price) : undefined;
+      console.log("itemPrice", itemPrice);
+      const nextPrice = customArray[i + 1]
+        ? parseFloat(customArray[i + 1].price)
+        : undefined;
+      console.log("nextPrice", nextPrice);
+      console.log("Payment", Payment);
 
       if (Payment === 0) {
         isPaymentUpdated = true;
         break;
-      }
+      } else if (
+        itemDate >= new Date(date) &&
+        itemPrice === Payment &&
+        customArray[i].status === "unpaid"
+      ) {
+        customArray[i].status = "paid";
+        customArray[i].price = payment.toFixed(2);
+        Payment = 0;
+      } else if (
+        itemDate >= new Date(date) &&
+        itemPrice > Payment &&
+        customArray[i].status === "unpaid"
+      ) {
+        customArray[i].status = "paid";
+        customArray[i].price = payment.toFixed(2);
+        const newPrice = nextPrice + (itemPrice - Payment);
 
-      if (itemDate >= new Date(date) && customArray[i].status === "unpaid") {
-        if (itemPrice === Payment) {
-          customArray[i].status = "paid";
-          customArray[i].price = payment.toFixed(2);
-          Payment = 0;
-        } else if (itemPrice > Payment) {
-          customArray[i].status = "paid";
-          customArray[i].price = Payment.toFixed(2);
-          const remainingPrice = itemPrice - Payment;
-
-          if (nextItem) {
-            nextItem.price = (nextPrice + remainingPrice).toFixed(2);
-          }
-          Payment = 0;
+        if (customArray[i + 1]) {
+          customArray[i + 1].price = newPrice.toFixed(2);
         } else {
-          customArray[i].status = "paid";
-          customArray[i].price = itemPrice.toFixed(2);
-          Payment -= itemPrice;
-
-          if (nextItem && Payment > 0) {
-            const remainingPrice = nextPrice - Payment;
-            if (remainingPrice >= 0) {
-              nextItem.price = remainingPrice.toFixed(2);
-              Payment = 0;
-            } else {
-              nextItem.status = "paid";
-              nextItem.price = nextPrice.toFixed(2);
-              Payment = Math.abs(remainingPrice);
-            }
-          }
+          console.error("No next item to update the price for.");
+          isPaymentUpdated = true;
+          break;
         }
-        isPaymentUpdated = true;
+        Payment = 0;
+      } else if (
+        itemDate >= new Date(date) &&
+        itemPrice < Payment &&
+        customArray[i].status === "unpaid"
+      ) {
+        customArray[i].status = "paid";
+        customArray[i].price = Payment.toFixed(2);
+        let tempPrice = Payment - itemPrice;
+
+        if (tempPrice > nextPrice) {
+          if (customArray[i + 1]) {
+            Payment -= itemPrice;
+          } else {
+            console.error("No next item to update the price for.");
+            isPaymentUpdated = true;
+            break;
+          }
+        } else {
+          const newPrice = nextPrice - tempPrice;
+
+          if (customArray[i + 1]) {
+            customArray[i + 1].price = newPrice.toFixed(2);
+          } else {
+            console.error("No next item to update the price for.");
+            isPaymentUpdated = true;
+            break;
+          }
+
+          Payment = 0;
+        }
       }
     }
 
     balance -= parseFloat(payment);
-    balance = balance.toFixed(2);
+    balance = balance.toFixed(2); // Ensure balance is rounded to 2 decimals
 
     if (!isPaymentUpdated) {
       return res.status(404).json({
