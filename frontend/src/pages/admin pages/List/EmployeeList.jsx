@@ -22,7 +22,8 @@ import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper
 } from '@mui/material';
-
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
@@ -86,7 +87,7 @@ const EmployeeList = () => {
   const [role, setrole] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/employee&admin/', {
+    fetch('http://podsaas.online/api/employee&admin/', {
         method: 'GET'
     })
     .then(response => {
@@ -103,9 +104,15 @@ const EmployeeList = () => {
         console.error('Error fetching data:', error);
     });
 }, []);
-
+const handleLogout = () => {
+  // Remove user details from session storage
+  sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+  console.log('User details cleared from session storage');
+  navigate('/');
+};
 const downloadPDF = () => {
-  fetch('http://localhost:8000/employeeAndAdminPdf', {
+  fetch('http://podsaas.online/employeeAndAdminPdf', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
@@ -175,7 +182,7 @@ const downloadExcel = () => {
 
 const resetTable = () => {
   
-    fetch('http://localhost:8000/api/employee&admin/', {
+    fetch('http://podsaas.online/api/employee&admin/', {
         method: 'GET'
     })
     .then(response => {
@@ -254,9 +261,9 @@ return (
 >
   SMARTCO
 </Typography>
-  <IconButton color="inherit">
-    <Badge badgeContent={4} color="secondary">
-      <NotificationsIcon />
+<IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
     </Badge>
   </IconButton>
 </Toolbar>

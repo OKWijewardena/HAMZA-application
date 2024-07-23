@@ -30,48 +30,48 @@ import EditIcon from '@mui/icons-material/Edit';
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
+  shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
+  transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
   ...(open && {
     marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
+    transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    '& .MuiDrawer-paper': {
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      width: drawerWidth,
-      transition: theme.transitions.create('width', {
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  "& .MuiDrawer-paper": {
+    position: "relative",
+    whiteSpace: "nowrap",
+    width: drawerWidth,
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    boxSizing: "border-box",
+    ...(!open && {
+      overflowX: "hidden",
+      transition: theme.transitions.create("width", {
         easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
+        duration: theme.transitions.duration.leavingScreen,
       }),
-      boxSizing: 'border-box',
-      ...(!open && {
-        overflowX: 'hidden',
-        transition: theme.transitions.create('width', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
-        width: theme.spacing(7),
-        [theme.breakpoints.up('sm')]: {
-          width: theme.spacing(9),
-        },
-      }),
-    },
-  }),
-);
+      width: theme.spacing(7),
+      [theme.breakpoints.up("sm")]: {
+        width: theme.spacing(9),
+      },
+    }),
+  },
+}));
 
 const mdTheme = createTheme();
 
@@ -90,9 +90,6 @@ export default function Payment() {
   const [emiNumber, setEmiNumber] = useState('');
   const [price, setPrice] = useState('');
   const [date, setDate] = useState('');
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  const [customer, setCustomer] = useState([]);
 
   useEffect(() => {
     fetchPayments();
@@ -134,7 +131,7 @@ sessionStorage.removeItem('token');
       const response = await axios.get('http://localhost:8000/payment/getPayment');
       setPayments(response.data);
     } catch (error) {
-      console.error('Error fetching payments:', error);
+      console.error("Error fetching payments:", error);
     }
   };
 
@@ -144,7 +141,7 @@ sessionStorage.removeItem('token');
       alert("Selling record deleted successfully");
       fetchPayments(); // Refresh the selling list after deletion
     } catch (error) {
-      console.error('Error deleting selling:', error);
+      console.error("Error deleting selling:", error);
       alert("An error occurred while deleting the selling record.");
     }
   };
@@ -173,15 +170,15 @@ sessionStorage.removeItem('token');
       deviceName,
       emiNumber,
       price,
-      date
+      date,
     };
 
     const UpdatePayment = {
       civilID,
       emiNumber,
       date,
-      payment: price 
-    }
+      payment: price,
+    };
 
     try {
       await axios.post('http://localhost:8000/selling/paymentHistory', UpdatePayment);
@@ -205,18 +202,22 @@ sessionStorage.removeItem('token');
   return (
     <div>
       <ThemeProvider theme={mdTheme}>
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: "flex" }}>
           <CssBaseline />
-          <AppBar sx={{ backgroundColor: 'white', color: '#637381' }} position="absolute" open={open}>
-            <Toolbar sx={{ pr: '24px' }}>
+          <AppBar
+            sx={{ backgroundColor: "white", color: "#637381" }}
+            position="absolute"
+            open={open}
+          >
+            <Toolbar sx={{ pr: "24px" }}>
               <IconButton
                 edge="start"
                 color="inherit"
                 aria-label="open drawer"
                 onClick={toggleDrawer}
                 sx={{
-                  marginRight: '36px',
-                  ...(open && { display: 'none' }),
+                  marginRight: "36px",
+                  ...(open && { display: "none" }),
                 }}
               >
                 <MenuIcon />
@@ -227,11 +228,11 @@ sessionStorage.removeItem('token');
                 noWrap
                 sx={{
                   flexGrow: 1,
-                  background: 'linear-gradient(90deg, #C63DE7, #752888)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  fontFamily: 'Public Sans, sans-serif',
-                  fontWeight: 'bold',
+                  background: "linear-gradient(90deg, #C63DE7, #752888)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  fontFamily: "Public Sans, sans-serif",
+                  fontWeight: "bold",
                 }}
               >
                 SMARTCO
@@ -246,9 +247,9 @@ sessionStorage.removeItem('token');
           <Drawer variant="permanent" open={open}>
             <Toolbar
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
                 px: [1],
               }}
             >
@@ -267,10 +268,12 @@ sessionStorage.removeItem('token');
             component="main"
             sx={{
               backgroundColor: (theme) =>
-                theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+                theme.palette.mode === "light"
+                  ? theme.palette.grey[100]
+                  : theme.palette.grey[900],
               flexGrow: 1,
-              height: '100vh',
-              overflow: 'auto',
+              height: "100vh",
+              overflow: "auto",
             }}
           >
             <Toolbar />
@@ -364,20 +367,29 @@ sessionStorage.removeItem('token');
               )}
               <Box
                 sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                   marginTop: 4,
                   padding: 3,
-                  backgroundColor: '#fff',
+                  backgroundColor: "#fff",
                   borderRadius: 1,
                   boxShadow: 3,
                   maxWidth: 500,
-                  width: '100%',
-                  mx: 'auto',
+                  width: "100%",
+                  mx: "auto",
                 }}
               >
-                <Typography component="h1" variant="h5" gutterBottom sx={{ fontFamily: 'Public Sans, sans-serif', fontWeight: 'bold', color: "#637381" }}>
+                <Typography
+                  component="h1"
+                  variant="h5"
+                  gutterBottom
+                  sx={{
+                    fontFamily: "Public Sans, sans-serif",
+                    fontWeight: "bold",
+                    color: "#637381",
+                  }}
+                >
                   Payment Details
                 </Typography>
                 <Box component="form" sx={{ mt: 1 }} onSubmit={handleOpenDialog}>
@@ -429,7 +441,7 @@ sessionStorage.removeItem('token');
                     margin="normal"
                     required
                     fullWidth
-                    label="Price"
+                    label="Amount"
                     name="price"
 
                     onChange={(e) => {
@@ -455,12 +467,12 @@ sessionStorage.removeItem('token');
                     sx={{
                       mt: 3,
                       mb: 2,
-                      backgroundColor: '#752888',
-                      '&:hover': {
-                        backgroundColor: '#C63DE7',
+                      backgroundColor: "#752888",
+                      "&:hover": {
+                        backgroundColor: "#C63DE7",
                       },
-                      fontFamily: 'Public Sans, sans-serif',
-                      fontWeight: 'bold',
+                      fontFamily: "Public Sans, sans-serif",
+                      fontWeight: "bold",
                     }}
                   >
                     Submit

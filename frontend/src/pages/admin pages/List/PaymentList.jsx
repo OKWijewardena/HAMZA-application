@@ -26,7 +26,8 @@ import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -80,6 +81,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
   const mdTheme = createTheme();
 const PaymentList = () => {
+  const navigate = useNavigate();
     let date = new Date();
     let day = date.getDate();
     let month = date.getMonth() + 1; // JavaScript months are 0-based counting
@@ -96,7 +98,7 @@ const PaymentList = () => {
     const [paymentDateTo, setPaymentDateTo] = useState(null);
  
     useEffect(() => {
-        fetch('http://localhost:8000/payment/getPayment/', {
+        fetch('http://podsaas.online/payment/getPayment/', {
             method: 'GET'
         })
         .then(response => {
@@ -113,9 +115,15 @@ const PaymentList = () => {
             console.error('Error fetching data:', error);
         });
     }, []);
-    
+    const handleLogout = () => {
+      // Remove user details from session storage
+      sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+      console.log('User details cleared from session storage');
+      navigate('/');
+    };
     const downloadPDF = () => {
-      fetch('http://localhost:8000/convertPDF', {
+      fetch('http://podsaas.online/convertPDF', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'
@@ -186,7 +194,7 @@ const downloadExcel = () => {
 
     const resetTable = () => {
       
-        fetch('http://localhost:8000/payment/getPayment/', {
+        fetch('http://podsaas.online/payment/getPayment/', {
             method: 'GET'
         })
         .then(response => {
@@ -266,9 +274,9 @@ const handleFetch = () => {
   >
     SMARTCO
   </Typography>
-    <IconButton color="inherit">
-      <Badge badgeContent={4} color="secondary">
-        <NotificationsIcon />
+  <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
       </Badge>
     </IconButton>
   </Toolbar>

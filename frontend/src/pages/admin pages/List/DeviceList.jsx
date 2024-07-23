@@ -105,7 +105,7 @@ const DeviceList = () => {
     const [expiryDate, setExpiryDate] = useState(null);
    
     useEffect(() => {
-        fetch('http://localhost:8000/api/device/getDevice', {
+        fetch('http://podsaas.online/api/device/getDevice', {
             method: 'GET'
         })
         .then(response => {
@@ -200,7 +200,7 @@ sessionStorage.removeItem('token');
 
     const resetTable = () => {
       
-        fetch('http://localhost:8000/api/device/getDevice', {
+        fetch('http://podsaas.online/api/device/getDevice', {
             method: 'GET'
         })
         .then(response => {

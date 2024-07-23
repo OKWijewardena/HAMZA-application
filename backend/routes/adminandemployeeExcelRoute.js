@@ -1,6 +1,8 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { employeeandadminexcel } = require("../controllers/employeeandAdminExcelController");
+const {
+  employeeandadminexcel,
+} = require("../controllers/employeeandAdminExcelController");
 
 router.post("/employeeandadminexcel", employeeandadminexcel);
 

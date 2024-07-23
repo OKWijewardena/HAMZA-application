@@ -22,7 +22,8 @@ import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper
 } from '@mui/material';
-
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 
 
@@ -94,7 +95,7 @@ const [whatsapp_no, setwhatsapp_no] = useState('');
 const [telephone_no, settelephone_no] = useState('');
 
 useEffect(() => {
-    fetch('http://localhost:8000/api/customer/', {
+    fetch('http://podsaas.online/api/customer/', {
         method: 'GET'
     })
     .then(response => {
@@ -111,9 +112,16 @@ useEffect(() => {
         console.error('Error fetching data:', error);
     });
 }, []);
+const handleLogout = () => {
+  // Remove user details from session storage
+  sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+  console.log('User details cleared from session storage');
+  navigate('/');
+};
 
 const downloadPDF = () => {
-  fetch('http://localhost:8000/convertcustomerPDF', {
+  fetch('http://podsaas.online/convertcustomerPDF', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
@@ -183,7 +191,7 @@ const downloadExcel = () => {
 
 const resetTable = () => {
   
-    fetch('http://localhost:8000/api/customer/', {
+    fetch('http://podsaas.online/api/customer/', {
         method: 'GET'
     })
     .then(response => {
@@ -205,7 +213,7 @@ const handleFetch = () => {
     let filteredData = originalData.filter(item => {
         return (name === '' || item.name === name) &&
             (email === '' || item.email === email) &&
-            (civil_id === '' || item.civil_id === Number(civil_id)) &&
+            (civil_id === '' || item.civil_id === (civil_id)) &&
             (nationality === '' || item.nationality === nationality) &&
             (address === '' || item.address === address) &&
             (mobile === '' || item.mobile === Number(mobile)) &&
@@ -270,9 +278,9 @@ const handleFetch = () => {
   >
     SMARTCO
   </Typography>
-    <IconButton color="inherit">
-      <Badge badgeContent={4} color="secondary">
-        <NotificationsIcon />
+  <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
       </Badge>
     </IconButton>
   </Toolbar>

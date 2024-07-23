@@ -123,7 +123,7 @@ sessionStorage.removeItem('token');
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/device/getDevice');
+            const response = await axios.get('http://podsaas.online/device/getDevice');
             setDevices(response.data);
         } catch (error) {
             console.error('Error fetching devices:', error);
@@ -146,7 +146,7 @@ sessionStorage.removeItem('token');
             formData.append(key, form[key]);
         });
         try {
-            await axios.post('http://localhost:8000/device/addDevice', formData, {
+            await axios.post('http://podsaas.online/device/addDevice', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

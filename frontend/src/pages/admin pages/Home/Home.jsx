@@ -122,7 +122,7 @@ sessionStorage.removeItem('token');
 
   const fetchPayments = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/payment/getPayment');
+      const response = await axios.get('http://podsaas.online/payment/getPayment');
       setPayments(response.data);
     } catch (error) {
       console.error('Error fetching payments:', error);
