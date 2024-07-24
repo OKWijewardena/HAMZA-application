@@ -52,7 +52,7 @@ export default function CustomerPurchase() {
 
   const [sellings, setSellings] = useState([]);
   const [data, setData] = useState([]);
-  const [civilID, setCivilID] = useState("");
+  const [civilID, setCivilID] = useState(""); 
   const [emiNumber, setemiNumber] = useState("");
 
   const fetchSellings = useCallback(async () => {
@@ -83,7 +83,7 @@ export default function CustomerPurchase() {
 
   const downloadPDF = (rowData) => {
     // Modify the function to accept rowData
-    fetch("http://podsaas.online/convertToPaymentInvoicePDF", {
+    fetch("http://localhost:8000/convertToPaymentInvoicePDF", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
