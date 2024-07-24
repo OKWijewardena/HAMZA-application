@@ -1,19 +1,19 @@
 const ExcelJS = require("exceljs");
 
-exports.salesExcel = async (req, res) => {
+exports.dealendExcel = async (req, res) => {
   const salesExcelData = req.body;
   console.log("Request body:", salesExcelData);
 
   // Create a new workbook and worksheet
   const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet(" Sales Excel Data Report");
+  const worksheet = workbook.addWorksheet(" Deal End Excel Data Report");
 
   // Get the current date
   const currentDate = new Date().toLocaleDateString();
 
   // Add report information at the top
   worksheet.mergeCells("A3:K3");
-  worksheet.getCell("A3").value = "Sales Excel Report";
+  worksheet.getCell("A3").value = "Deal End Excel Report";
   worksheet.getCell("A3").font = { bold: true, size: 16 };
 
   worksheet.mergeCells("A2:K2");
@@ -34,7 +34,7 @@ exports.salesExcel = async (req, res) => {
     "Price",
     "Months",
     "Date",
-    "total Amont Paid",
+    "totalPaid",
     "Balance",
   ]);
 

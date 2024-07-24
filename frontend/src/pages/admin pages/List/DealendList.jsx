@@ -11,22 +11,14 @@ import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import { Link, useNavigate } from "react-router-dom";
-
+import { Modal } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { mainListItems, secondaryListItems } from "../listItems";
+import { Backdrop, Fade } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import React, { useEffect, useState } from "react";
-const navigate = useNavigate();
-const handleLogout = () => {
-  // Remove user details from session storage
-  sessionStorage.removeItem("user");
-  sessionStorage.removeItem("token");
-  console.log("User details cleared from session storage");
-  navigate("/");
-};
-
 import {
   TextField,
   Button,
@@ -38,8 +30,14 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
-import LogoutIcon from "@mui/icons-material/Logout";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
@@ -87,26 +85,31 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 const mdTheme = createTheme();
-const EmployeeList = () => {
-
-  const navigate = useNavigate();
-  
+const DealendList = () => {
   let date = new Date();
   let day = date.getDate();
   let month = date.getMonth() + 1; // JavaScript months are 0-based counting
   let year = date.getFullYear();
   let hours = date.getHours();
   let minutes = date.getMinutes();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
   const [originalData, setOriginalData] = useState([]);
   const [data, setData] = useState([]);
-  const [name, setname] = useState("");
-  const [email, setemail] = useState("");
-  const [address, setaddress] = useState("");
-  const [phone, setphone] = useState("");
-  const [role, setrole] = useState("");
+  const [deviceName, setDeviceName] = useState("");
+  const [emiNumber, setemiNumber] = useState("");
+  const [customerName, setcustomerName] = useState("");
+  const [civilID, setcivilID] = useState("");
+  const [price, setprice] = useState("");
+  const [months, setmonths] = useState("");
+  const [advance, setadvance] = useState("");
+  const [balance, setbalance] = useState("");
+  const [salesDateFrom, setsalesDateFrom] = useState(null);
+  const [salesDateTo, setsalesDateTo] = useState(null);
 
   useEffect(() => {
-    fetch("http://podsaas.online/api/employee&admin/", {
+    fetch("http://localhost:8000/dealend/getDealend", {
       method: "GET",
     })
       .then((response) => {
@@ -116,27 +119,43 @@ const EmployeeList = () => {
         return response.json();
       })
       .then((data) => {
-        setOriginalData(data);
-        setData(data);
+        // Calculate the total amount paid for each item
+        const updatedData = data.map((item) => {
+          const totalPaid =
+            parseFloat(item.advance) +
+            item.customArray
+              .filter((payment) => payment.status === "paid")
+              .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
+          return { ...item, totalPaid };
+        });
+        setOriginalData(updatedData);
+        setData(updatedData);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
   }, []);
-  const handleLogout = () => {
-    // Remove user details from session storage
-    sessionStorage.removeItem("user");
-    sessionStorage.removeItem("token");
-    console.log("User details cleared from session storage");
-    navigate("/");
-  };
+
   const downloadPDF = () => {
-    fetch("http://podsaas.online/employeeAndAdminPdf", {
+    // Create a copy of the data with the totalPaid calculated
+    const updatedData = data.map((item) => {
+      const totalPaid =
+        parseFloat(item.advance) +
+        item.customArray
+          .filter((payment) => payment.status === "paid")
+          .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
+
+      // Create a new object excluding 'advance' and including 'totalPaid'
+      const { advance, ...rest } = item;
+      return { ...rest, totalPaid: totalPaid.toFixed(2) };
+    });
+
+    fetch("http://localhost:8000/api/dealendpdf/convertdealendPDF", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data), // Send current data to the backend
+      body: JSON.stringify(updatedData), // Send the updated data to the backend
     })
       .then((response) => {
         if (response.ok) {
@@ -152,9 +171,7 @@ const EmployeeList = () => {
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        // The downloaded file name
-        link.download = `Employee Report - ${formattedDateTime}.pdf`;
-
+        link.download = `Deal End Report - ${formattedDateTime}.pdf`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -166,12 +183,25 @@ const EmployeeList = () => {
   };
 
   const downloadExcel = () => {
-    fetch("http://localhost:8000/api/employee/employeeandadminexcel", {
+    // Create a copy of the data with the totalPaid calculated
+    const updatedData = data.map((item) => {
+      const totalPaid =
+        parseFloat(item.advance) +
+        item.customArray
+          .filter((payment) => payment.status === "paid")
+          .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
+
+      // Create a new object excluding 'advance' and including 'totalPaid'
+      const { advance, ...rest } = item;
+      return { ...rest, totalPaid: totalPaid.toFixed(2) };
+    });
+
+    fetch("http://localhost:8000/api/dealendexcel/dealendExcel", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data), // Send current data to the backend
+      body: JSON.stringify(updatedData), // Send the updated data to the backend
     })
       .then((response) => {
         if (response.ok) {
@@ -187,8 +217,7 @@ const EmployeeList = () => {
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-
-        link.download = `Employee Report - ${formattedDateTime}.xlsx`;
+        link.download = `Deal End Report - ${formattedDateTime}.xlsx`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -200,7 +229,7 @@ const EmployeeList = () => {
   };
 
   const resetTable = () => {
-    fetch("http://podsaas.online/api/employee&admin/", {
+    fetch("http://localhost:8000/dealend/getDealend", {
       method: "GET",
     })
       .then((response) => {
@@ -209,39 +238,70 @@ const EmployeeList = () => {
         }
         return response.json();
       })
-      .then((data) => setData(data))
+      .then((data) => {
+        // Calculate the total amount paid for each item
+        const updatedData = data.map((item) => {
+          const totalPaid =
+            parseFloat(item.advance) +
+            item.customArray
+              .filter((payment) => payment.status === "paid")
+              .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
+          return { ...item, totalPaid };
+        });
+        setData(updatedData);
+      })
       .catch((error) => {
         console.error("Error fetching data:", error);
         // Handle error accordingly
       });
   };
-
   // Update your handleFetch function to also filter based on the search term
   const handleFetch = () => {
     let filteredData = originalData.filter((item) => {
+      const itemsalesDate = new Date(item.date);
+      const itemExpiryDate = new Date(item.expireDate);
       return (
-        (name === "" || item.name === name) &&
-        (email === "" || item.email === email) &&
-        (phone === "" || item.phone === Number(phone)) &&
-        (address === "" || item.address === address) &&
-        (role === "" || item.role === role)
+        (deviceName === "" || item.deviceName.includes(deviceName)) &&
+        (emiNumber === "" || item.emiNumber.includes(emiNumber)) &&
+        (customerName === "" || item.customerName.includes(customerName)) &&
+        (civilID === "" || item.civilID.includes(civilID)) &&
+        (price === "" || item.price.includes(price)) &&
+        (months === "" || item.months.includes(months)) &&
+        (advance === "" || item.advance.includes(advance)) &&
+        (balance === "" || item.balance.includes(balance)) &&
+        (!salesDateFrom || itemsalesDate >= salesDateFrom) &&
+        (!salesDateTo || itemsalesDate <= salesDateTo)
       );
     });
 
     setData(filteredData);
 
     // Clear all fields after fetch
-    setname("");
-    setemail("");
-    setphone("");
-    setaddress("");
-    setrole("");
+    setDeviceName("");
+    setemiNumber("");
+    setcustomerName("");
+    setcivilID("");
+    setprice("");
+    setmonths("");
+    setadvance("");
+    setbalance("");
+    setsalesDateFrom(null); // Set to null to clear the date picker
+    setsalesDateTo(null); // Set to null to clear the date picker
   };
-
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
+
+  const handleRowClick = (row) => {
+    setSelectedRow(row);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div>
       <ThemeProvider theme={mdTheme}>
@@ -284,9 +344,9 @@ const EmployeeList = () => {
               >
                 SMARTCO
               </Typography>
-              <IconButton color="inherit" onClick={handleLogout}>
-                <Badge color="secondary">
-                  <LogoutIcon />
+              <IconButton color="inherit">
+                <Badge badgeContent={4} color="secondary">
+                  <NotificationsIcon />
                 </Badge>
               </IconButton>
             </Toolbar>
@@ -350,7 +410,7 @@ const EmployeeList = () => {
                     color: "#637381",
                   }}
                 >
-                  Admin & Employee List
+                  Deal End List
                 </Typography>
                 <Box component="form" sx={{ mt: 1 }}>
                   <Grid container spacing={2}>
@@ -358,46 +418,95 @@ const EmployeeList = () => {
                       <TextField
                         margin="normal"
                         fullWidth
-                        label="Name"
-                        value={name}
-                        onChange={(e) => setname(e.target.value)}
+                        label="Device Name"
+                        value={deviceName}
+                        onChange={(e) => setDeviceName(e.target.value)}
                       />
                     </Grid>
                     <Grid item xs={12} sm={3}>
                       <TextField
                         margin="normal"
                         fullWidth
-                        label="E-mail"
-                        value={email}
-                        onChange={(e) => setemail(e.target.value)}
+                        label="emiNumber"
+                        value={emiNumber}
+                        onChange={(e) => setemiNumber(e.target.value)}
                       />
                     </Grid>
                     <Grid item xs={12} sm={3}>
                       <TextField
                         margin="normal"
                         fullWidth
-                        label="Address"
-                        value={address}
-                        onChange={(e) => setaddress(e.target.value)}
+                        label="customerName"
+                        value={customerName}
+                        onChange={(e) => setcustomerName(e.target.value)}
                       />
                     </Grid>
                     <Grid item xs={12} sm={3}>
                       <TextField
                         margin="normal"
                         fullWidth
-                        label="Phone"
-                        value={phone}
-                        onChange={(e) => setphone(e.target.value)}
+                        label="civilID"
+                        value={civilID}
+                        onChange={(e) => setcivilID(e.target.value)}
                       />
                     </Grid>
                     <Grid item xs={12} sm={3}>
                       <TextField
                         margin="normal"
                         fullWidth
-                        label="Role"
-                        value={role}
-                        onChange={(e) => setrole(e.target.value)}
+                        label="price"
+                        value={price}
+                        onChange={(e) => setprice(e.target.value)}
                       />
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <TextField
+                        margin="normal"
+                        fullWidth
+                        label="months"
+                        value={months}
+                        onChange={(e) => setmonths(e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <TextField
+                        margin="normal"
+                        fullWidth
+                        label="advance"
+                        value={advance}
+                        onChange={(e) => setadvance(e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <TextField
+                        margin="normal"
+                        fullWidth
+                        label="balance"
+                        value={balance}
+                        onChange={(e) => setbalance(e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={3} style={{ marginTop: "16px" }}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          fullWidth
+                          label="sales Date From"
+                          value={salesDateFrom}
+                          onChange={(date) => setsalesDateFrom(date)}
+                          style={{ marginTop: "20px" }}
+                        />
+                      </LocalizationProvider>
+                    </Grid>
+                    <Grid item xs={12} sm={3} style={{ marginTop: "16px" }}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          fullWidth
+                          label="sales Date To"
+                          value={salesDateTo}
+                          onChange={(date) => setsalesDateTo(date)}
+                          style={{ marginTop: "20px" }}
+                        />
+                      </LocalizationProvider>
                     </Grid>
                   </Grid>
 
@@ -480,7 +589,7 @@ const EmployeeList = () => {
                           fontWeight: "bold",
                         }}
                       >
-                        Download excel
+                        Download Excel
                       </Button>
                     </Grid>
                   </Grid>
@@ -519,7 +628,16 @@ const EmployeeList = () => {
                               color: "white",
                             }}
                           >
-                            Name
+                            Device Name
+                          </TableCell>
+
+                          <TableCell
+                            style={{
+                              backgroundColor: "#752888",
+                              color: "white",
+                            }}
+                          >
+                            Emi Number{" "}
                           </TableCell>
                           <TableCell
                             style={{
@@ -527,7 +645,7 @@ const EmployeeList = () => {
                               color: "white",
                             }}
                           >
-                            E-mail
+                            CustomerName{" "}
                           </TableCell>
                           <TableCell
                             style={{
@@ -535,7 +653,7 @@ const EmployeeList = () => {
                               color: "white",
                             }}
                           >
-                            Address
+                            CivilID
                           </TableCell>
                           <TableCell
                             style={{
@@ -543,7 +661,7 @@ const EmployeeList = () => {
                               color: "white",
                             }}
                           >
-                            Phone
+                            Price
                           </TableCell>
                           <TableCell
                             style={{
@@ -551,24 +669,153 @@ const EmployeeList = () => {
                               color: "white",
                             }}
                           >
-                            Role
+                            Months
+                          </TableCell>
+                          <TableCell
+                            style={{
+                              backgroundColor: "#752888",
+                              color: "white",
+                            }}
+                          >
+                            Date
+                          </TableCell>
+                          <TableCell
+                            style={{
+                              backgroundColor: "#752888",
+                              color: "white",
+                            }}
+                          >
+                            Total Amont Paid
+                          </TableCell>
+                          <TableCell
+                            style={{
+                              backgroundColor: "#752888",
+                              color: "white",
+                            }}
+                          >
+                            Balance
                           </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {data.length > 0 &&
                           data.map((item, index) => (
-                            <TableRow key={index}>
-                              <TableCell>{item.name}</TableCell>
-                              <TableCell>{item.email}</TableCell>
-                              <TableCell>{item.address}</TableCell>
-                              <TableCell>{item.phone}</TableCell>
-                              <TableCell>{item.role}</TableCell>
+                            <TableRow
+                              key={index}
+                              onClick={() => handleRowClick(item)}
+                            >
+                              <TableCell>{item.deviceName}</TableCell>
+
+                              <TableCell>{item.emiNumber}</TableCell>
+                              <TableCell>{item.customerName}</TableCell>
+                              <TableCell>{item.civilID}</TableCell>
+                              <TableCell>{item.price}</TableCell>
+                              <TableCell>{item.months}</TableCell>
+                              <TableCell>{item.date}</TableCell>
+                              <TableCell>{item.totalPaid.toFixed(2)}</TableCell>
+                              <TableCell>{item.balance}</TableCell>
                             </TableRow>
                           ))}
                       </TableBody>
                     </Table>
                   </TableContainer>
+                  {/* Modal */}
+                  <Modal
+                    open={isModalOpen}
+                    onClose={handleCloseModal}
+                    aria-labelledby="modal-title"
+                    closeAfterTransition
+                    BackdropComponent={Backdrop}
+                    BackdropProps={{
+                      timeout: 500,
+                    }}
+                  >
+                    <Fade in={isModalOpen}>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: "50%",
+                          left: "50%",
+                          transform: "translate(-50%, -50%)",
+                          width: "80%",
+                          maxWidth: 400,
+                          bgcolor: "white",
+                          boxShadow: 24,
+                          p: 2,
+                          borderRadius: 4,
+                          overflowY: "auto", // Enable scroll bar for large data
+                        }}
+                      >
+                        <IconButton
+                          aria-label="close"
+                          onClick={handleCloseModal}
+                          sx={{
+                            position: "absolute",
+                            top: 0,
+                            right: 0,
+                          }}
+                        >
+                          <CloseIcon />
+                        </IconButton>
+
+                        <Typography
+                          variant="h6"
+                          component="h2"
+                          id="modal-title"
+                        >
+                          {selectedRow?.deviceName}
+                        </Typography>
+
+                        {/* Display other details from selectedRow */}
+                        <TableContainer component={Paper}>
+                          <Table>
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>Total Amount</TableCell>
+                                <TableCell>Advance Amount</TableCell>
+                                <TableCell>Balance</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell>{selectedRow?.price}</TableCell>
+                                <TableCell>{selectedRow?.advance}</TableCell>
+                                <TableCell>{selectedRow?.balance}</TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+
+                        <Typography
+                          variant="h6"
+                          component="h2"
+                          id="modal-title"
+                        >
+                          Installment
+                        </Typography>
+                        <TableContainer component={Paper}>
+                          <Table>
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>Date</TableCell>
+                                <TableCell>Price</TableCell>
+                                <TableCell>Status</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {selectedRow?.customArray.map((item) => (
+                                <TableRow key={item._id.$oid}>
+                                  <TableCell>{item.date}</TableCell>
+                                  <TableCell>{item.price}</TableCell>
+                                  <TableCell>{item.status}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </Box>
+                    </Fade>
+                  </Modal>
                 </Box>
               </Grid>
             </Grid>
@@ -578,5 +825,4 @@ const EmployeeList = () => {
     </div>
   );
 };
-
-export default EmployeeList;
+export default DealendList;
