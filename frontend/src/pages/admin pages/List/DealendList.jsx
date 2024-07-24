@@ -85,7 +85,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 const mdTheme = createTheme();
-const SaleList = () => {
+const DealendList = () => {
   let date = new Date();
   let day = date.getDate();
   let month = date.getMonth() + 1; // JavaScript months are 0-based counting
@@ -109,7 +109,7 @@ const SaleList = () => {
   const [salesDateTo, setsalesDateTo] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:8000/selling/getSelling", {
+    fetch("http://localhost:8000/dealend/getDealend", {
       method: "GET",
     })
       .then((response) => {
@@ -150,7 +150,7 @@ const SaleList = () => {
       return { ...rest, totalPaid: totalPaid.toFixed(2) };
     });
 
-    fetch("http://localhost:8000/api/salespdf/convertsalesPDF", {
+    fetch("http://localhost:8000/api/dealendpdf/convertdealendPDF", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -171,7 +171,7 @@ const SaleList = () => {
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        link.download = `Sales Report - ${formattedDateTime}.pdf`;
+        link.download = `Deal End Report - ${formattedDateTime}.pdf`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -196,7 +196,7 @@ const SaleList = () => {
       return { ...rest, totalPaid: totalPaid.toFixed(2) };
     });
 
-    fetch("http://localhost:8000/api/salesExcel/salesExcel", {
+    fetch("http://localhost:8000/api/dealendexcel/dealendExcel", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -217,7 +217,7 @@ const SaleList = () => {
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        link.download = `Sales Report - ${formattedDateTime}.xlsx`;
+        link.download = `Deal End Report - ${formattedDateTime}.xlsx`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -229,7 +229,7 @@ const SaleList = () => {
   };
 
   const resetTable = () => {
-    fetch("http://localhost:8000/selling/getSelling", {
+    fetch("http://localhost:8000/dealend/getDealend", {
       method: "GET",
     })
       .then((response) => {
@@ -255,7 +255,6 @@ const SaleList = () => {
         // Handle error accordingly
       });
   };
-
   // Update your handleFetch function to also filter based on the search term
   const handleFetch = () => {
     let filteredData = originalData.filter((item) => {
@@ -411,7 +410,7 @@ const SaleList = () => {
                     color: "#637381",
                   }}
                 >
-                  Sales List
+                  Deal End List
                 </Typography>
                 <Box component="form" sx={{ mt: 1 }}>
                   <Grid container spacing={2}>
@@ -646,7 +645,7 @@ const SaleList = () => {
                               color: "white",
                             }}
                           >
-                            Customer Name{" "}
+                            CustomerName{" "}
                           </TableCell>
                           <TableCell
                             style={{
@@ -694,7 +693,7 @@ const SaleList = () => {
                               color: "white",
                             }}
                           >
-                            balance
+                            Balance
                           </TableCell>
                         </TableRow>
                       </TableHead>
@@ -826,5 +825,4 @@ const SaleList = () => {
     </div>
   );
 };
-
-export default SaleList;
+export default DealendList;
