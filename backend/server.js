@@ -44,6 +44,7 @@ app.use("/payment", require("./routes/paymentRoutes"));
 app.use("/api/invoice", require("./routes/invoiceRote"));
 app.use(errorHandler);
 app.use("/", require("./routes/invoicePdfRouter"));
+app.use("/", require("./routes/convertToPaymentInvoicePDFRoute"));
 app.use("/api/devicepdf", require("./routes/devicePdfRoutes"));
 app.use("/api/dealendpdf", require("./routes/dealendpdfRoutes"));
 app.use("/api/buyingSellingpdf", require("./routes/buyingSellingPdfRoute"));
