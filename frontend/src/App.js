@@ -22,6 +22,7 @@ import DeviceList from "./pages/admin pages/List/DeviceList";
 import EmployeeList from "./pages/admin pages/List/EmployeeList";
 import PaymentList from "./pages/admin pages/List/PaymentList";
 import SaleList from "./pages/admin pages/List/SaleList";
+import BuyingSellingList from "./pages/admin pages/List/BuyingSellingList";
 import DealendList from "./pages/admin pages/List/DealendList";
 import UpdateCustomer from "./pages/admin pages/admin update pages/UpdateCustomer";
 import UpdateDevice from "./pages/admin pages/admin update pages/UpdateDevice";
@@ -52,6 +53,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Customer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="/BuyingSellingList"
+          element={
+            <ProtectedRoute>
+              <BuyingSellingList />
             </ProtectedRoute>
           }
         />

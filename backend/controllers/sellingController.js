@@ -182,7 +182,6 @@ exports.getonesellingByIdEminumber = (req, res) => {
       res.json(sellingRecord);
     })
     .catch((err) => {
-      console.error("Error retrieving selling record:", err);
       res.status(500).json({ error: "Error retrieving selling record" });
     });
 };
