@@ -109,31 +109,59 @@ const BuyingSellingList = () => {
   const [salesDateTo, setsalesDateTo] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:8000/selling/getSelling", {
-      method: "GET",
-    })
-      .then((response) => {
+    const fetchSellingData = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:8000/selling/getSelling",
+          { method: "GET" }
+        );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json();
-      })
-      .then((data) => {
-        // Calculate the total amount paid for each item
-        const updatedData = data.map((item) => {
+        const sellingData = await response.json();
+
+        // Fetch inventory data
+        const inventoryResponse = await fetch(
+          "http://localhost:8000/inventory/getInventory",
+          { method: "GET" }
+        );
+        if (!inventoryResponse.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const inventoryData = await inventoryResponse.json();
+
+        // Merge sellingData with inventoryData
+        const mergedData = sellingData.map((sellingItem) => {
+          const inventoryItem = inventoryData.find(
+            (item) => item.emiNumber === sellingItem.emiNumber
+          );
           const totalPaid =
-            parseFloat(item.advance) +
-            item.customArray
+            parseFloat(sellingItem.advance) +
+            sellingItem.customArray
               .filter((payment) => payment.status === "paid")
               .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-          return { ...item, totalPaid };
+          const purchasePrice = inventoryItem
+            ? parseFloat(inventoryItem.price)
+            : 0;
+          const sellingPrice = parseFloat(sellingItem.price);
+          const profit = sellingPrice - purchasePrice;
+
+          return {
+            ...sellingItem,
+            totalPaid,
+            purchasePrice,
+            profit,
+          };
         });
-        setOriginalData(updatedData);
-        setData(updatedData);
-      })
-      .catch((error) => {
+
+        setOriginalData(mergedData);
+        setData(mergedData);
+      } catch (error) {
         console.error("Error fetching data:", error);
-      });
+      }
+    };
+
+    fetchSellingData();
   }, []);
 
   const downloadPDF = () => {
@@ -149,14 +177,19 @@ const BuyingSellingList = () => {
       const { advance, ...rest } = item;
       return { ...rest, totalPaid: totalPaid.toFixed(2) };
     });
+    console.log(updatedData);
 
-    fetch("http://localhost:8000/api/salespdf/convertsalesPDF", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedData), // Send the updated data to the backend
-    })
+    fetch(
+      "http://localhost:8000/api/buyingSellingpdf/convertTobuyingSellingPDF",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(updatedData), // Send the updated data to the backend
+      }
+    )
       .then((response) => {
         if (response.ok) {
           return response.blob(); // If the response is OK, get the PDF blob
@@ -171,7 +204,7 @@ const BuyingSellingList = () => {
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        link.download = `Deal End Report - ${formattedDateTime}.pdf`;
+        link.download = `Bying And Selling Report - ${formattedDateTime}.pdf`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -195,8 +228,8 @@ const BuyingSellingList = () => {
       const { advance, ...rest } = item;
       return { ...rest, totalPaid: totalPaid.toFixed(2) };
     });
-
-    fetch("http://localhost:8000/api/salesExcel/salesExcel", {
+    console.log(updatedData);
+    fetch("http://localhost:8000/api/byingSellingExcel/byingSellingExcel", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -217,7 +250,7 @@ const BuyingSellingList = () => {
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        link.download = `Deal End Report - ${formattedDateTime}.xlsx`;
+        link.download = `Bying And Selling Report - ${formattedDateTime}.xlsx`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -229,32 +262,50 @@ const BuyingSellingList = () => {
   };
 
   const resetTable = () => {
-    fetch("http://localhost:8000/selling/getSelling", {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
+    Promise.all([
+      fetch("http://localhost:8000/selling/getSelling", { method: "GET" }),
+      fetch("http://localhost:8000/inventory/getInventory", { method: "GET" }),
+    ])
+      .then(async ([sellingResponse, inventoryResponse]) => {
+        if (!sellingResponse.ok || !inventoryResponse.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json();
-      })
-      .then((data) => {
-        // Calculate the total amount paid for each item
-        const updatedData = data.map((item) => {
+        const sellingData = await sellingResponse.json();
+        const inventoryData = await inventoryResponse.json();
+
+        // Merge sellingData with inventoryData
+        const mergedData = sellingData.map((sellingItem) => {
+          const inventoryItem = inventoryData.find(
+            (item) => item.emiNumber === sellingItem.emiNumber
+          );
           const totalPaid =
-            parseFloat(item.advance) +
-            item.customArray
+            parseFloat(sellingItem.advance) +
+            sellingItem.customArray
               .filter((payment) => payment.status === "paid")
               .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-          return { ...item, totalPaid };
+          const purchasePrice = inventoryItem
+            ? parseFloat(inventoryItem.price)
+            : 0;
+          const sellingPrice = parseFloat(sellingItem.price);
+          const profit = sellingPrice - purchasePrice;
+
+          return {
+            ...sellingItem,
+            totalPaid,
+            purchasePrice,
+            profit,
+          };
         });
-        setData(updatedData);
+
+        setOriginalData(mergedData);
+        setData(mergedData);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
         // Handle error accordingly
       });
   };
+
   // Update your handleFetch function to also filter based on the search term
   const handleFetch = () => {
     let filteredData = originalData.filter((item) => {
@@ -410,7 +461,7 @@ const BuyingSellingList = () => {
                     color: "#637381",
                   }}
                 >
-                  Deal End List
+                  Buying And Selling List
                 </Typography>
                 <Box component="form" sx={{ mt: 1 }}>
                   <Grid container spacing={2}>
@@ -712,6 +763,8 @@ const BuyingSellingList = () => {
                               <TableCell>{item.months}</TableCell>
                               <TableCell>{item.date}</TableCell>
                               <TableCell>{item.price}</TableCell>
+                              <TableCell>{item.purchasePrice}</TableCell>
+                              <TableCell>{item.profit}</TableCell>
                             </TableRow>
                           ))}
                       </TableBody>

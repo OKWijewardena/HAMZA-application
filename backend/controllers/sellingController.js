@@ -1,6 +1,5 @@
 const Selling = require("../models/sellingModel");
-const mongoose = require("mongoose");
-
+const asyncHandler = require("express-async-handler");
 // Controller to add a new selling record
 exports.addSelling = async (req, res) => {
   const {
@@ -101,10 +100,12 @@ exports.updateSelling = async (req, res) => {
     res.status(200).send({ status: "Customer device purchase record updated" });
   } catch (err) {
     console.log(err);
-    res.status(500).send({
-      status: "Error with updating selling record",
-      error: err.message,
-    });
+    res
+      .status(500)
+      .send({
+        status: "Error with updating selling record",
+        error: err.message,
+      });
   }
 };
 
@@ -122,7 +123,6 @@ exports.deleteSelling = (req, res) => {
     });
 };
 
-// Controller to get a single selling record by civil ID
 exports.getOneSelling = (req, res) => {
   Selling.find({ civilID: req.params.civilID })
     .then((sellingRecord) => {
@@ -134,20 +134,29 @@ exports.getOneSelling = (req, res) => {
     });
 };
 
-// Controller to get a single selling record by ID
-exports.getOneSellingID = (req, res) => {
-  const { id } = req.params;
+exports.getonesellingByIdEmi = (req, res) => {
+  const { civilID, emiNumber } = req.params;
+  console.log("Searching for civil_id:", civilID, "and emi_no:", emiNumber);
 
-  // Check if the ID is a valid ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ error: "Invalid ID format" });
-  }
-
-  Selling.findById(id)
+  Selling.findOne({ civilID, emiNumber })
     .then((sellingRecord) => {
       if (!sellingRecord) {
-        return res.status(404).json({ error: "Selling record not found" });
+        console.log("No record found.");
+        return res.status(404).json({ message: "Record not found" });
       }
+      console.log("Found record:", sellingRecord);
+      res.json(sellingRecord);
+    })
+    .catch((err) => {
+      console.error("Error retrieving selling record:", err);
+      res.status(500).json({ error: "Error retrieving selling record" });
+    });
+};
+
+// Controller to get a single selling record by ID
+exports.getOneSellingID = (req, res) => {
+  Selling.findOne({ _id: req.params.id })
+    .then((sellingRecord) => {
       res.json(sellingRecord);
     })
     .catch((err) => {
@@ -156,39 +165,24 @@ exports.getOneSellingID = (req, res) => {
     });
 };
 
-// Controller to get a single selling record by civil ID and EMI number
-exports.getonesellingByIdEmi = (req, res) => {
-  const { civilID, emiNumber } = req.params;
-
-  Selling.findOne({ civilID, emiNumber })
-    .then((sellingRecord) => {
-      if (!sellingRecord) {
-        return res.status(404).json({ message: "Record not found" });
-      }
-      res.json(sellingRecord);
-    })
-    .catch((err) => {
-      res.status(500).json({ error: "Error retrieving selling record" });
-    });
-};
-
-// Controller to get a single selling record by EMI number
 exports.getonesellingByIdEminumber = (req, res) => {
   const { emi } = req.params;
-
+  console.log({ emi });
   Selling.findOne({ emiNumber: emi })
     .then((sellingRecord) => {
       if (!sellingRecord) {
-        return res.status(404).json({ message: "Record not found" });
+        console.log("No record found.");
+        return res.status(200).json({ message: "data not available" });
       }
+      console.log("Found record:", sellingRecord);
       res.json(sellingRecord);
     })
     .catch((err) => {
+      console.error("Error retrieving selling record:", err);
       res.status(500).json({ error: "Error retrieving selling record" });
     });
 };
 
-// Controller to update payment history in a selling record
 exports.updatePaymentHistory = async (req, res) => {
   const { civilID, emiNumber, date, payment } = req.body;
 
@@ -201,7 +195,6 @@ exports.updatePaymentHistory = async (req, res) => {
 
     let isPaymentUpdated = false;
     const customArray = selling.customArray;
-    let balance = parseFloat(selling.balance);
     let balance = parseFloat(selling.balance);
 
     for (let i = 0; i < customArray.length; i++) {
@@ -217,6 +210,7 @@ exports.updatePaymentHistory = async (req, res) => {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
         balance -= parseFloat(payment);
+        balance = balance.toFixed(2); // Ensure balance is rounded to 2 decimals
         isPaymentUpdated = true;
         break;
       } else if (
@@ -226,8 +220,12 @@ exports.updatePaymentHistory = async (req, res) => {
       ) {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
-        const newPrice = 2 * itemPrice - parseFloat(payment);
+        const newPrice = (
+          nextPrice +
+          (itemPrice - parseFloat(payment))
+        ).toFixed(2);
         balance -= parseFloat(payment);
+        balance = balance.toFixed(2); // Ensure balance is rounded to 2 decimals
 
         if (customArray[i + 1]) {
           customArray[i + 1].price = newPrice.toString();
@@ -244,8 +242,12 @@ exports.updatePaymentHistory = async (req, res) => {
       ) {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
-        const newPrice = itemPrice - (parseFloat(payment) - itemPrice);
+        const newPrice = (
+          nextPrice -
+          (parseFloat(payment) - itemPrice)
+        ).toFixed(2);
         balance -= parseFloat(payment);
+        balance = balance.toFixed(2); // Ensure balance is rounded to 2 decimals
 
         if (customArray[i + 1]) {
           customArray[i + 1].price = newPrice.toString();
@@ -259,13 +261,14 @@ exports.updatePaymentHistory = async (req, res) => {
     }
 
     if (!isPaymentUpdated) {
-      return res.status(404).json({
-        message:
-          "No matching unpaid record found with the given date and payment amount",
-      });
+      return res
+        .status(404)
+        .json({
+          message:
+            "No matching unpaid record found with the given date and payment amount",
+        });
     }
 
-    selling.balance = balance.toString();
     selling.balance = balance.toString();
     await selling.save();
 
