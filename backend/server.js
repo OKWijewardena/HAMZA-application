@@ -1,16 +1,19 @@
 const express = require("express");
 const connectionDb = require("./config/dbconnection");
 const errorHandler = require("./middleware/errorHandler");
-const dotenv = require("dotenv").config();
+const bodyParser = require("body-parser");
 const cors = require("cors");
-const path = require("path");
+const dotenv = require("dotenv").config();
 
 connectionDb();
 const app = express();
 
-app.use(cors());
+//Assign into localhost ports
+const PORT = process.env.PORT || 8000;
 
-// Middleware to parse JSON
+//app.use =middeleware
+app.use(cors());
+app.use(bodyParser.json());
 app.use(express.json());
 
 // Define the path to the images folder

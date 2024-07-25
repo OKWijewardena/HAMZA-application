@@ -202,6 +202,7 @@ exports.updatePaymentHistory = async (req, res) => {
     let isPaymentUpdated = false;
     const customArray = selling.customArray;
     let balance = parseFloat(selling.balance);
+    let balance = parseFloat(selling.balance);
 
     for (let i = 0; i < customArray.length; i++) {
       const itemDate = new Date(customArray[i].date);
@@ -216,7 +217,6 @@ exports.updatePaymentHistory = async (req, res) => {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
         balance -= parseFloat(payment);
-        balance = balance.toFixed(2); // Ensure balance is rounded to 2 decimals
         isPaymentUpdated = true;
         break;
       } else if (
@@ -226,12 +226,8 @@ exports.updatePaymentHistory = async (req, res) => {
       ) {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
-        const newPrice = (
-          nextPrice +
-          (itemPrice - parseFloat(payment))
-        ).toFixed(2);
+        const newPrice = 2 * itemPrice - parseFloat(payment);
         balance -= parseFloat(payment);
-        balance = balance.toFixed(2); // Ensure balance is rounded to 2 decimals
 
         if (customArray[i + 1]) {
           customArray[i + 1].price = newPrice.toString();
@@ -248,12 +244,8 @@ exports.updatePaymentHistory = async (req, res) => {
       ) {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
-        const newPrice = (
-          nextPrice -
-          (parseFloat(payment) - itemPrice)
-        ).toFixed(2);
+        const newPrice = itemPrice - (parseFloat(payment) - itemPrice);
         balance -= parseFloat(payment);
-        balance = balance.toFixed(2); // Ensure balance is rounded to 2 decimals
 
         if (customArray[i + 1]) {
           customArray[i + 1].price = newPrice.toString();
@@ -267,14 +259,13 @@ exports.updatePaymentHistory = async (req, res) => {
     }
 
     if (!isPaymentUpdated) {
-      return res
-        .status(404)
-        .json({
-          message:
-            "No matching unpaid record found with the given date and payment amount",
-        });
+      return res.status(404).json({
+        message:
+          "No matching unpaid record found with the given date and payment amount",
+      });
     }
 
+    selling.balance = balance.toString();
     selling.balance = balance.toString();
     await selling.save();
 

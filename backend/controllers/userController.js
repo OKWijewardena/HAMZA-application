@@ -1,9 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const usermodel = require("../models/userModel");
 const bcrypt = require("bcryptjs");
-const axios = require("axios");
-const { generateToken } = require("../utils/jwtUtils");
-const jwt = require("jsonwebtoken");
 
 //@desc register a user
 //@route post /api/ users / register
@@ -52,12 +49,10 @@ const loginUser = asyncHandler(async (req, res) => {
 
   // Check if the email is SuperAdmin
   if (email.toLowerCase() === "superadmin@gmail.com" && password === "123") {
-    return res
-      .status(200)
-      .json({
-        message: "SuperAdmin page",
-        user: { role: "superadmin", userInfo: "superadmin" },
-      });
+    return res.status(200).json({
+      message: "SuperAdmin page",
+      user: { role: "superadmin", userInfo: "superadmin" },
+    });
   }
 
   const userlogin = await usermodel.findOne({ email });
