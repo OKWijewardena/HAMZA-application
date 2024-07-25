@@ -117,7 +117,7 @@ const convertToPaymentInvoicePDF = async (req, res) => {
   // Retrieve customer data
   for (let item of data) {
     const response = await axios.get(
-      `http://podsaas.online/api/customer/civil/${item.civilID}`
+      `http://localhost:8000/api/customer/civil/${item.civilID}`
     );
     const customerData = response.data;
     item.customerData = customerData;
@@ -180,7 +180,7 @@ const convertToOverAllPaymentInvoicePDF = async (req, res) => {
   // Retrieve customer data
   for (let item of data) {
     const customerResponse = await axios.get(
-      `http://podsaas.online/api/customer/civil/${item.civil_id}`
+      `http://localhost:8000/api/customer/civil/${item.civil_id}`
     );
     const customerData = customerResponse.data;
     console.log(customerData);

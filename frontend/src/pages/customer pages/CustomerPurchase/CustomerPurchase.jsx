@@ -52,7 +52,7 @@ export default function CustomerPurchase() {
 
   const [sellings, setSellings] = useState([]);
   const [data, setData] = useState([]);
-  const [civilID, setCivilID] = useState(""); 
+  const [civilID, setCivilID] = useState("");
   const [emiNumber, setemiNumber] = useState("");
 
   const fetchSellings = useCallback(async () => {

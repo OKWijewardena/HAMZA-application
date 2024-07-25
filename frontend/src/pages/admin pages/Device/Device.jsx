@@ -232,7 +232,6 @@ sessionStorage.removeItem('token');
           console.error('Error adding devices or inventory:', error);
       }
   };
-  
 
     return(
         <div>

@@ -1,9 +1,9 @@
-
 const Payment = require("../models/paymentModel");
 
 // Controller to add a new payment
 exports.addPayment = (req, res) => {
-  const { customerName, civilID, deviceName, emiNumber, price, date } = req.body;
+  const { customerName, civilID, deviceName, emiNumber, price, date } =
+    req.body;
 
   const newPayment = new Payment({
     customerName,
@@ -39,7 +39,8 @@ exports.getAllPayments = (req, res) => {
 
 // Controller to update a payment
 exports.updatePayment = async (req, res) => {
-  const { customerName, civilID, deviceName, emiNumber, price, date } = req.body;
+  const { customerName, civilID, deviceName, emiNumber, price, date } =
+    req.body;
 
   const updatePayment = {
     customerName,
@@ -51,17 +52,22 @@ exports.updatePayment = async (req, res) => {
   };
 
   try {
-    await Payment.findOneAndUpdate({ civilID : req.params.civilID }, updatePayment);
+    await Payment.findOneAndUpdate(
+      { civilID: req.params.civilID },
+      updatePayment
+    );
     res.status(200).send({ status: "Payment Updated" });
   } catch (err) {
     console.log(err);
-    res.status(500).send({ status: "Error with updating payment", error: err.message });
+    res
+      .status(500)
+      .send({ status: "Error with updating payment", error: err.message });
   }
 };
 
 // Controller to delete a payment
 exports.deletePayment = (req, res) => {
-  Payment.findOneAndDelete({ _id : req.params.id })
+  Payment.findOneAndDelete({ _id: req.params.id })
     .then(() => {
       res.status(200).send({ status: "Payment Deleted" });
     })
@@ -82,7 +88,3 @@ exports.getOnePayment = async (req, res) => {
     res.status(500).json({ error: "Error retrieving payment" });
   }
 };
-
-
-
-
