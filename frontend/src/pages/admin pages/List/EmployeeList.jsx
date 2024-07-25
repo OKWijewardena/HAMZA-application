@@ -18,14 +18,6 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { mainListItems, secondaryListItems } from "../listItems";
 import React, { useEffect, useState } from "react";
-const navigate = useNavigate();
-const handleLogout = () => {
-  // Remove user details from session storage
-  sessionStorage.removeItem("user");
-  sessionStorage.removeItem("token");
-  console.log("User details cleared from session storage");
-  navigate("/");
-};
 
 import {
   TextField,
@@ -38,8 +30,8 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
+
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {

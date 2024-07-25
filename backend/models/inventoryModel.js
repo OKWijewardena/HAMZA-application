@@ -42,7 +42,7 @@ const inventory = new mongoose.Schema({
     purchaseDate : {
         type : String,
         required : true
-    }         
+    }     
 });
 
 const inventoryModel = mongoose.model("inventory",inventory);

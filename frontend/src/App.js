@@ -73,15 +73,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          exact
-          path="/DealendList"
-          element={
-            <ProtectedRoute>
-              <DealendList />
-            </ProtectedRoute>
-          }
-        />
+        <Route exact path="/DealendList" element={<ProtectedRoute> <DealendList /> </ProtectedRoute>}/>
         <Route
           exact
           path="/EmployeeList"
