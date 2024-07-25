@@ -136,7 +136,7 @@ export const secondaryListItems = (
         <ListItemIcon>
           <AssignmentIcon />
         </ListItemIcon>
-        <ListItemText primary=" Buying And Selling List" />
+        <ListItemText primary=" Buying & Selling List" />
       </ListItemButton>
     </Link>
   </React.Fragment>

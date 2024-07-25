@@ -56,15 +56,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          exact
-          path="/BuyingSellingList"
-          element={
-            <ProtectedRoute>
-              <BuyingSellingList />
-            </ProtectedRoute>
-          }
-        />
+        <Route exact path="/BuyingSellingList" element={<ProtectedRoute><BuyingSellingList /></ProtectedRoute>}/>
         <Route
           exact
           path="/CustomerList"
