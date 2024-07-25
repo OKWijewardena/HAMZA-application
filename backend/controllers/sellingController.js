@@ -1,5 +1,6 @@
 const Selling = require("../models/sellingModel");
-const asyncHandler = require("express-async-handler");
+const mongoose = require("mongoose");
+
 // Controller to add a new selling record
 exports.addSelling = async (req, res) => {
   const {
@@ -111,9 +112,7 @@ exports.updateSelling = async (req, res) => {
 exports.deleteSelling = (req, res) => {
   Selling.findOneAndDelete({ _id: req.params.id })
     .then(() => {
-      res
-        .status(200)
-        .send({ status: "Customer device purchase record deleted" });
+      res.status(200).send({ status: "Customer device purchase record deleted" });
     })
     .catch((err) => {
       console.log(err);
@@ -121,6 +120,7 @@ exports.deleteSelling = (req, res) => {
     });
 };
 
+// Controller to get a single selling record by civil ID
 exports.getOneSelling = (req, res) => {
   Selling.find({ civilID: req.params.civilID })
     .then((sellingRecord) => {
@@ -132,29 +132,20 @@ exports.getOneSelling = (req, res) => {
     });
 };
 
-exports.getonesellingByIdEmi = (req, res) => {
-  const { civilID, emiNumber } = req.params;
-  console.log("Searching for civil_id:", civilID, "and emi_no:", emiNumber);
-
-  Selling.findOne({ civilID, emiNumber })
-    .then((sellingRecord) => {
-      if (!sellingRecord) {
-        console.log("No record found.");
-        return res.status(404).json({ message: "Record not found" });
-      }
-      console.log("Found record:", sellingRecord);
-      res.json(sellingRecord);
-    })
-    .catch((err) => {
-      console.error("Error retrieving selling record:", err);
-      res.status(500).json({ error: "Error retrieving selling record" });
-    });
-};
-
 // Controller to get a single selling record by ID
 exports.getOneSellingID = (req, res) => {
-  Selling.findOne({ _id: req.params.id })
+  const { id } = req.params;
+
+  // Check if the ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid ID format" });
+  }
+
+  Selling.findById(id)
     .then((sellingRecord) => {
+      if (!sellingRecord) {
+        return res.status(404).json({ error: "Selling record not found" });
+      }
       res.json(sellingRecord);
     })
     .catch((err) => {
@@ -163,35 +154,31 @@ exports.getOneSellingID = (req, res) => {
     });
 };
 
+// Controller to get a single selling record by civil ID and EMI number
 exports.getonesellingByIdEmi = (req, res) => {
   const { civilID, emiNumber } = req.params;
-  console.log("Searching for civil_id:", civilID, "and emi_no:", emiNumber);
 
   Selling.findOne({ civilID, emiNumber })
     .then((sellingRecord) => {
       if (!sellingRecord) {
-        console.log("No record found.");
         return res.status(404).json({ message: "Record not found" });
       }
-      console.log("Found record:", sellingRecord);
       res.json(sellingRecord);
     })
     .catch((err) => {
-      console.error("Error retrieving selling record:", err);
       res.status(500).json({ error: "Error retrieving selling record" });
     });
 };
 
+// Controller to get a single selling record by EMI number
 exports.getonesellingByIdEminumber = (req, res) => {
   const { emi } = req.params;
-  console.log({ emi });
+
   Selling.findOne({ emiNumber: emi })
     .then((sellingRecord) => {
       if (!sellingRecord) {
-        console.log("No record found.");
-        return res.status(200).json({ message: "data not available" });
+        return res.status(404).json({ message: "Record not found" });
       }
-      console.log("Found record:", sellingRecord);
       res.json(sellingRecord);
     })
     .catch((err) => {
@@ -200,6 +187,7 @@ exports.getonesellingByIdEminumber = (req, res) => {
     });
 };
 
+// Controller to update payment history in a selling record
 exports.updatePaymentHistory = async (req, res) => {
   const { civilID, emiNumber, date, payment } = req.body;
 
@@ -218,12 +206,9 @@ exports.updatePaymentHistory = async (req, res) => {
     for (let i = 0; i < customArray.length; i++) {
       const itemDate = new Date(customArray[i].date);
       const itemPrice = parseFloat(customArray[i].price);
-      console.log("itemPrice", itemPrice);
       const nextPrice = customArray[i + 1]
         ? parseFloat(customArray[i + 1].price)
         : undefined;
-      console.log("nextPrice", nextPrice);
-      console.log("Payment", Payment);
 
       if (Payment === 0) {
         isPaymentUpdated = true;

@@ -1,46 +1,45 @@
 const mongoose = require("mongoose");
 
-const selling = new mongoose.Schema({
-    
-    deviceName : {
-        type : String,
-        required : true
+const sellingSchema = new mongoose.Schema({
+  deviceName: {
+    type: String,
+    required: true,
     },
-    emiNumber : {
-      type : String,
-      required : true
+  emiNumber: {
+    type: String,
+    required: true,
     }, 
-    customerName : {
-        type : String,
-        required : true
+  customerName: {
+    type: String,
+    required: true,
     },
-    civilID : {
-        type : String,
-        required : true
+  civilID: {
+    type: String,
+    required: true,
     },
-    price : {
-        type : String,
-        required : true
+  price: {
+    type: String,
+    required: true,
     },
-    months : {
-        type : String,
-        required : true
+  months: {
+    type: String,
+    required: true,
     }, 
-    date : {
-        type : String,
-        required : true
+  date: {
+    type: String,
+    required: true,
     },
-    advance : {
-        type : String,
-        required : true
+  advance: {
+    type: String,
+    required: true,
     },
-    imageName : {
-      type : String,
-      required : true
+  imageName: {
+    type: String,
+    required: true,
     },
-    balance : {
-        type : String,
-        required : true
+  balance: {
+    type: String,
+    required: true,
     },
     customArray: {
         type: [
@@ -56,7 +55,7 @@ const selling = new mongoose.Schema({
             status: {
               type: String,
               required: true,
-              default: 'unpaid', // Assuming default status is 'unpaid'
+          default: "unpaid",
             },
           },
         ],
@@ -64,5 +63,5 @@ const selling = new mongoose.Schema({
       },     
 });
 
-const sellingModel = mongoose.model("selling",selling);
-module.exports = sellingModel;
+const Selling = mongoose.model("Selling", sellingSchema);
+module.exports = Selling;
