@@ -83,7 +83,6 @@ export default function CustomerPurchase() {
 
   const downloadPDF = (rowData) => {
     // Modify the function to accept rowData
-    console.log(rowData);
     fetch("http://localhost:8000/convertToPaymentInvoicePDF", {
       method: "POST",
       headers: {

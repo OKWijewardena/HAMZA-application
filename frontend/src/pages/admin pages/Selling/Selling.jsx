@@ -123,6 +123,7 @@ sessionStorage.removeItem('token');
       console.error('Error fetching sellings:', error);
     }
   };
+  
 
   const fetchDeviceImage = async () => {
     try {
@@ -213,6 +214,7 @@ sessionStorage.removeItem('token');
 
     try {
       await axios.post('http://localhost:8000/selling/addSelling', NewPurchase);
+      await axios.delete(`http://podsaas.online/device/deleteDeviceemi/${NewPurchase.emiNumber}`);
       alert("New customer device purchased");
       fetchSellings(); // Refresh the selling list after submission
       handleDialogClose();
@@ -463,11 +465,29 @@ sessionStorage.removeItem('token');
                           <TableCell>{selling.advance}</TableCell>
                           <TableCell>{selling.balance}</TableCell>
                           <TableCell>
-                            <IconButton color="secondary" onClick={() => handleDelete(selling._id)}>
-                              <DeleteIcon />
-                            </IconButton>
-                            <Button onClick={() => dealendSubmit(selling._id,selling.deviceName,selling.emiNumber,selling.customerName,selling.civilID,selling.price,selling.months,selling.date,selling.advance,selling.imageName)}>Deal end</Button>
-                          </TableCell>
+  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <IconButton color="secondary" onClick={() => handleDelete(selling._id)}>
+      <DeleteIcon />
+    </IconButton>
+    <Button
+      sx={{
+        ml: 2, // Add some left margin to space the button away from the icon
+        mt: 3,
+        mb: 2,
+        backgroundColor: '#752888',
+        '&:hover': {
+          backgroundColor: '#C63DE7',
+        },
+        color: 'white',
+        fontFamily: 'Public Sans, sans-serif',
+        fontWeight: 'bold',
+      }}
+      onClick={() => dealendSubmit(selling._id, selling.deviceName, selling.emiNumber, selling.customerName, selling.civilID, selling.price, selling.months, selling.date, selling.advance, selling.imageName)}
+    >
+      Dealend
+    </Button>
+  </Box>
+</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
