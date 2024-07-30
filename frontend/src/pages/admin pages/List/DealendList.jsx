@@ -109,31 +109,71 @@ const DealendList = () => {
   const [salesDateTo, setsalesDateTo] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:8000/dealend/getDealend", {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
+    const fetchDealendData = async () => {
+      try {
+        const dealendResponse = await fetch(
+          "http://localhost:8000/dealend/getDealend",
+          {
+            method: "GET",
+          }
+        );
+        if (!dealendResponse.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json();
-      })
-      .then((data) => {
-        // Calculate the total amount paid for each item
-        const updatedData = data.map((item) => {
+        const dealendData = await dealendResponse.json();
+
+        // Fetch inventory data
+        const inventoryResponse = await fetch(
+          "http://localhost:8000/inventory/getInventory",
+          {
+            method: "GET",
+          }
+        );
+        if (!inventoryResponse.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const inventoryData = await inventoryResponse.json();
+
+        // Merge dealendData with inventoryData
+        const mergedData = dealendData.map((dealendItem) => {
+          const inventoryItem = inventoryData.find(
+            (item) => item.emiNumber === dealendItem.emiNumber
+          );
+
+          // Calculate totalPaid
           const totalPaid =
-            parseFloat(item.advance) +
-            item.customArray
+            parseFloat(dealendItem.advance) +
+            dealendItem.customArray
               .filter((payment) => payment.status === "paid")
               .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-          return { ...item, totalPaid };
+
+          // Calculate totalPayableBalance
+          let totalPayableBalance = dealendItem.customArray
+            .filter((payment) => payment.status === "unpaid")
+            .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
+          totalPayableBalance = Math.round(totalPayableBalance);
+
+          // Get purchase price from inventoryItem
+          const purchasePrice = inventoryItem
+            ? parseFloat(inventoryItem.price)
+            : 0;
+
+          return {
+            ...dealendItem,
+            totalPaid,
+            purchasePrice,
+            totalPayableBalance,
+          };
         });
-        setOriginalData(updatedData);
-        setData(updatedData);
-      })
-      .catch((error) => {
+
+        setOriginalData(mergedData);
+        setData(mergedData);
+      } catch (error) {
         console.error("Error fetching data:", error);
-      });
+      }
+    };
+
+    fetchDealendData();
   }, []);
 
   const downloadPDF = () => {
@@ -149,12 +189,13 @@ const DealendList = () => {
       const { advance, ...rest } = item;
       return { ...rest, totalPaid: totalPaid.toFixed(2) };
     });
-
+    console.log(updatedData);
     fetch("http://localhost:8000/api/dealendpdf/convertdealendPDF", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+
       body: JSON.stringify(updatedData), // Send the updated data to the backend
     })
       .then((response) => {
@@ -229,32 +270,68 @@ const DealendList = () => {
   };
 
   const resetTable = () => {
-    fetch("http://localhost:8000/dealend/getDealend", {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
+    const fetchDealendAndInventoryData = async () => {
+      try {
+        // Fetch dealend data
+        const dealendResponse = await fetch(
+          "http://localhost:8000/dealend/getDealend",
+          { method: "GET" }
+        );
+        if (!dealendResponse.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json();
-      })
-      .then((data) => {
-        // Calculate the total amount paid for each item
-        const updatedData = data.map((item) => {
+        const dealendData = await dealendResponse.json();
+
+        // Fetch inventory data
+        const inventoryResponse = await fetch(
+          "http://localhost:8000/inventory/getInventory",
+          { method: "GET" }
+        );
+        if (!inventoryResponse.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const inventoryData = await inventoryResponse.json();
+
+        // Merge dealendData with inventoryData
+        const mergedData = dealendData.map((dealendItem) => {
+          const inventoryItem = inventoryData.find(
+            (item) => item.emiNumber === dealendItem.emiNumber
+          );
+
           const totalPaid =
-            parseFloat(item.advance) +
-            item.customArray
+            parseFloat(dealendItem.advance) +
+            dealendItem.customArray
               .filter((payment) => payment.status === "paid")
               .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-          return { ...item, totalPaid };
+
+          let totalPayableBalance = dealendItem.customArray
+            .filter((payment) => payment.status === "unpaid")
+            .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
+
+          totalPayableBalance = Math.round(totalPayableBalance);
+
+          const purchasePrice = inventoryItem
+            ? parseFloat(inventoryItem.price)
+            : 0;
+
+          return {
+            ...dealendItem,
+            totalPaid,
+            purchasePrice,
+            totalPayableBalance,
+          };
         });
-        setData(updatedData);
-      })
-      .catch((error) => {
+
+        setData(mergedData);
+      } catch (error) {
         console.error("Error fetching data:", error);
         // Handle error accordingly
-      });
+      }
+    };
+
+    fetchDealendAndInventoryData();
   };
+
   // Update your handleFetch function to also filter based on the search term
   const handleFetch = () => {
     let filteredData = originalData.filter((item) => {
@@ -651,7 +728,15 @@ const DealendList = () => {
                               color: "white",
                             }}
                           >
-                            Price
+                            Selling Price
+                          </TableCell>
+                          <TableCell
+                            style={{
+                              backgroundColor: "#752888",
+                              color: "white",
+                            }}
+                          >
+                            Purchase Price
                           </TableCell>
                           <TableCell
                             style={{
@@ -677,13 +762,14 @@ const DealendList = () => {
                           >
                             Total Amont Paid
                           </TableCell>
+
                           <TableCell
                             style={{
                               backgroundColor: "#752888",
                               color: "white",
                             }}
                           >
-                            Balance
+                            Pyable Balance
                           </TableCell>
                         </TableRow>
                       </TableHead>
@@ -700,6 +786,7 @@ const DealendList = () => {
                               <TableCell>{item.customerName}</TableCell>
                               <TableCell>{item.civilID}</TableCell>
                               <TableCell>{item.price}</TableCell>
+                              <TableCell>{item.purchasePrice}</TableCell>
                               <TableCell>{item.months}</TableCell>
                               <TableCell>{item.date}</TableCell>
                               <TableCell>{item.totalPaid.toFixed(2)}</TableCell>

@@ -102,25 +102,77 @@ const PaymentList = () => {
   const [price, setPrice] = useState("");
   const [paymentDateFrom, setPaymentDateFrom] = useState(null);
   const [paymentDateTo, setPaymentDateTo] = useState(null);
-
   useEffect(() => {
-    fetch("http://podsaas.online/payment/getPayment/", {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
+    const fetchData = async () => {
+      try {
+        // Fetch payment data
+        const paymentResponse = await fetch(
+          "http://podsaas.online/payment/getPayment/",
+          { method: "GET" }
+        );
+        if (!paymentResponse.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json();
-      })
-      .then((data) => {
-        setOriginalData(data);
-        setData(data);
-      })
-      .catch((error) => {
+        const paymentData = await paymentResponse.json();
+
+        // Fetch selling data
+        const sellingResponse = await fetch(
+          "http://localhost:8000/selling/getSelling",
+          { method: "GET" }
+        );
+        if (!sellingResponse.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const sellingData = await sellingResponse.json();
+
+        // Create a map for quick lookup of selling data by emiNumber and civilID
+        const sellingDataMap = sellingData.reduce((map, sellingItem) => {
+          const key = `${sellingItem.emiNumber}-${sellingItem.civilID}`;
+          map[key] = sellingItem;
+          return map;
+        }, {});
+
+        // Process each payment item
+        const processedPayments = paymentData.map((paymentItem) => {
+          const key = `${paymentItem.emiNumber}-${paymentItem.civilID}`;
+          const sellingItem = sellingDataMap[key];
+
+          if (!sellingItem) {
+            console.log(`No selling data found for key: ${key}`);
+            return { ...paymentItem, paymentType: "Installment" };
+          }
+
+          console.log(`Processing payment for key: ${key}`);
+          console.log(`Payment Item:`, paymentItem);
+          console.log(`Selling Item:`, sellingItem);
+
+          // No need to check against selling data, set paymentType to "Installment"
+          return { ...paymentItem, paymentType: "Installment" };
+        });
+
+        // Add advances from selling data
+        const advances = sellingData.map((sellingItem) => ({
+          customerName: sellingItem.customerName,
+          civilID: sellingItem.civilID,
+          deviceName: sellingItem.deviceName,
+          emiNumber: sellingItem.emiNumber,
+          price: sellingItem.advance,
+          date: sellingItem.date,
+          paymentType: "Advance",
+        }));
+
+        const mergedData = processedPayments.concat(advances);
+
+        setOriginalData(mergedData);
+        setData(mergedData);
+      } catch (error) {
         console.error("Error fetching data:", error);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
+
   const handleLogout = () => {
     // Remove user details from session storage
     sessionStorage.removeItem("user");
@@ -130,7 +182,7 @@ const PaymentList = () => {
   };
   const downloadPDF = () => {
     console.log(data);
-    fetch("http://podsaas.online/convertPDF", {
+    fetch("http://localhost:8000/convertPDF", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -196,21 +248,72 @@ const PaymentList = () => {
       .catch((error) => alert(error));
   };
 
-  const resetTable = () => {
-    fetch("http://podsaas.online/payment/getPayment/", {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+  const resetTable = async () => {
+    try {
+      // Fetch payment data
+      const paymentResponse = await fetch(
+        "http://localhost:8000/payment/getPayment/",
+        { method: "GET" }
+      );
+      if (!paymentResponse.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const paymentData = await paymentResponse.json();
+
+      // Fetch selling data
+      const sellingResponse = await fetch(
+        "http://localhost:8000/selling/getSelling",
+        { method: "GET" }
+      );
+      if (!sellingResponse.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const sellingData = await sellingResponse.json();
+
+      // Create a map for quick lookup of selling data by emiNumber and civilID
+      const sellingDataMap = sellingData.reduce((map, sellingItem) => {
+        const key = `${sellingItem.emiNumber}-${sellingItem.civilID}`;
+        map[key] = sellingItem;
+        return map;
+      }, {});
+
+      // Process each payment item
+      const processedPayments = paymentData.map((paymentItem) => {
+        const key = `${paymentItem.emiNumber}-${paymentItem.civilID}`;
+        const sellingItem = sellingDataMap[key];
+
+        if (!sellingItem) {
+          console.log(`No selling data found for key: ${key}`);
+          return { ...paymentItem, paymentType: "Installment" };
         }
-        return response.json();
-      })
-      .then((data) => setData(data))
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        // Handle error accordingly
+
+        console.log(`Processing payment for key: ${key}`);
+        console.log(`Payment Item:`, paymentItem);
+        console.log(`Selling Item:`, sellingItem);
+
+        // No need to check against selling data, set paymentType to "Installment"
+        return { ...paymentItem, paymentType: "Installment" };
       });
+
+      // Add advances from selling data
+      const advances = sellingData.map((sellingItem) => ({
+        customerName: sellingItem.customerName,
+        civilID: sellingItem.civilID,
+        deviceName: sellingItem.deviceName,
+        emiNumber: sellingItem.emiNumber,
+        price: sellingItem.advance,
+        date: sellingItem.date,
+        paymentType: "Advance",
+      }));
+
+      const mergedData = processedPayments.concat(advances);
+
+      setOriginalData(mergedData);
+      setData(mergedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      // Handle error accordingly
+    }
   };
 
   const handleFetch = () => {
@@ -600,6 +703,14 @@ const PaymentList = () => {
                           >
                             Payment Date
                           </TableCell>
+                          <TableCell
+                            style={{
+                              backgroundColor: "#752888",
+                              color: "white",
+                            }}
+                          >
+                            Payment Type
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -612,6 +723,7 @@ const PaymentList = () => {
                               <TableCell>{item.civilID}</TableCell>
                               <TableCell>{item.price}</TableCell>
                               <TableCell>{item.date}</TableCell>
+                              <TableCell>{item.paymentType}</TableCell>
                             </TableRow>
                           ))}
                       </TableBody>

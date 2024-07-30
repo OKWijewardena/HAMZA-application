@@ -33,6 +33,7 @@ exports.paymentExcel = async (req, res) => {
     "Emei Number",
     "Price",
     "Date",
+    "Payment Type",
   ]);
 
   // Style the header row
@@ -60,6 +61,7 @@ exports.paymentExcel = async (req, res) => {
     { key: "emiNumber", width: 20 },
     { key: "price", width: 20 },
     { key: "date", width: 40 },
+    { key: "paymentType", width: 20 },
   ];
 
   // Add rows with the data
@@ -72,6 +74,7 @@ exports.paymentExcel = async (req, res) => {
       emiNumber: item.emiNumber,
       price: item.price,
       date: item.date,
+      paymentType: item.paymentType,
     });
   });
 
