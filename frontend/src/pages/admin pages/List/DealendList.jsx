@@ -258,8 +258,15 @@ const DealendList = () => {
   // Update your handleFetch function to also filter based on the search term
   const handleFetch = () => {
     let filteredData = originalData.filter((item) => {
-      const itemsalesDate = new Date(item.date);
-      const itemExpiryDate = new Date(item.expireDate);
+      const itemsalesDate = new Date(item.date); // Convert item date to Date object
+
+      let fromDate = salesDateFrom ? new Date(salesDateFrom) : null;
+      let toDate = salesDateTo ? new Date(salesDateTo) : null;
+
+      // Adjust the time of fromDate and toDate to consider the whole day
+      if (fromDate) fromDate.setHours(0, 0, 0, 0);
+      if (toDate) toDate.setHours(23, 59, 59, 999);
+
       return (
         (deviceName === "" || item.deviceName.includes(deviceName)) &&
         (emiNumber === "" || item.emiNumber.includes(emiNumber)) &&
@@ -269,8 +276,8 @@ const DealendList = () => {
         (months === "" || item.months.includes(months)) &&
         (advance === "" || item.advance.includes(advance)) &&
         (balance === "" || item.balance.includes(balance)) &&
-        (!salesDateFrom || itemsalesDate >= salesDateFrom) &&
-        (!salesDateTo || itemsalesDate <= salesDateTo)
+        (!fromDate || itemsalesDate >= fromDate) &&
+        (!toDate || itemsalesDate <= toDate)
       );
     });
 
@@ -468,24 +475,7 @@ const DealendList = () => {
                         onChange={(e) => setmonths(e.target.value)}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <TextField
-                        margin="normal"
-                        fullWidth
-                        label="advance"
-                        value={advance}
-                        onChange={(e) => setadvance(e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <TextField
-                        margin="normal"
-                        fullWidth
-                        label="balance"
-                        value={balance}
-                        onChange={(e) => setbalance(e.target.value)}
-                      />
-                    </Grid>
+
                     <Grid item xs={12} sm={3} style={{ marginTop: "16px" }}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
