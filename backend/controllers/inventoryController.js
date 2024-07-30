@@ -1,8 +1,8 @@
 const Inventory = require("../models/inventoryModel");
 
-// Assume `upload.single('imageName')` is the middleware for the route
 exports.addInventory = async (req, res) => {
   try {
+    
     // Destructure all other fields except `imageName`
     const {
       deviceName,
@@ -31,7 +31,7 @@ exports.addInventory = async (req, res) => {
     });
 
     await newDevice.save();
-    res.json("New Device Added");
+    res.json("New Device Added to inventory");
   } catch (err) {
     console.error(err);
       return res.status(400).json({ message: err.message, errors: err.errors });
