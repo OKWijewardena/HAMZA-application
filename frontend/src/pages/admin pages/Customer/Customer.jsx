@@ -109,6 +109,8 @@ export default function Customer() {
   const [address, setAddress] = useState('');
   const [paci_number, setPaci_number] = useState('');
   const [customers, setCustomer] = useState([]);
+  const [searchCustomer, setSearchCustomer] = useState([]);
+  const [searchCivilID, setSearchCivilID] = useState('');
 
   const handleDelete = async (id) => {
     try {
@@ -141,6 +143,23 @@ export default function Customer() {
     } catch (error) {
       console.error('Error fetching payments:', error);
     }
+  };
+
+  const fetchCustomerDetails = async (civilID) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/customer/civil/${civilID}`
+      );
+      setSearchCustomer(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching selling details:", error);
+    }
+  };
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    fetchCustomerDetails(searchCivilID);
   };
 
   const handleSubmit = async (event) => {
@@ -256,6 +275,95 @@ export default function Customer() {
           >
             <Toolbar />
             <Container>
+            <Box
+                sx={{
+                  marginTop: 4,
+                  padding: 3,
+                  backgroundColor: "#fff",
+                  borderRadius: 1,
+                  boxShadow: 3,
+                  maxWidth: 800,
+                  width: "100%",
+                  mx: "auto",
+                }}
+              >
+                <Typography
+                  component="h1"
+                  variant="h5"
+                  gutterBottom
+                  sx={{
+                    fontFamily: "Public Sans, sans-serif",
+                    fontWeight: "bold",
+                    color: "#637381",
+                  }}
+                >
+                  Search Customer Details
+                </Typography>
+                <Box component="form" sx={{ mt: 1 }} onSubmit={handleSearch}>
+                  <TextField
+                    margin="normal"
+                    fullWidth
+                    label="Search by Civil ID"
+                    name="searchCivilID"
+                    value={searchCivilID}
+                    onChange={(e) => setSearchCivilID(e.target.value)}
+                  />
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      mt: 3,
+                      mb: 2,
+                      backgroundColor: "#752888",
+                      "&:hover": {
+                        backgroundColor: "#C63DE7",
+                      },
+                      fontFamily: "Public Sans, sans-serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Search
+                  </Button>
+                </Box>
+              </Box>
+
+              {searchCustomer.length > 0 && (
+                <TableContainer component={Paper} sx={{ mt: 4 }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                      <TableCell>User Name</TableCell>
+                        <TableCell>E-mail</TableCell>
+                        <TableCell>Mobile</TableCell>
+                        <TableCell>Whatsapp Number</TableCell>
+                        <TableCell>Telephone Number</TableCell>
+                        <TableCell>Address</TableCell>
+                        <TableCell>Nationality</TableCell>
+                        <TableCell>Civil ID</TableCell>
+                        <TableCell>Paci Number</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {searchCustomer.map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell>{row.name}</TableCell>
+                          <TableCell>{row.email}</TableCell>
+                          <TableCell>{row.mobile}</TableCell>
+                          <TableCell>{row.whatsapp_no}</TableCell>
+                          <TableCell>{row.telephone_no}</TableCell>
+                          <TableCell>{row.address}</TableCell>
+                          <TableCell>{row.nationality}</TableCell>
+                          <TableCell>{row.civil_id}</TableCell>
+                          <TableCell>{row.paci_number}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+
+
+
               <Box
                 sx={{
                   display: 'flex',

@@ -35,6 +35,9 @@ import dayjs from "dayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
+
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -86,6 +89,9 @@ const Drawer = styled(MuiDrawer, {
 
 const mdTheme = createTheme();
 const SaleList = () => {
+
+  const navigate = useNavigate();
+
   let date = new Date();
   let day = date.getDate();
   let month = date.getMonth() + 1; // JavaScript months are 0-based counting
@@ -135,6 +141,14 @@ const SaleList = () => {
         console.error("Error fetching data:", error);
       });
   }, []);
+
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
 
   const downloadPDF = () => {
     // Create a copy of the data with the totalPaid calculated
@@ -345,11 +359,11 @@ const SaleList = () => {
               >
                 SMARTCO
               </Typography>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+              <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+      </Badge>
+    </IconButton>
             </Toolbar>
           </AppBar>
           <Drawer variant="permanent" open={open}>
