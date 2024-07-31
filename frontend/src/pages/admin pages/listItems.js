@@ -111,7 +111,10 @@ export const secondaryListItems = (
       </ListItemButton>
     </Link>
 
-    <Link to="/saleList" style={{ textDecoration: "none", color: "black" }}>
+    <Link
+      to="/BuyingSellingList"
+      style={{ textDecoration: "none", color: "black" }}
+    >
       <ListItemButton>
         <ListItemIcon>
           <AssignmentIcon />
@@ -125,18 +128,6 @@ export const secondaryListItems = (
           <AssignmentIcon />
         </ListItemIcon>
         <ListItemText primary="Deal End List" />
-      </ListItemButton>
-    </Link>
-
-    <Link
-      to="/BuyingSellingList"
-      style={{ textDecoration: "none", color: "black" }}
-    >
-      <ListItemButton>
-        <ListItemIcon>
-          <AssignmentIcon />
-        </ListItemIcon>
-        <ListItemText primary=" Buying & Selling List" />
       </ListItemButton>
     </Link>
   </React.Fragment>
