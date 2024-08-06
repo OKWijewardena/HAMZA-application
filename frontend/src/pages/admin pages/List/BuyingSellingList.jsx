@@ -178,13 +178,6 @@ const BuyingSellingList = () => {
     fetchSellingData();
   }, []);
 
-  const handleLogout = () => {
-    // Remove user details from session storage
-    sessionStorage.removeItem('user');
-sessionStorage.removeItem('token');
-    console.log('User details cleared from session storage');
-    navigate('/');
-  };
 
   const downloadExcel = () => {
     // Create a copy of the data with the totalPaid calculated
@@ -462,6 +455,14 @@ sessionStorage.removeItem('token');
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    console.log("User details cleared from session storage");
+    navigate("/");
   };
 
   return (
