@@ -335,7 +335,7 @@ const PaymentList = () => {
 
       return (
         (deviceName === "" || item.deviceName?.includes(deviceName)) &&
-        (customerName === "" || item.customerName?.includes(customerName)) &&
+        (customerName === "" || item.customerName === customerName) &&
         (emiNumber === "" || item.emiNumber === emiNumber) &&
         (civilID === "" || item.civilID === civilID) &&
         (price === "" || item.price?.includes(price)) &&
