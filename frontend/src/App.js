@@ -22,6 +22,7 @@ import DeviceList from "./pages/admin pages/List/DeviceList";
 import EmployeeList from "./pages/admin pages/List/EmployeeList";
 import PaymentList from "./pages/admin pages/List/PaymentList";
 import SaleList from "./pages/admin pages/List/SaleList";
+import UpcommingPayment from "./pages/admin pages/List/UpcommingPayment";
 import BuyingSellingList from "./pages/admin pages/List/BuyingSellingList";
 import DealendList from "./pages/admin pages/List/DealendList";
 import UpdateCustomer from "./pages/admin pages/admin update pages/UpdateCustomer";
@@ -56,7 +57,15 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route exact path="/BuyingSellingList" element={<ProtectedRoute><BuyingSellingList /></ProtectedRoute>}/>
+        <Route
+          exact
+          path="/BuyingSellingList"
+          element={
+            <ProtectedRoute>
+              <BuyingSellingList />
+            </ProtectedRoute>
+          }
+        />
         <Route
           exact
           path="/CustomerList"
@@ -75,7 +84,16 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route exact path="/DealendList" element={<ProtectedRoute> <DealendList /> </ProtectedRoute>}/>
+        <Route
+          exact
+          path="/DealendList"
+          element={
+            <ProtectedRoute>
+              {" "}
+              <DealendList />{" "}
+            </ProtectedRoute>
+          }
+        />
         <Route
           exact
           path="/EmployeeList"
@@ -100,6 +118,16 @@ function App() {
           element={
             <ProtectedRoute>
               <SaleList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          exact
+          path="/UpcommingPayment"
+          element={
+            <ProtectedRoute>
+              <UpcommingPayment />
             </ProtectedRoute>
           }
         />

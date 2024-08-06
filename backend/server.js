@@ -27,6 +27,7 @@ const customerExcelRotes = require("./routes/customerExcelRoute");
 const employeeandAdminExcel = require("./routes/adminandemployeeExcelRoute");
 const paymentExcel = require("./routes/paymentExcelRoute");
 const salesExcel = require("./routes/salesExcelRoute");
+const upcomingpaymentExcel = require("./routes/upcomingPaymentExcelRoute");
 const dealendExcel = require("./routes/dealendExcelRoute");
 const byingSellingExcel = require("./routes/buyingSellingExcelRoute");
 
@@ -48,6 +49,10 @@ app.use("/", require("./routes/convertToPaymentInvoicePDFRoute"));
 app.use("/api/devicepdf", require("./routes/devicePdfRoutes"));
 app.use("/api/dealendpdf", require("./routes/dealendpdfRoutes"));
 app.use("/api/buyingSellingpdf", require("./routes/buyingSellingPdfRoute"));
+app.use(
+  "/api/convertToupcomingPaymentPDF",
+  require("./routes/upcomingPaymentPdfRoute")
+);
 app.use("/api/salespdf", require("./routes/salespdfRoutes"));
 app.use("/", require("./routes/customerpdfRoutes"));
 app.use("/", require("./routes/employeeAndAdminPdfRoutes"));
@@ -59,6 +64,8 @@ app.use("/api/byingSellingExcel", byingSellingExcel);
 app.use("/api/customer", customerExcelRotes);
 app.use("/api/employee", employeeandAdminExcel);
 app.use("/api/paymentExcel", paymentExcel);
+app.use("/api/upcomingPaymentExcel", upcomingpaymentExcel);
+
 app.use("/api/salesExcel", salesExcel);
 
 // Define PORT

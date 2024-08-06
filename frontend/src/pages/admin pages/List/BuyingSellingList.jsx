@@ -284,9 +284,9 @@ const BuyingSellingList = () => {
 
       return (
         (deviceName === "" || item.deviceName.includes(deviceName)) &&
-        (emiNumber === "" || item.emiNumber.includes(emiNumber)) &&
+        (emiNumber === "" || item.emiNumber === emiNumber) &&
         (customerName === "" || item.customerName.includes(customerName)) &&
-        (civilID === "" || item.civilID.includes(civilID)) &&
+        (civilID === "" || item.civilID === civilID) &&
         (price === "" || item.price.includes(price)) &&
         (months === "" || item.months.includes(months)) &&
         (advance === "" || item.advance.includes(advance)) &&
