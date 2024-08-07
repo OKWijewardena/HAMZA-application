@@ -49,10 +49,7 @@ app.use("/", require("./routes/convertToPaymentInvoicePDFRoute"));
 app.use("/api/devicepdf", require("./routes/devicePdfRoutes"));
 app.use("/api/dealendpdf", require("./routes/dealendpdfRoutes"));
 app.use("/api/buyingSellingpdf", require("./routes/buyingSellingPdfRoute"));
-app.use(
-  "/api/convertToupcomingPaymentPDF",
-  require("./routes/upcomingPaymentPdfRoute")
-);
+app.use("/api/convertToupcomingPaymentPDF",require("./routes/upcomingPaymentPdfRoute"));
 app.use("/api/salespdf", require("./routes/salespdfRoutes"));
 app.use("/", require("./routes/customerpdfRoutes"));
 app.use("/", require("./routes/employeeAndAdminPdfRoutes"));
