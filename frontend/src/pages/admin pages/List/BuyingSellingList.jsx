@@ -310,6 +310,43 @@ const BuyingSellingList = () => {
     setsalesDateFrom(null); // Set to null to clear the date picker
     setsalesDateTo(null); // Set to null to clear the date picker
   };
+  const downloadOverallPDF = (id, civil_id) => {
+    console.log(id, civil_id);
+
+    fetch("http://localhost:8000/convertToOverAllPaymentInvoicePDF", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+        civil_id: civil_id,
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.blob(); // If the response is OK, get the PDF blob
+        } else {
+          throw new Error("Error converting to PDF");
+        }
+      })
+      .then((blob) => {
+        // Create a blob URL
+        const url = window.URL.createObjectURL(blob);
+        // Create a link element
+        const link = document.createElement("a");
+        link.href = url;
+        // The downloaded file name
+        link.download = "Over_All_Bill.pdf";
+        // Append the link to the body
+        document.body.appendChild(link);
+        // Simulate click
+        link.click();
+        // Remove the link when done
+        document.body.removeChild(link);
+      })
+      .catch((error) => alert(error));
+  };
   const downloadPDF = () => {
     // Create a copy of the data with the totalPaid calculated
     const updatedData = data.map((item) => {
@@ -864,15 +901,20 @@ const BuyingSellingList = () => {
                           >
                             Device Profit
                           </TableCell>
+                          <TableCell
+                            style={{
+                              backgroundColor: "#752888",
+                              color: "white",
+                            }}
+                          >
+                            Generate PDF
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {data.length > 0 &&
                           data.map((item, index) => (
-                            <TableRow
-                              key={index}
-                              onClick={() => handleRowClick(item)}
-                            >
+                            <TableRow key={index}>
                               <TableCell>{item.deviceName}</TableCell>
                               <TableCell>{item.emiNumber}</TableCell>
                               <TableCell>{item.customerName}</TableCell>
@@ -884,6 +926,17 @@ const BuyingSellingList = () => {
                               <TableCell>{item.totalPaid}</TableCell>
                               <TableCell>{item.totalPayableBalance}</TableCell>
                               <TableCell>{item.profit}</TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={() =>
+                                    downloadOverallPDF(item._id, item.civilID)
+                                  }
+                                >
+                                  View
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           ))}
                       </TableBody>

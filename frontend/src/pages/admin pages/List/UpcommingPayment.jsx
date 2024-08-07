@@ -430,7 +430,7 @@ const UpcommingPayment = () => {
         const formattedDateTime = `${now.getDate()}/${
           now.getMonth() + 1
         }/${now.getFullYear()}, ${now.getHours()}:${now.getMinutes()}`;
-        link.download = `Sales Report - ${formattedDateTime}.pdf`;
+        link.download = `upcoming Payment Pdf Report - ${formattedDateTime}.pdf`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -495,7 +495,7 @@ const UpcommingPayment = () => {
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        link.download = `Sales Report - ${formattedDateTime}.xlsx`;
+        link.download = `upcoming payment excel Report - ${formattedDateTime}.xlsx`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click

@@ -3,10 +3,30 @@ const handlebars = require("handlebars");
 const fs = require("fs");
 const path = require("path");
 
+// Register the Handlebars helper
+handlebars.registerHelper("getStatusClass", function (status) {
+  switch (status.toLowerCase()) {
+    case "paid":
+      return "status-paid";
+    case "unpaid":
+      return "status-unpaid";
+    case "overdue":
+    case "duetoday":
+      return "status-overdue";
+    default:
+      return "";
+  }
+});
+
 exports.convertToupcomingPaymentPDF = async (req, res) => {
   let { data, statistics } = req.body;
   console.log(data, statistics);
 
+  // Preprocess status to be used as CSS classes
+  data = data.map((item) => ({
+    ...item,
+    statusClass: handlebars.helpers.getStatusClass(item.status),
+  }));
   // Determine the current month
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
 
@@ -72,7 +92,11 @@ async function convertHTMLToPDF(
   });
   const page = await browser.newPage();
   await page.setContent(htmlContent);
-  const pdf = await page.pdf({ format: "A3", margin: margins });
+  const pdf = await page.pdf({
+    format: "A3",
+    margin: margins,
+    printBackground: true, // Ensure background colors are printed
+  });
   await browser.close();
   return pdf;
 }

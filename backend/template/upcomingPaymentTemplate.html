@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-
     <title>bs4 invoice - Bootdey.com</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
@@ -88,6 +87,21 @@
       body {
         color: black !important;
         background: white !important;
+        -webkit-print-color-adjust: exact !important;
+      }
+
+      .status-paid {
+        background-color: green !important;
+        color: white !important;
+      }
+      .status-unpaid {
+        background-color: blue !important;
+        color: white !important;
+      }
+      .status-overdue,
+      .status-duetoday {
+        background-color: red !important;
+        color: white !important;
       }
       @media print {
         /* Your print styles go here */
@@ -220,7 +234,7 @@
                 </thead>
                 <tbody>
                   {{#each data}}
-                  <tr>
+                  <tr class="{{statusClass}}">
                     <td class="text-left">{{this.deviceName}}</td>
                     <td class="text-left">{{this.emiNumber}}</td>
                     <td class="text-left">{{this.civilID}}</td>
@@ -263,6 +277,7 @@
         </div>
       </div>
     </div>
+
     <script
       data-cfasync="false"
       src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
