@@ -58,7 +58,7 @@ export default function CustomerPurchase() {
   const fetchSellings = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://podsaas.online/selling/getOneSellingID/${id}`
+        `http://localhost:8000/selling/getOneSellingID/${id}`
       );
       console.log(id);
       setSellings(response.data);
@@ -68,7 +68,7 @@ export default function CustomerPurchase() {
       const Newpayments = { civilID: CIVILID, emiNumber: EMINUMBER };
 
       const res = await axios.post(
-        "http://podsaas.online/payment/getOnePayment",
+        "http://localhost:8000/payment/getOnePayment",
         Newpayments
       );
       setData(res.data);

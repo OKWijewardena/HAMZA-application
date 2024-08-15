@@ -97,7 +97,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 const mdTheme = createTheme();
-const UpcommingPayment = () => {
+const EUpcommingPayment = () => {
   let date = new Date();
   let day = date.getDate();
   let month = date.getMonth() + 1; // JavaScript months are 0-based counting
@@ -1569,4 +1569,4 @@ const UpcommingPayment = () => {
   );
 };
 
-export default UpcommingPayment;
+export default EUpcommingPayment;

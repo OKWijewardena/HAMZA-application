@@ -85,7 +85,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 const mdTheme = createTheme();
-const PaymentList = () => {
+const EPaymentList = () => {
   const navigate = useNavigate();
   let date = new Date();
   let day = date.getDate();
@@ -738,4 +738,4 @@ const PaymentList = () => {
     </div>
   );
 };
-export default PaymentList;
+export default EPaymentList;

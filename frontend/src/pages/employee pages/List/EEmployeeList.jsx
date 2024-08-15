@@ -71,7 +71,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 const mdTheme = createTheme();
-const EmployeeList = () => {
+const EEmployeeList = () => {
 
   const navigate = useNavigate();
 
@@ -486,5 +486,5 @@ Admin & Employee List
 }
 
 
-export default EmployeeList
+export default EEmployeeList
 

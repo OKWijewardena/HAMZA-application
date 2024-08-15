@@ -100,7 +100,7 @@ export default function UpdateCustomer() {
 
   function fetchCustomer() {
     let mounted = true;
-    fetch(`http://podsaas.online/api/customer/${id}`)
+    fetch(`http://localhost:8000/api/customer/${id}`)
       .then((res) => res.json())
       .then((result) => {
         console.log(result);
@@ -139,7 +139,7 @@ export default function UpdateCustomer() {
 
     try {
       await axios.put(
-        `http://podsaas.online/api/customer/${customerEmail}`,
+        `http://localhost:8000/api/customer/${customerEmail}`,
         UpdatedCustomer
       );
       alert("Customer updated successfully");

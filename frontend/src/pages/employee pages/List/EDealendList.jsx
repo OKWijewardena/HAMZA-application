@@ -88,7 +88,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 const mdTheme = createTheme();
-const BuyingSellingList = () => {
+const EDealendList = () => {
 
   const navigate = useNavigate();
 
@@ -115,55 +115,59 @@ const BuyingSellingList = () => {
   const [salesDateTo, setsalesDateTo] = useState(null);
 
   useEffect(() => {
-    const fetchSellingData = async () => {
+    const fetchDealendData = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:8000/selling/getSelling",
-          { method: "GET" }
+        const dealendResponse = await fetch(
+          "http://localhost:8000/dealend/getDealend",
+          {
+            method: "GET",
+          }
         );
-        if (!response.ok) {
+        if (!dealendResponse.ok) {
           throw new Error("Network response was not ok");
         }
-        const sellingData = await response.json();
+        const dealendData = await dealendResponse.json();
 
         // Fetch inventory data
         const inventoryResponse = await fetch(
           "http://localhost:8000/inventory/getInventory",
-          { method: "GET" }
+          {
+            method: "GET",
+          }
         );
         if (!inventoryResponse.ok) {
           throw new Error("Network response was not ok");
         }
         const inventoryData = await inventoryResponse.json();
 
-        // Merge sellingData with inventoryData
-        const mergedData = sellingData.map((sellingItem) => {
+        // Merge dealendData with inventoryData
+        const mergedData = dealendData.map((dealendItem) => {
           const inventoryItem = inventoryData.find(
-            (item) => item.emiNumber === sellingItem.emiNumber
+            (item) => item.emiNumber === dealendItem.emiNumber
           );
+
+          // Calculate totalPaid
           const totalPaid =
-            parseFloat(sellingItem.advance) +
-            sellingItem.customArray
+            parseFloat(dealendItem.advance) +
+            dealendItem.customArray
               .filter((payment) => payment.status === "paid")
               .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
 
-          let totalPayableBalance = sellingItem.customArray
+          // Calculate totalPayableBalance
+          let totalPayableBalance = dealendItem.customArray
             .filter((payment) => payment.status === "unpaid")
             .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-
           totalPayableBalance = Math.round(totalPayableBalance);
 
+          // Get purchase price from inventoryItem
           const purchasePrice = inventoryItem
             ? parseFloat(inventoryItem.price)
             : 0;
-          const sellingPrice = parseFloat(sellingItem.price);
-          const profit = sellingPrice - purchasePrice;
 
           return {
-            ...sellingItem,
+            ...dealendItem,
             totalPaid,
             purchasePrice,
-            profit,
             totalPayableBalance,
           };
         });
@@ -175,9 +179,63 @@ const BuyingSellingList = () => {
       }
     };
 
-    fetchSellingData();
+    fetchDealendData();
   }, []);
 
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem('user');
+sessionStorage.removeItem('token');
+    console.log('User details cleared from session storage');
+    navigate('/');
+  };
+
+  const downloadPDF = () => {
+    // Create a copy of the data with the totalPaid calculated
+    const updatedData = data.map((item) => {
+      const totalPaid =
+        parseFloat(item.advance) +
+        item.customArray
+          .filter((payment) => payment.status === "paid")
+          .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
+
+      // Create a new object excluding 'advance' and including 'totalPaid'
+      const { advance, ...rest } = item;
+      return { ...rest, totalPaid: totalPaid.toFixed(2) };
+    });
+    console.log(updatedData);
+    fetch("http://localhost:8000/api/dealendpdf/convertdealendPDF", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify(updatedData), // Send the updated data to the backend
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.blob(); // If the response is OK, get the PDF blob
+        } else {
+          throw new Error("Error converting to PDF");
+        }
+      })
+      .then((blob) => {
+        // Create a blob URL
+        const url = window.URL.createObjectURL(blob);
+        // Create a link element
+        const link = document.createElement("a");
+        link.href = url;
+        let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
+        link.download = `Deal End Report - ${formattedDateTime}.pdf`;
+        // Append the link to the body
+        document.body.appendChild(link);
+        // Simulate click
+        link.click();
+        // Remove the link when done
+        document.body.removeChild(link);
+      })
+      .catch((error) => alert(error));
+  };
 
   const downloadExcel = () => {
     // Create a copy of the data with the totalPaid calculated
@@ -192,8 +250,8 @@ const BuyingSellingList = () => {
       const { advance, ...rest } = item;
       return { ...rest, totalPaid: totalPaid.toFixed(2) };
     });
-    console.log(updatedData);
-    fetch("http://localhost:8000/api/byingSellingExcel/byingSellingExcel", {
+
+    fetch("http://localhost:8000/api/dealendexcel/dealendExcel", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -214,7 +272,7 @@ const BuyingSellingList = () => {
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        link.download = `Bying And Selling Report - ${formattedDateTime}.xlsx`;
+        link.download = `Deal End Report - ${formattedDateTime}.xlsx`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -226,29 +284,41 @@ const BuyingSellingList = () => {
   };
 
   const resetTable = () => {
-    Promise.all([
-      fetch("http://localhost:8000/selling/getSelling", { method: "GET" }),
-      fetch("http://localhost:8000/inventory/getInventory", { method: "GET" }),
-    ])
-      .then(async ([sellingResponse, inventoryResponse]) => {
-        if (!sellingResponse.ok || !inventoryResponse.ok) {
+    const fetchDealendAndInventoryData = async () => {
+      try {
+        // Fetch dealend data
+        const dealendResponse = await fetch(
+          "http://localhost:8000/dealend/getDealend",
+          { method: "GET" }
+        );
+        if (!dealendResponse.ok) {
           throw new Error("Network response was not ok");
         }
-        const sellingData = await sellingResponse.json();
+        const dealendData = await dealendResponse.json();
+
+        // Fetch inventory data
+        const inventoryResponse = await fetch(
+          "http://localhost:8000/inventory/getInventory",
+          { method: "GET" }
+        );
+        if (!inventoryResponse.ok) {
+          throw new Error("Network response was not ok");
+        }
         const inventoryData = await inventoryResponse.json();
 
-        // Merge sellingData with inventoryData
-        const mergedData = sellingData.map((sellingItem) => {
+        // Merge dealendData with inventoryData
+        const mergedData = dealendData.map((dealendItem) => {
           const inventoryItem = inventoryData.find(
-            (item) => item.emiNumber === sellingItem.emiNumber
+            (item) => item.emiNumber === dealendItem.emiNumber
           );
+
           const totalPaid =
-            parseFloat(sellingItem.advance) +
-            sellingItem.customArray
+            parseFloat(dealendItem.advance) +
+            dealendItem.customArray
               .filter((payment) => payment.status === "paid")
               .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
 
-          let totalPayableBalance = sellingItem.customArray
+          let totalPayableBalance = dealendItem.customArray
             .filter((payment) => payment.status === "unpaid")
             .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
 
@@ -257,27 +327,26 @@ const BuyingSellingList = () => {
           const purchasePrice = inventoryItem
             ? parseFloat(inventoryItem.price)
             : 0;
-          const sellingPrice = parseFloat(sellingItem.price);
-          const profit = sellingPrice - purchasePrice;
 
           return {
-            ...sellingItem,
-            totalPayableBalance,
+            ...dealendItem,
             totalPaid,
             purchasePrice,
-            profit,
+            totalPayableBalance,
           };
         });
 
-        setOriginalData(mergedData);
         setData(mergedData);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching data:", error);
         // Handle error accordingly
-      });
+      }
+    };
+
+    fetchDealendAndInventoryData();
   };
 
+  // Update your handleFetch function to also filter based on the search term
   const handleFetch = () => {
     let filteredData = originalData.filter((item) => {
       const itemsalesDate = new Date(item.date); // Convert item date to Date object
@@ -291,15 +360,13 @@ const BuyingSellingList = () => {
 
       return (
         (deviceName === "" || item.deviceName.includes(deviceName)) &&
-        (emiNumber === "" || item.emiNumber === emiNumber) &&
+        (emiNumber === "" || item.emiNumber.includes(emiNumber)) &&
         (customerName === "" || item.customerName.includes(customerName)) &&
-        (civilID === "" || item.civilID === civilID) &&
+        (civilID === "" || item.civilID.includes(civilID)) &&
         (price === "" || item.price.includes(price)) &&
         (months === "" || item.months.includes(months)) &&
-        (advance === "" || item.advance.includes(advance)) &&
-        (balance === "" || item.balance.includes(balance)) &&
-        (!fromDate || itemsalesDate >= fromDate) &&
-        (!toDate || itemsalesDate <= toDate)
+        (!salesDateFrom || itemsalesDate >= salesDateFrom) &&
+        (!salesDateTo || itemsalesDate <= salesDateTo)
       );
     });
 
@@ -315,172 +382,6 @@ const BuyingSellingList = () => {
     setsalesDateFrom(null); // Set to null to clear the date picker
     setsalesDateTo(null); // Set to null to clear the date picker
   };
-  const downloadPDF = () => {
-    // Create a copy of the data with the totalPaid calculated
-    const updatedData = data.map((item) => {
-      const totalPaid =
-        parseFloat(item.advance) +
-        item.customArray
-          .filter((payment) => payment.status === "paid")
-          .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-
-      // Create a new object excluding 'advance' and including 'totalPaid'
-      const { advance, ...rest } = item;
-      return { ...rest, totalPaid: totalPaid.toFixed(2) };
-    });
-    console.log(updatedData);
-
-    fetch(
-      "http://localhost:8000/api/buyingSellingpdf/convertTobuyingSellingPDF",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData), // Send the updated data to the backend
-      }
-    )
-      .then((response) => {
-        if (response.ok) {
-          return response.blob(); // If the response is OK, get the PDF blob
-        } else {
-          throw new Error("Error converting to PDF");
-        }
-      })
-      .then((blob) => {
-        // Create a blob URL
-        const url = window.URL.createObjectURL(blob);
-        // Create a link element
-        const link = document.createElement("a");
-        link.href = url;
-
-        const date = new Date();
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-        const formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-
-        link.download = `Buying_and_Selling_Report_${formattedDateTime}.pdf`;
-        // Append the link to the body
-        document.body.appendChild(link);
-        // Simulate click
-        link.click();
-        // Remove the link when done
-        document.body.removeChild(link);
-      })
-      .catch((error) => alert(error));
-  };
-
-  const downloadMonthendPDF = () => {
-    // Get the current date
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-    // Filter data for the current month
-    const filteredData = data.filter((item) => {
-      const itemDate = new Date(item.date);
-      return itemDate >= startOfMonth && itemDate <= endOfMonth;
-    });
-
-    // Create a copy of the filtered data with the totalPaid calculated
-    const updatedData = filteredData.map((item) => {
-      const totalPaid =
-        parseFloat(item.advance) +
-        item.customArray
-          .filter((payment) => payment.status === "paid")
-          .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-
-      // Create a new object excluding 'advance' and including 'totalPaid'
-      const { advance, ...rest } = item;
-      return { ...rest, totalPaid: totalPaid.toFixed(2) };
-    });
-
-    console.log(updatedData);
-
-    fetch(
-      "http://localhost:8000/api/buyingSellingpdf/convertTobuyingSellingPDF",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData), // Send the updated data to the backend
-      }
-    )
-      .then((response) => {
-        if (response.ok) {
-          return response.blob(); // If the response is OK, get the PDF blob
-        } else {
-          throw new Error("Error converting to PDF");
-        }
-      })
-      .then((blob) => {
-        // Create a blob URL
-        const url = window.URL.createObjectURL(blob);
-        // Create a link element
-        const link = document.createElement("a");
-        link.href = url;
-
-        const date = new Date();
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-        const formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-
-        link.download = `Buying_and_Selling_Report_${formattedDateTime}.pdf`;
-        // Append the link to the body
-        document.body.appendChild(link);
-        // Simulate click
-        link.click();
-        // Remove the link when done
-        document.body.removeChild(link);
-      })
-      .catch((error) => alert(error));
-  };
-
-  const downloadOverallPDF = (id, civil_id) => {
-    console.log(id, civil_id);
-
-    fetch("http://localhost:8000/convertToOverAllPaymentInvoicePDF", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: id,
-        civil_id: civil_id,
-      }),
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.blob(); // If the response is OK, get the PDF blob
-        } else {
-          throw new Error("Error converting to PDF");
-        }
-      })
-      .then((blob) => {
-        // Create a blob URL
-        const url = window.URL.createObjectURL(blob);
-        // Create a link element
-        const link = document.createElement("a");
-        link.href = url;
-        // The downloaded file name
-        link.download = "Over_All_Bill.pdf";
-        // Append the link to the body
-        document.body.appendChild(link);
-        // Simulate click
-        link.click();
-        // Remove the link when done
-        document.body.removeChild(link);
-      })
-      .catch((error) => alert(error));
-  };
-
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -493,14 +394,6 @@ const BuyingSellingList = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-  };
-
-  const handleLogout = () => {
-    // Remove user details from session storage
-    sessionStorage.removeItem("user");
-    sessionStorage.removeItem("token");
-    console.log("User details cleared from session storage");
-    navigate("/");
   };
 
   return (
@@ -611,7 +504,7 @@ const BuyingSellingList = () => {
                     color: "#637381",
                   }}
                 >
-                  Sales List
+                  Deal End List
                 </Typography>
                 <Box component="form" sx={{ mt: 1 }}>
                   <Grid container spacing={2}>
@@ -758,25 +651,6 @@ const BuyingSellingList = () => {
                     </Grid>
                     <Grid item xs={12} sm={3}>
                       <Button
-                        onClick={downloadMonthendPDF}
-                        fullWidth
-                        variant="contained"
-                        sx={{
-                          mt: 3,
-                          mb: 2,
-                          backgroundColor: "#752888",
-                          "&:hover": {
-                            backgroundColor: "#C63DE7",
-                          },
-                          fontFamily: "Public Sans, sans-serif",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Month-End PDF
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <Button
                         onClick={downloadExcel}
                         fullWidth
                         variant="contained"
@@ -857,23 +731,6 @@ const BuyingSellingList = () => {
                           >
                             CivilID
                           </TableCell>
-
-                          <TableCell
-                            style={{
-                              backgroundColor: "#752888",
-                              color: "white",
-                            }}
-                          >
-                            Months
-                          </TableCell>
-                          <TableCell
-                            style={{
-                              backgroundColor: "#752888",
-                              color: "white",
-                            }}
-                          >
-                            Date
-                          </TableCell>
                           <TableCell
                             style={{
                               backgroundColor: "#752888",
@@ -896,7 +753,7 @@ const BuyingSellingList = () => {
                               color: "white",
                             }}
                           >
-                            Total Paid
+                            Months
                           </TableCell>
                           <TableCell
                             style={{
@@ -904,7 +761,7 @@ const BuyingSellingList = () => {
                               color: "white",
                             }}
                           >
-                            Total Receivable
+                            Date
                           </TableCell>
                           <TableCell
                             style={{
@@ -912,54 +769,37 @@ const BuyingSellingList = () => {
                               color: "white",
                             }}
                           >
-                            Device Profit
+                            Total Amont Paid
                           </TableCell>
+
                           <TableCell
                             style={{
                               backgroundColor: "#752888",
                               color: "white",
                             }}
                           >
-                            Generate Overall Invoice
+                            Pyable Balance
                           </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {data.length > 0 &&
                           data.map((item, index) => (
-                            <TableRow key={index}>
+                            <TableRow
+                              key={index}
+                              onClick={() => handleRowClick(item)}
+                            >
                               <TableCell>{item.deviceName}</TableCell>
+
                               <TableCell>{item.emiNumber}</TableCell>
                               <TableCell>{item.customerName}</TableCell>
                               <TableCell>{item.civilID}</TableCell>
-                              <TableCell>{item.months}</TableCell>
-                              <TableCell>{item.date}</TableCell>
                               <TableCell>{item.price}</TableCell>
                               <TableCell>{item.purchasePrice}</TableCell>
-                              <TableCell>{item.totalPaid}</TableCell>
-                              <TableCell>{item.totalPayableBalance}</TableCell>
-                              <TableCell>{item.profit}</TableCell>
-                              <TableCell>
-                                <Button
-                                  variant="contained"
-                                  color="primary"
-                                  sx={{
-                                    mt: 3,
-                                    mb: 2,
-                                    backgroundColor: '#752888',
-                                    '&:hover': {
-                                      backgroundColor: '#C63DE7',
-                                    },
-                                    fontFamily: 'Public Sans, sans-serif',
-                                    fontWeight: 'bold',
-                                  }}
-                                  onClick={() =>
-                                    downloadOverallPDF(item._id, item.civilID)
-                                  }
-                                >
-                                  View
-                                </Button>
-                              </TableCell>
+                              <TableCell>{item.months}</TableCell>
+                              <TableCell>{item.date}</TableCell>
+                              <TableCell>{item.totalPaid.toFixed(2)}</TableCell>
+                              <TableCell>{item.balance}</TableCell>
                             </TableRow>
                           ))}
                       </TableBody>
@@ -1071,4 +911,4 @@ const BuyingSellingList = () => {
     </div>
   );
 };
-export default BuyingSellingList;
+export default EDealendList;

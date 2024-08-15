@@ -13,6 +13,7 @@ import CustomerProfile from "./pages/customer pages/CustomerProfile/CustomerProf
 import CustomerUpdate from "./pages/customer pages/CustomerProfile/CustomerUpdate";
 import CustomerPassword from "./pages/customer pages/CustomerProfile/CustomerPassword";
 import EHome from "./pages/employee pages/EHome/EHome";
+import ECustomer from "./pages/employee pages/ECustomer/ECustomer";
 import EDevice from "./pages/employee pages/EDevice/EDevice";
 import EPayment from "./pages/employee pages/EPayment/EPayment";
 import ESelling from "./pages/employee pages/ESelling/ESelling";
@@ -29,10 +30,20 @@ import UpdateCustomer from "./pages/admin pages/admin update pages/UpdateCustome
 import UpdateDevice from "./pages/admin pages/admin update pages/UpdateDevice";
 import UpdateEmployee from "./pages/admin pages/admin update pages/UpdateEmployee";
 import EUpdateDevices from "./pages/employee pages/employee update pages/EUpdateDevices";
+import EUpdateCustomer from "./pages/employee pages/employee update pages/EUpdateCustomer";
 import Report from "./pages/admin pages/List/Report";
 import ProtectedRoute from "./pages/Login/ProtectedRoute";
 import Forget_password from "./pages/Login/Forget_password";
 import Resetpassword from "./pages/Login/Resetpassword";
+
+import EBuyingSellingList from "./pages/employee pages/List/EBuyingSellingList";
+import ECustomerList from "./pages/employee pages/List/EcustomerList";
+import EDealendList from "./pages/employee pages/List/EDealendList";
+import EDeviceList from "./pages/employee pages/List/EDeviceList"; 
+import EEmployeeList from "./pages/employee pages/List/EEmployeeList";
+import EPaymentList from "./pages/employee pages/List/EPaymentList";
+import ESalesList from "./pages/employee pages/List/ESaleList";
+import EUpcommingPayment from "./pages/employee pages/List/EUpcommingPayment";
 
 function App() {
   return (
@@ -178,6 +189,15 @@ function App() {
         />
         <Route
           exact
+          path="/ecustomer"
+          element={
+            <ProtectedRoute>
+              <ECustomer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
           path="/edevice"
           element={
             <ProtectedRoute>
@@ -200,6 +220,78 @@ function App() {
           element={
             <ProtectedRoute>
               <ESelling />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="/EBuyingSellingList"
+          element={
+            <ProtectedRoute>
+              <EBuyingSellingList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="/ECustomerList"
+          element={
+            <ProtectedRoute>
+              <ECustomerList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="/EDealendList"
+          element={
+            <ProtectedRoute>
+              <EDealendList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="/EDeviceList"
+          element={
+            <ProtectedRoute>
+              <EDeviceList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="/EEmployeeList"
+          element={
+            <ProtectedRoute>
+              <EEmployeeList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="/EPaymentList"
+          element={
+            <ProtectedRoute>
+              <EPaymentList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="/esaleslist"
+          element={
+            <ProtectedRoute>
+              <ESalesList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="/EUpcommingPayment"
+          element={
+            <ProtectedRoute>
+              <EUpcommingPayment />
             </ProtectedRoute>
           }
         />
@@ -290,6 +382,15 @@ function App() {
           element={
             <ProtectedRoute>
               <EUpdateDevices />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="ecustomer/eupdatecustomer/:id"
+          element={
+            <ProtectedRoute>
+              <EUpdateCustomer />
             </ProtectedRoute>
           }
         />

@@ -14,22 +14,10 @@ import Badge from "@mui/material/Badge";
 import Container from "@mui/material/Container";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { mainListItems, secondaryListItems } from "../listItems";
 import { useParams, useNavigate } from "react-router-dom";
-import LogoutIcon from "@mui/icons-material/Logout";
-
-import {
-  TextField,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from "@mui/material";
+import { TextField, Button } from "@mui/material";
 
 const drawerWidth = 240;
 
@@ -79,99 +67,91 @@ const Drawer = styled(MuiDrawer, {
 
 const mdTheme = createTheme();
 
-export default function EUpdateDevices() {
+export default function EUpdateCustomer() {
   const navigate = useNavigate();
-
   const { id } = useParams();
+  const [open, setOpen] = useState(true);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [civil_id, setCivil_id] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [whatsapp_no, setWhatsapp_no] = useState("");
+  const [telephone_no, setTelephone_no] = useState("");
+  const [address, setAddress] = useState("");
+  const [paci_number, setPaci_number] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
 
-  const [open, setOpen] = React.useState(true);
-  const [deviceID, setDeviceID] = useState("");
-  const [deviceName, setDeviceName] = useState("");
-  const [price, setPrice] = useState("");
-  const [color, setColor] = useState("");
-  const [shopName, setShopName] = useState("");
-  const [modelNumber, setModelNumber] = useState("");
-  const [storage, setStorage] = useState("");
-  const [ram, setRam] = useState("");
-  const [warrenty, setWarrenty] = useState("");
-  const [emiNumber, setEmiNumber] = useState("");
-  const [purchaseDate, setPurchaseDate] = useState("");
-  const [imageName, setImageName] = useState("");
+  useEffect(() => {
+    fetchCustomer();
+  }, []);
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
-  useEffect(() => {
-    fetchDevices();
-  }, []);
-
   const handleLogout = () => {
-    // Remove user details from session storage
     sessionStorage.removeItem("user");
     sessionStorage.removeItem("token");
     console.log("User details cleared from session storage");
     navigate("/");
   };
 
-  function fetchDevices() {
+  function fetchCustomer() {
     let mounted = true;
-    fetch(`http://localhost:8000/device/getOneDevice/${id}`)
+    fetch(`http://localhost:8000/api/customer/${id}`)
       .then((res) => res.json())
       .then((result) => {
         console.log(result);
         if (mounted) {
-          setDeviceID(result[0]._id);
-          setDeviceName(result[0].deviceName);
-          setPrice(result[0].price);
-          setColor(result[0].color);
-          setShopName(result[0].shopName);
-          setModelNumber(result[0].modelNumber);
-          setStorage(result[0].storage);
-          setRam(result[0].ram);
-          setWarrenty(result[0].warrenty);
-          setEmiNumber(result[0].emiNumber);
-          setPurchaseDate(result[0].purchaseDate);
-          setImageName(result[0].imageName);
+          setName(result.name);
+          setEmail(result.email);
+          setPassword(result.password);
+          setCivil_id(result.civil_id);
+          setNationality(result.nationality);
+          setMobile(result.mobile);
+          setWhatsapp_no(result.whatsapp_no);
+          setTelephone_no(result.telephone_no);
+          setAddress(result.address);
+          setPaci_number(result.paci_number);
+          setCustomerEmail(result.email);
         }
       });
     return () => (mounted = false);
   }
 
-  const handleFileChange = (event) => {
-    setImageName(event.target.files[0]);
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const UpdatedDevice = {
-      deviceName: deviceName,
-      price: price,
-      color: color,
-      shopName: shopName,
-      modelNumber: modelNumber,
-      storage: storage,
-      ram: ram,
-      warrenty: warrenty,
-      emiNumber: emiNumber,
-      purchaseDate: purchaseDate,
-      imageName: imageName,
+    const UpdatedCustomer = {
+      name,
+      email,
+      password,
+      civil_id,
+      nationality,
+      mobile,
+      whatsapp_no,
+      telephone_no,
+      address,
+      paci_number,
     };
 
-    axios
-      .put(
-        `http://localhost:8000/device/updateDevice/${deviceID}`,
-        UpdatedDevice
-      )
-      .then(() => {
-        alert("Device updated successfully!");
-        navigate("/device");
-      })
-      .catch((err) => {
-        alert(err);
-        console.log(err);
-      });
+    try {
+      await axios.put(
+        `http://localhost:8000/api/customer/${customerEmail}`,
+        UpdatedCustomer
+      );
+      alert("Customer updated successfully");
+      navigate("/ecustomer");
+    } catch (error) {
+      console.error("Error updating customer:", error);
+      alert(
+        `Error updating customer: ${
+          error.response ? error.response.data.message : error.message
+        }`
+      );
+    }
   };
 
   return (
@@ -278,128 +258,101 @@ export default function EUpdateDevices() {
                     color: "#637381",
                   }}
                 >
-                  Update Device Details
+                  Update Customer Details
                 </Typography>
                 <Box component="form" sx={{ mt: 1 }} onSubmit={handleSubmit}>
                   <TextField
                     margin="normal"
                     required
                     fullWidth
-                    label="Device Name"
-                    name="deviceName"
-                    value={deviceName}
-                    onChange={(e) => {
-                      setDeviceName(e.target.value);
-                    }}
+                    label="User Name"
+                    value={name}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => setName(e.target.value)}
                   />
                   <TextField
                     margin="normal"
                     required
                     fullWidth
-                    label="Price"
-                    name="price"
-                    value={price}
-                    onChange={(e) => {
-                      setPrice(e.target.value);
-                    }}
+                    label="E-mail"
+                    value={email}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                   <TextField
                     margin="normal"
                     required
                     fullWidth
-                    label="Colour"
-                    name="color"
-                    value={color}
-                    onChange={(e) => {
-                      setColor(e.target.value);
-                    }}
+                    label="Mobile Number"
+                    value={mobile}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => setMobile(e.target.value)}
                   />
                   <TextField
                     margin="normal"
                     required
                     fullWidth
-                    label="Shop Name"
-                    name="shopName"
-                    value={shopName}
-                    onChange={(e) => {
-                      setShopName(e.target.value);
-                    }}
+                    label="WhatsApp Number"
+                    value={whatsapp_no}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => setWhatsapp_no(e.target.value)}
                   />
                   <TextField
                     margin="normal"
                     required
                     fullWidth
-                    label="Model Number"
-                    name="modelNumber"
-                    value={modelNumber}
-                    onChange={(e) => {
-                      setModelNumber(e.target.value);
-                    }}
+                    label="Telephone Number"
+                    value={telephone_no}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => setTelephone_no(e.target.value)}
                   />
                   <TextField
                     margin="normal"
                     required
                     fullWidth
-                    label="Storage"
-                    name="storage"
-                    value={storage}
-                    onChange={(e) => {
-                      setStorage(e.target.value);
-                    }}
+                    label="Address"
+                    value={address}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => setAddress(e.target.value)}
                   />
                   <TextField
                     margin="normal"
                     required
                     fullWidth
-                    label="Ram"
-                    name="ram"
-                    value={ram}
-                    onChange={(e) => {
-                      setRam(e.target.value);
-                    }}
+                    label="Nationality"
+                    value={nationality}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => setNationality(e.target.value)}
                   />
                   <TextField
                     margin="normal"
                     required
                     fullWidth
-                    label="Warrenty"
-                    name="warrenty"
-                    value={warrenty}
-                    onChange={(e) => {
-                      setWarrenty(e.target.value);
-                    }}
+                    label="Civil ID"
+                    value={civil_id}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => setCivil_id(e.target.value)}
                   />
                   <TextField
                     margin="normal"
                     required
                     fullWidth
-                    label="EMI Number"
-                    name="emiNumber"
-                    value={emiNumber}
-                    onChange={(e) => {
-                      setEmiNumber(e.target.value);
-                    }}
+                    label="Paci Number"
+                    value={paci_number}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => setPaci_number(e.target.value)}
                   />
                   <TextField
+                    sx={{ display: "none" }}
                     margin="normal"
                     required
                     fullWidth
-                    label="Purchase Date"
-                    type="date"
-                    name="purchaseDate"
-                    value={purchaseDate}
-                    onChange={(e) => {
-                      setPurchaseDate(e.target.value);
-                    }}
+                    label="Password"
+                    type="password"
+                    value={password}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-                  {/* <TextField
-                                        margin="normal"
-                                        required
-                                        fullWidth
-                                        type="file"
-                                        name="imageName"
-                                        onChange={handleFileChange}
-                                    /> */}
                   <Button
                     type="submit"
                     fullWidth

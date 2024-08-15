@@ -26,6 +26,14 @@ export const mainListItems = (
         <ListItemText primary="Dashboard" />
       </ListItemButton>
     </Link>
+    <Link to="/ecustomer" style={{ textDecoration: "none", color: "black" }}>
+      <ListItemButton>
+        <ListItemIcon>
+          <PersonAddAltIcon />
+        </ListItemIcon>
+        <ListItemText primary="Customers" />
+      </ListItemButton>
+    </Link>
     <Link to="/edevice" style={{ textDecoration: "none", color: "black" }}>
       <ListItemButton>
         <ListItemIcon>
@@ -48,6 +56,82 @@ export const mainListItems = (
           <PaidIcon />
         </ListItemIcon>
         <ListItemText primary="Payments" />
+      </ListItemButton>
+    </Link>
+  </React.Fragment>
+);
+
+export const secondaryListItems = (
+  <React.Fragment>
+    <ListSubheader component="div" inset>
+      reports
+    </ListSubheader>
+
+    <Link to="/ECustomerList" style={{ textDecoration: "none", color: "black" }}>
+      <ListItemButton>
+        <ListItemIcon>
+          <AssignmentIcon />
+        </ListItemIcon>
+        <ListItemText primary="Customer List" />
+      </ListItemButton>
+    </Link>
+
+    <Link to="/EDeviceList" style={{ textDecoration: "none", color: "black" }}>
+      <ListItemButton>
+        <ListItemIcon>
+          <AssignmentIcon />
+        </ListItemIcon>
+        <ListItemText primary="Devices List" />
+      </ListItemButton>
+    </Link>
+
+    <Link to="/EEmployeeList" style={{ textDecoration: "none", color: "black" }}>
+      <ListItemButton>
+        <ListItemIcon>
+          <AssignmentIcon />
+        </ListItemIcon>
+        <ListItemText primary="Employee List" />
+      </ListItemButton>
+    </Link>
+
+    <Link to="/EPaymentList" style={{ textDecoration: "none", color: "black" }}>
+      <ListItemButton>
+        <ListItemIcon>
+          <AssignmentIcon />
+        </ListItemIcon>
+        <ListItemText primary="Payment List" />
+      </ListItemButton>
+    </Link>
+
+    <Link
+      to="/EBuyingSellingList"
+      style={{ textDecoration: "none", color: "black" }}
+    >
+      <ListItemButton>
+        <ListItemIcon>
+          <AssignmentIcon />
+        </ListItemIcon>
+        <ListItemText primary="Sales List" />
+      </ListItemButton>
+    </Link>
+    <Link to="/EDealendList" style={{ textDecoration: "none", color: "black" }}>
+      <ListItemButton>
+        <ListItemIcon>
+          <AssignmentIcon />
+        </ListItemIcon>
+        <ListItemText primary="Deal End List" />
+      </ListItemButton>
+    </Link>
+
+    <Link
+      to="/EUpcommingPayment"
+      style={{ textDecoration: "none", color: "black" }}
+    >
+      <ListItemButton>
+        <ListItemIcon>
+          <AssignmentIcon />
+        </ListItemIcon>
+        <ListItemText primary="Upcoming Payment" />
       </ListItemButton>
     </Link>
   </React.Fragment>

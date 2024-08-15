@@ -81,7 +81,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   );
 
   const mdTheme = createTheme();
-const DeviceList = () => {
+const EDeviceList = () => {
   const navigate = useNavigate();
   let date = new Date();
   let day = date.getDate();
@@ -548,4 +548,4 @@ sx={{
 </div>
   )
 }
-export default DeviceList
+export default EDeviceList
