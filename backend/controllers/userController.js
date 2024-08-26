@@ -73,14 +73,14 @@ const loginUser = asyncHandler(async (req, res) => {
       case "admin":
       case "employee":
         userInfo = await axios.get(
-          `http://podsaas.online/api/employee&admin/${email}`
+          `http://localhost:8000/api/employee&admin/${email}`
         );
         role = userlogin.role;
         message = `${role.charAt(0).toUpperCase() + role.slice(1)} page`;
         break;
       case "customer":
         userInfo = await axios.get(
-          `http://podsaas.online/api/customer/${email}`
+          `http://localhost:8000/api/customer/${email}`
         );
         role = "customer";
         message = "Customer page";

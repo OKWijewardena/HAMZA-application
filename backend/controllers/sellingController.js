@@ -200,7 +200,13 @@ exports.updatePaymentHistory = async (req, res) => {
     for (let i = 0; i < customArray.length; i++) {
       const itemDate = new Date(customArray[i].date);
       const itemPrice = parseFloat(customArray[i].price);
-      const nextPrice = parseFloat(customArray[i + 1].price);
+      let nextPrice = parseFloat(customArray[i].price);
+      
+      if (customArray[i + 1]) {
+        nextPrice = parseFloat(customArray[i + 1].price);
+      } else {
+        nextPrice = parseFloat(customArray[i].price);
+      }
 
       if (
         itemDate >= new Date(date) &&

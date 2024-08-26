@@ -15,8 +15,7 @@ import Container from '@mui/material/Container';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { mainListItems } from '../listItems';
-
+import { mainListItems, secondaryListItems } from '../listItems';
 import {
   TextField, Button, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Dialog, DialogActions, DialogContent,
@@ -24,8 +23,9 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import LogoutIcon from '@mui/icons-material/Logout';
+
 import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const drawerWidth = 240;
 
@@ -117,16 +117,17 @@ sessionStorage.removeItem('token');
 
   const fetchSellings = async () => {
     try {
-      const response = await axios.get('http://podsaas.online/selling/getSelling');
+      const response = await axios.get('http://localhost:8000/selling/getSelling');
       setSellings(response.data);
     } catch (error) {
       console.error('Error fetching sellings:', error);
     }
   };
+  
 
   const fetchDeviceImage = async () => {
     try {
-      const response = await axios.get(`http://podsaas.online/device/getOneDevice/${emiNumber}`);
+      const response = await axios.get(`http://localhost:8000/device/getOneDevice/${emiNumber}`);
       setDevices(response.data);
       if (response.data.length > 0) {
         setImageName(response.data[0].imageName); // Assuming you want to set the first device's imageName by default
@@ -155,6 +156,42 @@ sessionStorage.removeItem('token');
   const handleDialogClose = () => {
     setOpenDialog(false);
   };
+
+  const dealendSubmit = async (id,deviceName,
+    emiNumber,
+    customerName,
+    civilID,
+    price,
+    months,
+    date,
+    advance,
+    imageName) => { 
+
+      const DealendPurchase = {
+        deviceName,
+        emiNumber,
+        customerName,
+        civilID,
+        price,
+        months,
+        date,
+        advance,
+        imageName
+      };
+
+      try {
+        await axios.post('http://localhost:8000/dealend/addDealend', DealendPurchase);
+        await axios.delete(`http://localhost:8000/selling/deleteSelling/${id}`);
+        alert("Deal ended successfully");
+        fetchSellings();
+        
+      } catch (error) {
+        console.error(error.response ? error.response.data : error);
+        alert("An error occurred while adding the item to the stores.");
+        
+      }
+
+  }
 
   const handleConfirmSubmit = async () => {
     // Check if imageName is set
@@ -246,6 +283,7 @@ sessionStorage.removeItem('token');
             <List component="nav">
               {mainListItems}
               <Divider sx={{ my: 1 }} />
+              {secondaryListItems}
             </List>
           </Drawer>
           <Box
@@ -427,10 +465,29 @@ sessionStorage.removeItem('token');
                           <TableCell>{selling.advance}</TableCell>
                           <TableCell>{selling.balance}</TableCell>
                           <TableCell>
-                            <IconButton color="secondary" onClick={() => handleDelete(selling._id)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          </TableCell>
+  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <IconButton color="secondary" onClick={() => handleDelete(selling._id)}>
+      <DeleteIcon />
+    </IconButton>
+    <Button
+      sx={{
+        ml: 2, // Add some left margin to space the button away from the icon
+        mt: 3,
+        mb: 2,
+        backgroundColor: '#752888',
+        '&:hover': {
+          backgroundColor: '#C63DE7',
+        },
+        color: 'white',
+        fontFamily: 'Public Sans, sans-serif',
+        fontWeight: 'bold',
+      }}
+      onClick={() => dealendSubmit(selling._id, selling.deviceName, selling.emiNumber, selling.customerName, selling.civilID, selling.price, selling.months, selling.date, selling.advance, selling.imageName)}
+    >
+      Dealend
+    </Button>
+  </Box>
+</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

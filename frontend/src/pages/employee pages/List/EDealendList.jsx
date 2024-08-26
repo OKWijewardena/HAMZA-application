@@ -88,7 +88,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 const mdTheme = createTheme();
-const SaleList = () => {
+const EDealendList = () => {
 
   const navigate = useNavigate();
 
@@ -115,31 +115,71 @@ const SaleList = () => {
   const [salesDateTo, setsalesDateTo] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:8000/selling/getSelling", {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
+    const fetchDealendData = async () => {
+      try {
+        const dealendResponse = await fetch(
+          "http://localhost:8000/dealend/getDealend",
+          {
+            method: "GET",
+          }
+        );
+        if (!dealendResponse.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json();
-      })
-      .then((data) => {
-        // Calculate the total amount paid for each item
-        const updatedData = data.map((item) => {
+        const dealendData = await dealendResponse.json();
+
+        // Fetch inventory data
+        const inventoryResponse = await fetch(
+          "http://localhost:8000/inventory/getInventory",
+          {
+            method: "GET",
+          }
+        );
+        if (!inventoryResponse.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const inventoryData = await inventoryResponse.json();
+
+        // Merge dealendData with inventoryData
+        const mergedData = dealendData.map((dealendItem) => {
+          const inventoryItem = inventoryData.find(
+            (item) => item.emiNumber === dealendItem.emiNumber
+          );
+
+          // Calculate totalPaid
           const totalPaid =
-            parseFloat(item.advance) +
-            item.customArray
+            parseFloat(dealendItem.advance) +
+            dealendItem.customArray
               .filter((payment) => payment.status === "paid")
               .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-          return { ...item, totalPaid };
+
+          // Calculate totalPayableBalance
+          let totalPayableBalance = dealendItem.customArray
+            .filter((payment) => payment.status === "unpaid")
+            .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
+          totalPayableBalance = Math.round(totalPayableBalance);
+
+          // Get purchase price from inventoryItem
+          const purchasePrice = inventoryItem
+            ? parseFloat(inventoryItem.price)
+            : 0;
+
+          return {
+            ...dealendItem,
+            totalPaid,
+            purchasePrice,
+            totalPayableBalance,
+          };
         });
-        setOriginalData(updatedData);
-        setData(updatedData);
-      })
-      .catch((error) => {
+
+        setOriginalData(mergedData);
+        setData(mergedData);
+      } catch (error) {
         console.error("Error fetching data:", error);
-      });
+      }
+    };
+
+    fetchDealendData();
   }, []);
 
   const handleLogout = () => {
@@ -163,12 +203,13 @@ sessionStorage.removeItem('token');
       const { advance, ...rest } = item;
       return { ...rest, totalPaid: totalPaid.toFixed(2) };
     });
-
-    fetch("http://localhost:8000/api/salespdf/convertsalesPDF", {
+    console.log(updatedData);
+    fetch("http://localhost:8000/api/dealendpdf/convertdealendPDF", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+
       body: JSON.stringify(updatedData), // Send the updated data to the backend
     })
       .then((response) => {
@@ -185,7 +226,7 @@ sessionStorage.removeItem('token');
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        link.download = `Sales Report - ${formattedDateTime}.pdf`;
+        link.download = `Deal End Report - ${formattedDateTime}.pdf`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -210,7 +251,7 @@ sessionStorage.removeItem('token');
       return { ...rest, totalPaid: totalPaid.toFixed(2) };
     });
 
-    fetch("http://localhost:8000/api/salesExcel/salesExcel", {
+    fetch("http://localhost:8000/api/dealendexcel/dealendExcel", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -231,7 +272,7 @@ sessionStorage.removeItem('token');
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        link.download = `Sales Report - ${formattedDateTime}.xlsx`;
+        link.download = `Deal End Report - ${formattedDateTime}.xlsx`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -243,38 +284,80 @@ sessionStorage.removeItem('token');
   };
 
   const resetTable = () => {
-    fetch("http://localhost:8000/selling/getSelling", {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
+    const fetchDealendAndInventoryData = async () => {
+      try {
+        // Fetch dealend data
+        const dealendResponse = await fetch(
+          "http://localhost:8000/dealend/getDealend",
+          { method: "GET" }
+        );
+        if (!dealendResponse.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json();
-      })
-      .then((data) => {
-        // Calculate the total amount paid for each item
-        const updatedData = data.map((item) => {
+        const dealendData = await dealendResponse.json();
+
+        // Fetch inventory data
+        const inventoryResponse = await fetch(
+          "http://localhost:8000/inventory/getInventory",
+          { method: "GET" }
+        );
+        if (!inventoryResponse.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const inventoryData = await inventoryResponse.json();
+
+        // Merge dealendData with inventoryData
+        const mergedData = dealendData.map((dealendItem) => {
+          const inventoryItem = inventoryData.find(
+            (item) => item.emiNumber === dealendItem.emiNumber
+          );
+
           const totalPaid =
-            parseFloat(item.advance) +
-            item.customArray
+            parseFloat(dealendItem.advance) +
+            dealendItem.customArray
               .filter((payment) => payment.status === "paid")
               .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-          return { ...item, totalPaid };
+
+          let totalPayableBalance = dealendItem.customArray
+            .filter((payment) => payment.status === "unpaid")
+            .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
+
+          totalPayableBalance = Math.round(totalPayableBalance);
+
+          const purchasePrice = inventoryItem
+            ? parseFloat(inventoryItem.price)
+            : 0;
+
+          return {
+            ...dealendItem,
+            totalPaid,
+            purchasePrice,
+            totalPayableBalance,
+          };
         });
-        setData(updatedData);
-      })
-      .catch((error) => {
+
+        setData(mergedData);
+      } catch (error) {
         console.error("Error fetching data:", error);
         // Handle error accordingly
-      });
+      }
+    };
+
+    fetchDealendAndInventoryData();
   };
 
   // Update your handleFetch function to also filter based on the search term
   const handleFetch = () => {
     let filteredData = originalData.filter((item) => {
-      const itemsalesDate = new Date(item.date);
-      const itemExpiryDate = new Date(item.expireDate);
+      const itemsalesDate = new Date(item.date); // Convert item date to Date object
+
+      let fromDate = salesDateFrom ? new Date(salesDateFrom) : null;
+      let toDate = salesDateTo ? new Date(salesDateTo) : null;
+
+      // Adjust the time of fromDate and toDate to consider the whole day
+      if (fromDate) fromDate.setHours(0, 0, 0, 0);
+      if (toDate) toDate.setHours(23, 59, 59, 999);
+
       return (
         (deviceName === "" || item.deviceName.includes(deviceName)) &&
         (emiNumber === "" || item.emiNumber.includes(emiNumber)) &&
@@ -282,8 +365,6 @@ sessionStorage.removeItem('token');
         (civilID === "" || item.civilID.includes(civilID)) &&
         (price === "" || item.price.includes(price)) &&
         (months === "" || item.months.includes(months)) &&
-        (advance === "" || item.advance.includes(advance)) &&
-        (balance === "" || item.balance.includes(balance)) &&
         (!salesDateFrom || itemsalesDate >= salesDateFrom) &&
         (!salesDateTo || itemsalesDate <= salesDateTo)
       );
@@ -298,8 +379,6 @@ sessionStorage.removeItem('token');
     setcivilID("");
     setprice("");
     setmonths("");
-    setadvance("");
-    setbalance("");
     setsalesDateFrom(null); // Set to null to clear the date picker
     setsalesDateTo(null); // Set to null to clear the date picker
   };
@@ -425,7 +504,7 @@ sessionStorage.removeItem('token');
                     color: "#637381",
                   }}
                 >
-                  Sales List
+                  Deal End List
                 </Typography>
                 <Box component="form" sx={{ mt: 1 }}>
                   <Grid container spacing={2}>
@@ -481,24 +560,6 @@ sessionStorage.removeItem('token');
                         label="months"
                         value={months}
                         onChange={(e) => setmonths(e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <TextField
-                        margin="normal"
-                        fullWidth
-                        label="advance"
-                        value={advance}
-                        onChange={(e) => setadvance(e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <TextField
-                        margin="normal"
-                        fullWidth
-                        label="balance"
-                        value={balance}
-                        onChange={(e) => setbalance(e.target.value)}
                       />
                     </Grid>
                     <Grid item xs={12} sm={3} style={{ marginTop: "16px" }}>
@@ -660,7 +721,7 @@ sessionStorage.removeItem('token');
                               color: "white",
                             }}
                           >
-                            Customer Name{" "}
+                            CustomerName{" "}
                           </TableCell>
                           <TableCell
                             style={{
@@ -676,7 +737,15 @@ sessionStorage.removeItem('token');
                               color: "white",
                             }}
                           >
-                            Price
+                            Selling Price
+                          </TableCell>
+                          <TableCell
+                            style={{
+                              backgroundColor: "#752888",
+                              color: "white",
+                            }}
+                          >
+                            Purchase Price
                           </TableCell>
                           <TableCell
                             style={{
@@ -702,13 +771,14 @@ sessionStorage.removeItem('token');
                           >
                             Total Amont Paid
                           </TableCell>
+
                           <TableCell
                             style={{
                               backgroundColor: "#752888",
                               color: "white",
                             }}
                           >
-                            balance
+                            Pyable Balance
                           </TableCell>
                         </TableRow>
                       </TableHead>
@@ -725,6 +795,7 @@ sessionStorage.removeItem('token');
                               <TableCell>{item.customerName}</TableCell>
                               <TableCell>{item.civilID}</TableCell>
                               <TableCell>{item.price}</TableCell>
+                              <TableCell>{item.purchasePrice}</TableCell>
                               <TableCell>{item.months}</TableCell>
                               <TableCell>{item.date}</TableCell>
                               <TableCell>{item.totalPaid.toFixed(2)}</TableCell>
@@ -840,5 +911,4 @@ sessionStorage.removeItem('token');
     </div>
   );
 };
-
-export default SaleList;
+export default EDealendList;

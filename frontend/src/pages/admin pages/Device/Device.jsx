@@ -112,7 +112,7 @@ export default function Device(){
 
     const handleDelete = async (id) => {
         try {
-          await axios.delete(`http://podsaas.online/device/deleteDevice/${id}`);
+          await axios.delete(`http://localhost:8000/device/deleteDevice/${id}`);
           alert("Dervice record deleted successfully");
           fetchDevices();// Refresh the selling list after deletion
         } catch (error) {
@@ -139,7 +139,7 @@ sessionStorage.removeItem('token');
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get('http://podsaas.online/device/getDevice');
+            const response = await axios.get('http://localhost:8000/device/getDevice');
             setDevices(response.data);
         } catch (error) {
             console.error('Error fetching devices:', error);
@@ -200,7 +200,7 @@ sessionStorage.removeItem('token');
   
       try {
           // Add device to device table
-          await axios.post('http://podsaas.online/device/addDevice', formData, {
+          await axios.post('http://localhost:8000/device/addDevice', formData, {
               headers: {
                   'Content-Type': 'multipart/form-data'
               }

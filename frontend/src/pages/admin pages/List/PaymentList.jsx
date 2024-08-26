@@ -107,7 +107,7 @@ const PaymentList = () => {
       try {
         // Fetch payment data
         const paymentResponse = await fetch(
-          "http://podsaas.online/payment/getPayment/",
+          "http://localhost:8000/payment/getPayment/",
           { method: "GET" }
         );
         if (!paymentResponse.ok) {

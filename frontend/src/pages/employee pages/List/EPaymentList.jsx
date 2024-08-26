@@ -11,13 +11,11 @@ import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import { Modal } from "@mui/material";
+
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { mainListItems, secondaryListItems } from "../listItems";
-import { Backdrop, Fade } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import React, { useEffect, useState } from "react";
 import {
   TextField,
@@ -35,9 +33,8 @@ import dayjs from "dayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { Link, useNavigate } from 'react-router-dom';
-import LogoutIcon from '@mui/icons-material/Logout';
-
+import { Link, useNavigate } from "react-router-dom";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -88,88 +85,109 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 const mdTheme = createTheme();
-const SaleList = () => {
-
+const EPaymentList = () => {
   const navigate = useNavigate();
-
   let date = new Date();
   let day = date.getDate();
   let month = date.getMonth() + 1; // JavaScript months are 0-based counting
   let year = date.getFullYear();
   let hours = date.getHours();
   let minutes = date.getMinutes();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
   const [originalData, setOriginalData] = useState([]);
   const [data, setData] = useState([]);
+  const [customerName, setCustomerName] = useState("");
+  const [emiNumber, setEmiNumber] = useState("");
+  const [civilID, setCivilID] = useState("");
   const [deviceName, setDeviceName] = useState("");
-  const [emiNumber, setemiNumber] = useState("");
-  const [customerName, setcustomerName] = useState("");
-  const [civilID, setcivilID] = useState("");
-  const [price, setprice] = useState("");
-  const [months, setmonths] = useState("");
-  const [advance, setadvance] = useState("");
-  const [balance, setbalance] = useState("");
-  const [salesDateFrom, setsalesDateFrom] = useState(null);
-  const [salesDateTo, setsalesDateTo] = useState(null);
-
+  const [price, setPrice] = useState("");
+  const [paymentDateFrom, setPaymentDateFrom] = useState(null);
+  const [paymentDateTo, setPaymentDateTo] = useState(null);
   useEffect(() => {
-    fetch("http://localhost:8000/selling/getSelling", {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
+    const fetchData = async () => {
+      try {
+        // Fetch payment data
+        const paymentResponse = await fetch(
+          "http://localhost:8000/payment/getPayment/",
+          { method: "GET" }
+        );
+        if (!paymentResponse.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json();
-      })
-      .then((data) => {
-        // Calculate the total amount paid for each item
-        const updatedData = data.map((item) => {
-          const totalPaid =
-            parseFloat(item.advance) +
-            item.customArray
-              .filter((payment) => payment.status === "paid")
-              .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-          return { ...item, totalPaid };
+        const paymentData = await paymentResponse.json();
+
+        // Fetch selling data
+        const sellingResponse = await fetch(
+          "http://localhost:8000/selling/getSelling",
+          { method: "GET" }
+        );
+        if (!sellingResponse.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const sellingData = await sellingResponse.json();
+
+        // Create a map for quick lookup of selling data by emiNumber and civilID
+        const sellingDataMap = sellingData.reduce((map, sellingItem) => {
+          const key = `${sellingItem.emiNumber}-${sellingItem.civilID}`;
+          map[key] = sellingItem;
+          return map;
+        }, {});
+
+        // Process each payment item
+        const processedPayments = paymentData.map((paymentItem) => {
+          const key = `${paymentItem.emiNumber}-${paymentItem.civilID}`;
+          const sellingItem = sellingDataMap[key];
+
+          if (!sellingItem) {
+            console.log(`No selling data found for key: ${key}`);
+            return { ...paymentItem, paymentType: "Installment" };
+          }
+
+          console.log(`Processing payment for key: ${key}`);
+          console.log(`Payment Item:`, paymentItem);
+          console.log(`Selling Item:`, sellingItem);
+
+          // No need to check against selling data, set paymentType to "Installment"
+          return { ...paymentItem, paymentType: "Installment" };
         });
-        setOriginalData(updatedData);
-        setData(updatedData);
-      })
-      .catch((error) => {
+
+        // Add advances from selling data
+        const advances = sellingData.map((sellingItem) => ({
+          customerName: sellingItem.customerName,
+          civilID: sellingItem.civilID,
+          deviceName: sellingItem.deviceName,
+          emiNumber: sellingItem.emiNumber,
+          price: sellingItem.advance,
+          date: sellingItem.date,
+          paymentType: "Advance",
+        }));
+
+        const mergedData = processedPayments.concat(advances);
+
+        setOriginalData(mergedData);
+        setData(mergedData);
+      } catch (error) {
         console.error("Error fetching data:", error);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleLogout = () => {
     // Remove user details from session storage
-    sessionStorage.removeItem('user');
-sessionStorage.removeItem('token');
-    console.log('User details cleared from session storage');
-    navigate('/');
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    console.log("User details cleared from session storage");
+    navigate("/");
   };
-
   const downloadPDF = () => {
-    // Create a copy of the data with the totalPaid calculated
-    const updatedData = data.map((item) => {
-      const totalPaid =
-        parseFloat(item.advance) +
-        item.customArray
-          .filter((payment) => payment.status === "paid")
-          .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-
-      // Create a new object excluding 'advance' and including 'totalPaid'
-      const { advance, ...rest } = item;
-      return { ...rest, totalPaid: totalPaid.toFixed(2) };
-    });
-
-    fetch("http://localhost:8000/api/salespdf/convertsalesPDF", {
+    console.log(data);
+    fetch("http://localhost:8000/convertPDF", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updatedData), // Send the updated data to the backend
+      body: JSON.stringify(data), // Send current data to the backend
     })
       .then((response) => {
         if (response.ok) {
@@ -185,7 +203,8 @@ sessionStorage.removeItem('token');
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        link.download = `Sales Report - ${formattedDateTime}.pdf`;
+
+        link.download = `Payment Report - ${formattedDateTime}.pdf`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -195,27 +214,13 @@ sessionStorage.removeItem('token');
       })
       .catch((error) => alert(error));
   };
-
   const downloadExcel = () => {
-    // Create a copy of the data with the totalPaid calculated
-    const updatedData = data.map((item) => {
-      const totalPaid =
-        parseFloat(item.advance) +
-        item.customArray
-          .filter((payment) => payment.status === "paid")
-          .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-
-      // Create a new object excluding 'advance' and including 'totalPaid'
-      const { advance, ...rest } = item;
-      return { ...rest, totalPaid: totalPaid.toFixed(2) };
-    });
-
-    fetch("http://localhost:8000/api/salesExcel/salesExcel", {
+    fetch("http://localhost:8000/api/paymentExcel/paymentExcel", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updatedData), // Send the updated data to the backend
+      body: JSON.stringify(data), // Send current data to the backend
     })
       .then((response) => {
         if (response.ok) {
@@ -231,7 +236,8 @@ sessionStorage.removeItem('token');
         const link = document.createElement("a");
         link.href = url;
         let formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
-        link.download = `Sales Report - ${formattedDateTime}.xlsx`;
+
+        link.download = `Payment Report - ${formattedDateTime}.xlsx`;
         // Append the link to the body
         document.body.appendChild(link);
         // Simulate click
@@ -242,50 +248,100 @@ sessionStorage.removeItem('token');
       .catch((error) => alert(error));
   };
 
-  const resetTable = () => {
-    fetch("http://localhost:8000/selling/getSelling", {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+  const resetTable = async () => {
+    try {
+      // Fetch payment data
+      const paymentResponse = await fetch(
+        "http://localhost:8000/payment/getPayment/",
+        { method: "GET" }
+      );
+      if (!paymentResponse.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const paymentData = await paymentResponse.json();
+
+      // Fetch selling data
+      const sellingResponse = await fetch(
+        "http://localhost:8000/selling/getSelling",
+        { method: "GET" }
+      );
+      if (!sellingResponse.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const sellingData = await sellingResponse.json();
+
+      // Create a map for quick lookup of selling data by emiNumber and civilID
+      const sellingDataMap = sellingData.reduce((map, sellingItem) => {
+        const key = `${sellingItem.emiNumber}-${sellingItem.civilID}`;
+        map[key] = sellingItem;
+        return map;
+      }, {});
+
+      // Process each payment item
+      const processedPayments = paymentData.map((paymentItem) => {
+        const key = `${paymentItem.emiNumber}-${paymentItem.civilID}`;
+        const sellingItem = sellingDataMap[key];
+
+        if (!sellingItem) {
+          console.log(`No selling data found for key: ${key}`);
+          return { ...paymentItem, paymentType: "Installment" };
         }
-        return response.json();
-      })
-      .then((data) => {
-        // Calculate the total amount paid for each item
-        const updatedData = data.map((item) => {
-          const totalPaid =
-            parseFloat(item.advance) +
-            item.customArray
-              .filter((payment) => payment.status === "paid")
-              .reduce((sum, payment) => sum + parseFloat(payment.price), 0);
-          return { ...item, totalPaid };
-        });
-        setData(updatedData);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        // Handle error accordingly
+
+        console.log(`Processing payment for key: ${key}`);
+        console.log(`Payment Item:`, paymentItem);
+        console.log(`Selling Item:`, sellingItem);
+
+        // No need to check against selling data, set paymentType to "Installment"
+        return { ...paymentItem, paymentType: "Installment" };
       });
+
+      // Add advances from selling data
+      const advances = sellingData.map((sellingItem) => ({
+        customerName: sellingItem.customerName,
+        civilID: sellingItem.civilID,
+        deviceName: sellingItem.deviceName,
+        emiNumber: sellingItem.emiNumber,
+        price: sellingItem.advance,
+        date: sellingItem.date,
+        paymentType: "Advance",
+      }));
+
+      const mergedData = processedPayments.concat(advances);
+
+      setOriginalData(mergedData);
+      setData(mergedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      // Handle error accordingly
+    }
   };
 
-  // Update your handleFetch function to also filter based on the search term
   const handleFetch = () => {
     let filteredData = originalData.filter((item) => {
-      const itemsalesDate = new Date(item.date);
-      const itemExpiryDate = new Date(item.expireDate);
+      const itemPaymentDate = new Date(item.date);
+
+      let paymentDateFromAdjusted = null;
+      let paymentDateToAdjusted = null;
+
+      if (paymentDateFrom) {
+        paymentDateFromAdjusted = new Date(paymentDateFrom);
+        paymentDateFromAdjusted.setHours(0, 0, 0, 0);
+      }
+
+      if (paymentDateTo) {
+        paymentDateToAdjusted = new Date(paymentDateTo);
+        paymentDateToAdjusted.setHours(23, 59, 59, 999);
+      }
+
       return (
-        (deviceName === "" || item.deviceName.includes(deviceName)) &&
-        (emiNumber === "" || item.emiNumber.includes(emiNumber)) &&
-        (customerName === "" || item.customerName.includes(customerName)) &&
-        (civilID === "" || item.civilID.includes(civilID)) &&
-        (price === "" || item.price.includes(price)) &&
-        (months === "" || item.months.includes(months)) &&
-        (advance === "" || item.advance.includes(advance)) &&
-        (balance === "" || item.balance.includes(balance)) &&
-        (!salesDateFrom || itemsalesDate >= salesDateFrom) &&
-        (!salesDateTo || itemsalesDate <= salesDateTo)
+        (deviceName === "" || item.deviceName?.includes(deviceName)) &&
+        (customerName === "" || item.customerName === customerName) &&
+        (emiNumber === "" || item.emiNumber === emiNumber) &&
+        (civilID === "" || item.civilID === civilID) &&
+        (price === "" || item.price?.includes(price)) &&
+        (!paymentDateFromAdjusted ||
+          itemPaymentDate >= paymentDateFromAdjusted) &&
+        (!paymentDateToAdjusted || itemPaymentDate <= paymentDateToAdjusted)
       );
     });
 
@@ -293,30 +349,18 @@ sessionStorage.removeItem('token');
 
     // Clear all fields after fetch
     setDeviceName("");
-    setemiNumber("");
-    setcustomerName("");
-    setcivilID("");
-    setprice("");
-    setmonths("");
-    setadvance("");
-    setbalance("");
-    setsalesDateFrom(null); // Set to null to clear the date picker
-    setsalesDateTo(null); // Set to null to clear the date picker
+    setCustomerName("");
+    setCivilID("");
+    setEmiNumber("");
+    setPrice("");
+    setPaymentDateFrom(null); // Set to null to clear the date picker
+    setPaymentDateTo(null); // Set to null to clear the date picker
   };
+
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
-
-  const handleRowClick = (row) => {
-    setSelectedRow(row);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
   return (
     <div>
       <ThemeProvider theme={mdTheme}>
@@ -360,10 +404,10 @@ sessionStorage.removeItem('token');
                 SMARTCO
               </Typography>
               <IconButton color="inherit" onClick={handleLogout}>
-              <Badge color="secondary">
-                <LogoutIcon />
-      </Badge>
-    </IconButton>
+                <Badge color="secondary">
+                  <LogoutIcon />
+                </Badge>
+              </IconButton>
             </Toolbar>
           </AppBar>
           <Drawer variant="permanent" open={open}>
@@ -425,7 +469,7 @@ sessionStorage.removeItem('token');
                     color: "#637381",
                   }}
                 >
-                  Sales List
+                  Payment List
                 </Typography>
                 <Box component="form" sx={{ mt: 1 }}>
                   <Grid container spacing={2}>
@@ -442,18 +486,19 @@ sessionStorage.removeItem('token');
                       <TextField
                         margin="normal"
                         fullWidth
-                        label="emiNumber"
-                        value={emiNumber}
-                        onChange={(e) => setemiNumber(e.target.value)}
+                        label="Customer Name"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
                       />
                     </Grid>
+
                     <Grid item xs={12} sm={3}>
                       <TextField
                         margin="normal"
                         fullWidth
-                        label="customerName"
-                        value={customerName}
-                        onChange={(e) => setcustomerName(e.target.value)}
+                        label="setEmiNumber"
+                        value={emiNumber}
+                        onChange={(e) => setEmiNumber(e.target.value)}
                       />
                     </Grid>
                     <Grid item xs={12} sm={3}>
@@ -462,7 +507,7 @@ sessionStorage.removeItem('token');
                         fullWidth
                         label="civilID"
                         value={civilID}
-                        onChange={(e) => setcivilID(e.target.value)}
+                        onChange={(e) => setCivilID(e.target.value)}
                       />
                     </Grid>
                     <Grid item xs={12} sm={3}>
@@ -471,43 +516,16 @@ sessionStorage.removeItem('token');
                         fullWidth
                         label="price"
                         value={price}
-                        onChange={(e) => setprice(e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <TextField
-                        margin="normal"
-                        fullWidth
-                        label="months"
-                        value={months}
-                        onChange={(e) => setmonths(e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <TextField
-                        margin="normal"
-                        fullWidth
-                        label="advance"
-                        value={advance}
-                        onChange={(e) => setadvance(e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <TextField
-                        margin="normal"
-                        fullWidth
-                        label="balance"
-                        value={balance}
-                        onChange={(e) => setbalance(e.target.value)}
+                        onChange={(e) => setPrice(e.target.value)}
                       />
                     </Grid>
                     <Grid item xs={12} sm={3} style={{ marginTop: "16px" }}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                           fullWidth
-                          label="sales Date From"
-                          value={salesDateFrom}
-                          onChange={(date) => setsalesDateFrom(date)}
+                          label="Payment Date From"
+                          value={paymentDateFrom}
+                          onChange={(date) => setPaymentDateFrom(date)}
                           style={{ marginTop: "20px" }}
                         />
                       </LocalizationProvider>
@@ -516,9 +534,9 @@ sessionStorage.removeItem('token');
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                           fullWidth
-                          label="sales Date To"
-                          value={salesDateTo}
-                          onChange={(date) => setsalesDateTo(date)}
+                          label="Payment Date To"
+                          value={paymentDateTo}
+                          onChange={(date) => setPaymentDateTo(date)}
                           style={{ marginTop: "20px" }}
                         />
                       </LocalizationProvider>
@@ -604,7 +622,7 @@ sessionStorage.removeItem('token');
                           fontWeight: "bold",
                         }}
                       >
-                        Download Excel
+                        Download excel
                       </Button>
                     </Grid>
                   </Grid>
@@ -645,14 +663,13 @@ sessionStorage.removeItem('token');
                           >
                             Device Name
                           </TableCell>
-
                           <TableCell
                             style={{
                               backgroundColor: "#752888",
                               color: "white",
                             }}
                           >
-                            Emi Number{" "}
+                            Device EMEI
                           </TableCell>
                           <TableCell
                             style={{
@@ -668,7 +685,7 @@ sessionStorage.removeItem('token');
                               color: "white",
                             }}
                           >
-                            CivilID
+                            Civil Id
                           </TableCell>
                           <TableCell
                             style={{
@@ -684,7 +701,7 @@ sessionStorage.removeItem('token');
                               color: "white",
                             }}
                           >
-                            Months
+                            Payment Date
                           </TableCell>
                           <TableCell
                             style={{
@@ -692,145 +709,26 @@ sessionStorage.removeItem('token');
                               color: "white",
                             }}
                           >
-                            Date
-                          </TableCell>
-                          <TableCell
-                            style={{
-                              backgroundColor: "#752888",
-                              color: "white",
-                            }}
-                          >
-                            Total Amont Paid
-                          </TableCell>
-                          <TableCell
-                            style={{
-                              backgroundColor: "#752888",
-                              color: "white",
-                            }}
-                          >
-                            balance
+                            Payment Type
                           </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {data.length > 0 &&
                           data.map((item, index) => (
-                            <TableRow
-                              key={index}
-                              onClick={() => handleRowClick(item)}
-                            >
+                            <TableRow key={index}>
                               <TableCell>{item.deviceName}</TableCell>
-
                               <TableCell>{item.emiNumber}</TableCell>
                               <TableCell>{item.customerName}</TableCell>
                               <TableCell>{item.civilID}</TableCell>
                               <TableCell>{item.price}</TableCell>
-                              <TableCell>{item.months}</TableCell>
                               <TableCell>{item.date}</TableCell>
-                              <TableCell>{item.totalPaid.toFixed(2)}</TableCell>
-                              <TableCell>{item.balance}</TableCell>
+                              <TableCell>{item.paymentType}</TableCell>
                             </TableRow>
                           ))}
                       </TableBody>
                     </Table>
                   </TableContainer>
-                  {/* Modal */}
-                  <Modal
-                    open={isModalOpen}
-                    onClose={handleCloseModal}
-                    aria-labelledby="modal-title"
-                    closeAfterTransition
-                    BackdropComponent={Backdrop}
-                    BackdropProps={{
-                      timeout: 500,
-                    }}
-                  >
-                    <Fade in={isModalOpen}>
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: "50%",
-                          left: "50%",
-                          transform: "translate(-50%, -50%)",
-                          width: "80%",
-                          maxWidth: 400,
-                          bgcolor: "white",
-                          boxShadow: 24,
-                          p: 2,
-                          borderRadius: 4,
-                          overflowY: "auto", // Enable scroll bar for large data
-                        }}
-                      >
-                        <IconButton
-                          aria-label="close"
-                          onClick={handleCloseModal}
-                          sx={{
-                            position: "absolute",
-                            top: 0,
-                            right: 0,
-                          }}
-                        >
-                          <CloseIcon />
-                        </IconButton>
-
-                        <Typography
-                          variant="h6"
-                          component="h2"
-                          id="modal-title"
-                        >
-                          {selectedRow?.deviceName}
-                        </Typography>
-
-                        {/* Display other details from selectedRow */}
-                        <TableContainer component={Paper}>
-                          <Table>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>Total Amount</TableCell>
-                                <TableCell>Advance Amount</TableCell>
-                                <TableCell>Balance</TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              <TableRow>
-                                <TableCell>{selectedRow?.price}</TableCell>
-                                <TableCell>{selectedRow?.advance}</TableCell>
-                                <TableCell>{selectedRow?.balance}</TableCell>
-                              </TableRow>
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-
-                        <Typography
-                          variant="h6"
-                          component="h2"
-                          id="modal-title"
-                        >
-                          Installment
-                        </Typography>
-                        <TableContainer component={Paper}>
-                          <Table>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>Date</TableCell>
-                                <TableCell>Price</TableCell>
-                                <TableCell>Status</TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {selectedRow?.customArray.map((item) => (
-                                <TableRow key={item._id.$oid}>
-                                  <TableCell>{item.date}</TableCell>
-                                  <TableCell>{item.price}</TableCell>
-                                  <TableCell>{item.status}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      </Box>
-                    </Fade>
-                  </Modal>
                 </Box>
               </Grid>
             </Grid>
@@ -840,5 +738,4 @@ sessionStorage.removeItem('token');
     </div>
   );
 };
-
-export default SaleList;
+export default EPaymentList;

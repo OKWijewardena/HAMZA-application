@@ -88,7 +88,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 const mdTheme = createTheme();
-const SaleList = () => {
+const ESaleList = () => {
 
   const navigate = useNavigate();
 
@@ -841,4 +841,4 @@ sessionStorage.removeItem('token');
   );
 };
 
-export default SaleList;
+export default ESaleList;

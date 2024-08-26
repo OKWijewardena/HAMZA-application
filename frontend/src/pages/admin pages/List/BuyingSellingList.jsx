@@ -35,6 +35,9 @@ import dayjs from "dayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
+
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -86,6 +89,9 @@ const Drawer = styled(MuiDrawer, {
 
 const mdTheme = createTheme();
 const BuyingSellingList = () => {
+
+  const navigate = useNavigate();
+
   let date = new Date();
   let day = date.getDate();
   let month = date.getMonth() + 1; // JavaScript months are 0-based counting
@@ -171,6 +177,7 @@ const BuyingSellingList = () => {
 
     fetchSellingData();
   }, []);
+
 
   const downloadExcel = () => {
     // Create a copy of the data with the totalPaid calculated
@@ -305,8 +312,6 @@ const BuyingSellingList = () => {
     setcivilID("");
     setprice("");
     setmonths("");
-    setadvance("");
-    setbalance("");
     setsalesDateFrom(null); // Set to null to clear the date picker
     setsalesDateTo(null); // Set to null to clear the date picker
   };
@@ -475,6 +480,44 @@ const BuyingSellingList = () => {
       .catch((error) => alert(error));
   };
 
+  const downloadOverallPDF = (id, civil_id) => {
+    console.log(id, civil_id);
+
+    fetch("http://localhost:8000/convertToOverAllPaymentInvoicePDF", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+        civil_id: civil_id,
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.blob(); // If the response is OK, get the PDF blob
+        } else {
+          throw new Error("Error converting to PDF");
+        }
+      })
+      .then((blob) => {
+        // Create a blob URL
+        const url = window.URL.createObjectURL(blob);
+        // Create a link element
+        const link = document.createElement("a");
+        link.href = url;
+        // The downloaded file name
+        link.download = "Over_All_Bill.pdf";
+        // Append the link to the body
+        document.body.appendChild(link);
+        // Simulate click
+        link.click();
+        // Remove the link when done
+        document.body.removeChild(link);
+      })
+      .catch((error) => alert(error));
+  };
+
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -487,6 +530,14 @@ const BuyingSellingList = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleLogout = () => {
+    // Remove user details from session storage
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    console.log("User details cleared from session storage");
+    navigate("/");
   };
 
   return (
@@ -531,11 +582,11 @@ const BuyingSellingList = () => {
               >
                 SMARTCO
               </Typography>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+              <IconButton color="inherit" onClick={handleLogout}>
+              <Badge color="secondary">
+                <LogoutIcon />
+      </Badge>
+    </IconButton>
             </Toolbar>
           </AppBar>
           <Drawer variant="permanent" open={open}>
@@ -655,7 +706,6 @@ const BuyingSellingList = () => {
                         onChange={(e) => setmonths(e.target.value)}
                       />
                     </Grid>
-
                     <Grid item xs={12} sm={3} style={{ marginTop: "16px" }}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
@@ -907,7 +957,7 @@ const BuyingSellingList = () => {
                               color: "white",
                             }}
                           >
-                            Generate PDF
+                            Generate Overall Invoice
                           </TableCell>
                         </TableRow>
                       </TableHead>
@@ -926,17 +976,6 @@ const BuyingSellingList = () => {
                               <TableCell>{item.totalPaid}</TableCell>
                               <TableCell>{item.totalPayableBalance}</TableCell>
                               <TableCell>{item.profit}</TableCell>
-                              <TableCell>
-                                <Button
-                                  variant="contained"
-                                  color="primary"
-                                  onClick={() =>
-                                    downloadOverallPDF(item._id, item.civilID)
-                                  }
-                                >
-                                  View
-                                </Button>
-                              </TableCell>
                             </TableRow>
                           ))}
                       </TableBody>

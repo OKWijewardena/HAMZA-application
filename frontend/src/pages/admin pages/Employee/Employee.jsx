@@ -106,8 +106,8 @@ export default function Employee() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://podsaas.online/api/employee&admin/${id}`);
-      await axios.delete(`http://podsaas.online/api/users/${id}`)
+      await axios.delete(`http://localhost:8000/api/employee&admin/${id}`);
+      await axios.delete(`http://localhost:8000/api/users/${id}`)
       alert("Employee record deleted successfully");
       fetchEmployees();// Refresh the employee list after deletion
     } catch (error) {
@@ -134,7 +134,7 @@ sessionStorage.removeItem('token');
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get('http://podsaas.online/api/employee&admin/');
+      const response = await axios.get('http://localhost:8000/api/employee&admin/');
       setEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
