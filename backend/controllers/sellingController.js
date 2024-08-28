@@ -215,6 +215,7 @@ exports.updatePaymentHistory = async (req, res) => {
       ) {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
+        customArray[i].date = date.toString();
         balance -= parseFloat(payment);
         balance = balance.toFixed(2); // Ensure balance is rounded to 2 decimals
         isPaymentUpdated = true;
@@ -226,6 +227,7 @@ exports.updatePaymentHistory = async (req, res) => {
       ) {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
+        customArray[i].date = date.toString();
         const newPrice = (
           nextPrice +
           (itemPrice - parseFloat(payment))
@@ -248,6 +250,7 @@ exports.updatePaymentHistory = async (req, res) => {
       ) {
         customArray[i].status = "paid";
         customArray[i].price = payment.toString();
+        customArray[i].date = date.toString();
         const newPrice = (
           nextPrice -
           (parseFloat(payment) - itemPrice)

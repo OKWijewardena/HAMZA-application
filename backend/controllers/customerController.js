@@ -112,7 +112,7 @@ const getCivil_idCustomer =asyncHandler(async(req,res)=>{
     const customerData = await customerModel.findOne({ civil_id });
     
     
-    console.log(`Found user: ${JSON.stringify(customerData)}`);
+    // console.log(`Found user: ${JSON.stringify(customerData)}`);
     if(!customerData){
         res.status(404);
         throw new Error("Customer email not found");
@@ -191,8 +191,19 @@ const deleteCustomer=asyncHandler(async(req,res)=>{
     res.status(200).json({ message: "User deleted successfully" });
 });
 
+const getOneCustomer = (req, res) => {
+  customerModel.findOne({ civilID: req.params.civilID })
+    .then((customerRecord) => {
+      res.json(customerRecord);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: "Error retrieving selling record" });
+    });
+};
 
 
-module.exports={registerCustomer,getCustomer,updateCustomer,deleteCustomer,getusers,getCivil_idCustomer};
+
+module.exports={registerCustomer,getCustomer,updateCustomer,deleteCustomer,getusers,getCivil_idCustomer,getOneCustomer};
 
       
