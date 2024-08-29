@@ -38,6 +38,7 @@ app.use("/api/employee&admin", require("./routes/employee&adminRoutes"));
 app.use("/api/customer", require("./routes/customerRoutes"));
 app.use("/device", require("./routes/deviceRoutes"));
 app.use("/selling", require("./routes/sellingRoutes"));
+app.use("/dealendReversion", require("./routes/dealendReverionRoute"));
 app.use("/dealend", require("./routes/dealendRoutes"));
 app.use("/inventory", require("./routes/inventoryRoute"));
 
