@@ -480,44 +480,7 @@ const BuyingSellingList = () => {
       .catch((error) => alert(error));
   };
 
-  const downloadOverallPDF = (id, civil_id) => {
-    console.log(id, civil_id);
-
-    fetch("http://localhost:8000/convertToOverAllPaymentInvoicePDF", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: id,
-        civil_id: civil_id,
-      }),
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.blob(); // If the response is OK, get the PDF blob
-        } else {
-          throw new Error("Error converting to PDF");
-        }
-      })
-      .then((blob) => {
-        // Create a blob URL
-        const url = window.URL.createObjectURL(blob);
-        // Create a link element
-        const link = document.createElement("a");
-        link.href = url;
-        // The downloaded file name
-        link.download = "Over_All_Bill.pdf";
-        // Append the link to the body
-        document.body.appendChild(link);
-        // Simulate click
-        link.click();
-        // Remove the link when done
-        document.body.removeChild(link);
-      })
-      .catch((error) => alert(error));
-  };
-
+ 
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -957,7 +920,7 @@ const BuyingSellingList = () => {
                               color: "white",
                             }}
                           >
-                            Generate Overall Invoice
+                            Generate PDF
                           </TableCell>
                         </TableRow>
                       </TableHead>
@@ -976,6 +939,17 @@ const BuyingSellingList = () => {
                               <TableCell>{item.totalPaid}</TableCell>
                               <TableCell>{item.totalPayableBalance}</TableCell>
                               <TableCell>{item.profit}</TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={() =>
+                                    downloadOverallPDF(item._id, item.civilID)
+                                  }
+                                >
+                                  View
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           ))}
                       </TableBody>
