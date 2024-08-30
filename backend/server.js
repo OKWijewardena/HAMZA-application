@@ -40,6 +40,7 @@ app.use("/device", require("./routes/deviceRoutes"));
 app.use("/selling", require("./routes/sellingRoutes"));
 app.use("/dealend", require("./routes/dealendRoutes"));
 app.use("/inventory", require("./routes/inventoryRoute"));
+app.use("/discount", require("./routes/discountRoute"));
 
 app.use("/payment", require("./routes/paymentRoutes"));
 app.use("/api/invoice", require("./routes/invoiceRote"));
