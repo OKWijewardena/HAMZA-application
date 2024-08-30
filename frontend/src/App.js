@@ -5,6 +5,7 @@ import Customer from "./pages/admin pages/Customer/Customer";
 import Device from "./pages/admin pages/Device/Device";
 import Employee from "./pages/admin pages/Employee/Employee";
 import Payment from "./pages/admin pages/Payment/Payment";
+import Discount from "./pages/admin pages/Discount/Discount";
 import Selling from "./pages/admin pages/Selling/Selling";
 import CustomerHome from "./pages/customer pages/CustomerHome/CustomerHome";
 import CustomerPurchase from "./pages/customer pages/CustomerPurchase/CustomerPurchase";
@@ -166,6 +167,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Payment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          exact
+          path="/discount"
+          element={
+            <ProtectedRoute>
+              <Discount />
             </ProtectedRoute>
           }
         />

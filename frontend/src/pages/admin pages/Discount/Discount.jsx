@@ -100,7 +100,7 @@ export default function Discount() {
     try {
       await axios.delete(`http://localhost:8000/api/employee&admin/${id}`);
       alert("Employee record deleted successfully");
-      fetchEmployees();// Refresh the employee list after deletion
+      fetchDiscount();// Refresh the employee list after deletion
     } catch (error) {
       console.error('Error deleting employee:', error);
       alert("An error occurred while deleting the selling record.");
@@ -108,7 +108,7 @@ export default function Discount() {
   };
 
   useEffect(() => {
-    fetchEmployees();
+    fetchDiscount();
   }, []);
 
   const handleLogout = () => {
@@ -123,12 +123,12 @@ sessionStorage.removeItem('token');
     setOpen(!open);
   }; 
 
-  const fetchEmployees = async () => {
+  const fetchDiscount = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/employee&admin/');
-      setEmployees(response.data);
+      const response = await axios.get('http://localhost:8000/discount/getDiscount');
+      setDiscounts(response.data);
     } catch (error) {
-      console.error('Error fetching employees:', error);
+      console.error('Error fetching discounts:', error);
     }
   };
 
@@ -142,7 +142,7 @@ sessionStorage.removeItem('token');
     };
 
     try {
-      await axios.post('http://localhost:8000/api/employee&admin/register', NewDiscount);
+      await axios.post('http://localhost:8000/discount/addDiscount', NewDiscount);
       alert("New Discount added successfully");
     } catch (error) {
       console.error('Error adding employee:', error);
@@ -291,7 +291,7 @@ sessionStorage.removeItem('token');
                       fontWeight: 'bold',
                     }}
                   >
-                    Submot
+                    Submit
                   </Button>
                 </Box>
               </Box>
@@ -321,22 +321,20 @@ sessionStorage.removeItem('token');
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {employees.slice().reverse().map((employee) => (
-                        <TableRow key={employee._id}>
-                          <TableCell>{employee.name}</TableCell>
-                          <TableCell>{employee.email}</TableCell>
-                          <TableCell>{employee.phone}</TableCell>
-                          <TableCell>{employee.address}</TableCell>
-                          <TableCell>{employee.role}</TableCell>
+                      {discounts.slice().reverse().map((discount) => (
+                        <TableRow key={discount._id}>
+                          <TableCell>{discount.discountName}</TableCell>
+                          <TableCell>{discount.rate}</TableCell>
+                          <TableCell>{discount.date}</TableCell>
                           <TableCell>
-                            <Link to={`updateemployee/${employee.email}`}>
+                            {/* <Link to={`updatediscount/${discount.email}`}>
                             <IconButton color="primary">
                               <EditIcon />
                             </IconButton>
-                            </Link>
-                            <IconButton color="secondary" onClick={() => handleDelete(employee.email)}>
+                            </Link> */}
+                            {/* <IconButton color="secondary" onClick={() => handleDelete(discount.email)}>
                               <DeleteIcon />
-                            </IconButton>
+                            </IconButton> */}
                           </TableCell>
                         </TableRow>
                       ))}

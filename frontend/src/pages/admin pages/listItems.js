@@ -9,6 +9,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import LayersIcon from "@mui/icons-material/Layers";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import DiscountIcon from '@mui/icons-material/Discount';
 
 import DevicesOtherIcon from "@mui/icons-material/DevicesOther";
 import SellIcon from "@mui/icons-material/Sell";
@@ -56,6 +57,14 @@ export const mainListItems = (
           <PaidIcon />
         </ListItemIcon>
         <ListItemText primary="Payments" />
+      </ListItemButton>
+    </Link>
+    <Link to="/discount" style={{ textDecoration: "none", color: "black" }}>
+      <ListItemButton>
+        <ListItemIcon>
+          <DiscountIcon />
+        </ListItemIcon>
+        <ListItemText primary="Discounts" />
       </ListItemButton>
     </Link>
     <Link to="/employee" style={{ textDecoration: "none", color: "black" }}>
