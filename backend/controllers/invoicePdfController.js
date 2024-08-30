@@ -173,6 +173,7 @@ const convertToPaymentInvoicePDF = async (req, res) => {
 
 const convertToOverAllPaymentInvoicePDF = async (req, res) => {
   let data = Array.isArray(req.body) ? req.body : [req.body];
+  console.log("boom", data);
   const { id, civil_id } = req.body;
   console.log("ID:", id);
   console.log("Civil ID:", civil_id);
