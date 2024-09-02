@@ -26,7 +26,7 @@ exports.addexcel = async (req, res) => {
 
   // Add headers directly after the report information
   const headerRow = worksheet.addRow([
-    "Id",
+    
     "DeviceName",
     "Price",
     "Color",
@@ -57,7 +57,7 @@ exports.addexcel = async (req, res) => {
 
   // Define column widths
   worksheet.columns = [
-    { key: "id", width: 20 },
+    
     { key: "deviceName", width: 20 },
     { key: "price", width: 10 },
     { key: "color", width: 20 },
@@ -73,7 +73,7 @@ exports.addexcel = async (req, res) => {
   // Add rows with the data
   salesData.forEach((item) => {
     worksheet.addRow({
-      id: item._id,
+      
       deviceName: item.deviceName,
       price: item.price,
       color: item.color,
