@@ -26,7 +26,7 @@ exports.employeeandadminexcel = async (req, res) => {
 
   // Add headers directly after the report information
   const headerRow = worksheet.addRow([
-    "_id",
+    
     "name",
     "email",
     "password",
@@ -53,7 +53,7 @@ exports.employeeandadminexcel = async (req, res) => {
 
   // Define column widths
   worksheet.columns = [
-    { key: "_id", width: 20 },
+   
     { key: "name", width: 20 },
     { key: "email", width: 40 },
     { key: "password", width: 20 },
@@ -65,7 +65,7 @@ exports.employeeandadminexcel = async (req, res) => {
   // Add rows with the data
   employeeandadminData.forEach((item) => {
     worksheet.addRow({
-      _id: item._id,
+      
       name: item.name,
       email: item.email,
       password: item.password,
