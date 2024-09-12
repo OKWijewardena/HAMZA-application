@@ -151,8 +151,18 @@ export default function Payment() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id,civilID,emiNumber,price,date) => {
+    const deletePayment = {
+      civilID,
+      emiNumber,
+      date,
+      payment: price,
+    }
     try {
+      await axios.post(
+        "http://localhost:8000/selling/deletepaymentHistory",
+        deletePayment
+      );
       await axios.delete(`http://localhost:8000/payment/deletePayment/${id}`);
       alert("Selling record deleted successfully");
       fetchPayments(); // Refresh the selling list after deletion
@@ -657,7 +667,7 @@ export default function Payment() {
                             </IconButton> */}
                               <IconButton
                                 color="secondary"
-                                onClick={() => handleDelete(payment._id)}
+                                onClick={() => handleDelete(payment._id,payment.civilID,payment.emiNumber,payment.price,payment.date)}
                               >
                                 <DeleteIcon />
                               </IconButton>

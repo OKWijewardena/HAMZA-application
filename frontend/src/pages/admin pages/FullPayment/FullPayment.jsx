@@ -75,7 +75,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const mdTheme = createTheme();
 
-export default function Selling() {
+export default function FullPayment() {
 
   const navigate = useNavigate();
 
@@ -151,20 +151,12 @@ sessionStorage.removeItem('token');
     }
   };
 
-  let customerArray = [];
-
   const fetchCustomerDetails = async (civilID) => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/customer/civil/${civilID}`
+        `http://localhost:8000/api/customer/getonecustomer/${civilID}`
       );
-      console.log(response.data);
-
-    // Push the new customer data into the array
-    customerArray.push(response.data);
-
-    // Set the array of customers (if you have a state setter like React's setState)
-    setCustomer([...customerArray]);
+      setCustomer(response.data);
     } catch (error) {
       console.error("Error fetching customer details:", error);
     }
@@ -179,20 +171,20 @@ sessionStorage.removeItem('token');
       }
     };
 
-    // const fetchAllDiscounts = async () => {
-    //   try {
-    //     const response = await axios.get('http://localhost:8000/discount/getDiscount');
-    //     setDiscount(response.data);
+    const fetchAllDiscounts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/discount/getDiscount');
+        setDiscount(response.data);
         
-    //   } catch (error) {
-    //     console.error('Error fetching discounts:', error);
-    //   }
-    // }
+      } catch (error) {
+        console.error('Error fetching discounts:', error);
+      }
+    }
 
-    // const handleAllDiscount = (event) => {
-    //   event.preventDefault();
-    //   fetchAllDiscounts();
-    // }
+    const handleAllDiscount = (event) => {
+      event.preventDefault();
+      fetchAllDiscounts();
+    }
 
   const handleDeviceSearch = (event) => {
     event.preventDefault();
@@ -323,8 +315,8 @@ sessionStorage.removeItem('token');
   };
 
   const handleCustomerSelect = (row) => {
-    setCustomerName(row.name);
-    setCivilID(row.civil_id);
+    setCustomerName(row.customerName);
+    setCivilID(row.civilID);
   };
 
   return (
@@ -666,7 +658,7 @@ sessionStorage.removeItem('token');
                 </TableContainer>
               )}
 
-{/* <Box
+<Box
                 sx={{
                   marginTop: 4,
                   padding: 3,
@@ -754,7 +746,7 @@ sessionStorage.removeItem('token');
                     </TableBody>
                   </Table>
                 </TableContainer>
-              )} */}
+              )}
 
 
               <Box

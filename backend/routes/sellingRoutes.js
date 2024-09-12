@@ -23,6 +23,8 @@ router.get("/getOneSellingID/:id", sellingController.getOneSellingID);
 // Route for updating payment history in a selling record
 router.post("/paymentHistory", sellingController.updatePaymentHistory);
 
+router.post("/deletepaymentHistory", sellingController.updateDeletePaymentHistory);
+
 router.get(
   "/getbyCIDEMI/:civilID/:emiNumber",
   sellingController.getonesellingByIdEmi

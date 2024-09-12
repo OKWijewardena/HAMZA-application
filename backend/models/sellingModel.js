@@ -57,6 +57,14 @@ const sellingSchema = new mongoose.Schema({
           required: true,
           default: "unpaid",
         },
+        updateprice: {
+          type: String,
+          required: true,
+        },
+        defaultdate: {
+          type: String,
+          required: true,
+        },
       },
     ],
     required: true,
