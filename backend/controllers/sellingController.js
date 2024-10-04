@@ -157,7 +157,7 @@ exports.getonesellingByIdEmi = (req, res) => {
 
 // Controller to get a single selling record by ID
 exports.getOneSellingID = (req, res) => {
-  Selling.findOne({ _id: req.params.id })
+  Selling.find({ _id: req.params.id })
     .then((sellingRecord) => {
       res.json(sellingRecord);
     })
@@ -203,7 +203,7 @@ exports.updatePaymentHistory = async (req, res) => {
       const itemDate = new Date(customArray[i].date);
       const itemPrice = parseFloat(customArray[i].price);
       let nextPrice = parseFloat(customArray[i].price);
-      
+
       if (customArray[i + 1]) {
         nextPrice = parseFloat(customArray[i + 1].price);
       } else {

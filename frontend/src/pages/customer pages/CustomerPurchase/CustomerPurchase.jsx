@@ -62,23 +62,44 @@ export default function CustomerPurchase() {
       );
       console.log(id);
       setSellings(response.data);
-      const CIVILID = response.data.civilID;
-      const EMINUMBER = response.data.emiNumber;
+      console.log(response.data);
 
-      const Newpayments = { civilID: CIVILID, emiNumber: EMINUMBER };
+      const selling = response.data[0];
+
+      const CivilID = selling.civilID;
+      const EmiNumber = selling.emiNumber;
+
+      const Newpayments = { civilID: CivilID, emiNumber: EmiNumber };
 
       const res = await axios.post(
         "http://localhost:8000/payment/getOnePayment",
         Newpayments
       );
       setData(res.data);
+      console.log(res.data);
     } catch (error) {
-      console.error("Error fetching devices:", error);
+      console.error("Error fetching selling and payment:", error);
     }
   }, [id]);
 
+  // const fetchPayments = async () => {
+  //   try {
+  //     const Newpayments = { civilID: civilID, emiNumber: emiNumber };
+
+  //     const res = await axios.post(
+  //       "http://localhost:8000/payment/getOnePayment",
+  //       Newpayments
+  //     );
+  //     setData(res.data);
+  //   } catch (error) {
+  //     console.error("Error fetching payments:", error);
+  //   }
+  // };
+
+
   useEffect(() => {
     fetchSellings();
+    // fetchPayments();
   }, []);
 
   const downloadPDF = (rowData) => {
@@ -153,6 +174,8 @@ export default function CustomerPurchase() {
       .catch((error) => alert(error));
   };
 
+  console.log(sellings.deviceName);
+
   return (
     <Container>
       <Toolbar
@@ -218,13 +241,14 @@ export default function CustomerPurchase() {
           </IconButton>
         </Box>
       </Toolbar>
+      {sellings.map((selling) => (
       <Box sx={{ p: 2, maxWidth: 600, mx: "auto" }}>
         <Typography variant="h5" align="center" sx={{ mb: 2 }}>
-          {sellings.deviceName}
+        {selling.deviceName}
         </Typography>
         <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
           <img
-            src={`${sellings.imageName}`}
+            src={`${selling.imageName}`}
             alt="device"
             style={{ width: "100%", maxWidth: 300 }}
           />
@@ -244,8 +268,8 @@ export default function CustomerPurchase() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {sellings.customArray &&
-                    sellings.customArray.map((item) => (
+                  {selling.customArray &&
+                    selling.customArray.map((item) => (
                       <TableRow key={item._id}>
                         <TableCell>{item.date}</TableCell>
                         <TableCell>{item.price}/=</TableCell>
@@ -268,14 +292,14 @@ export default function CustomerPurchase() {
               sx={{ mt: 2, p: 2, backgroundColor: "#e2cae7", borderRadius: 1 }}
             >
               <Typography variant="body1" align="right">
-                Device price: {sellings.price}/=
+                Device price: {selling.price}/=
               </Typography>
             </Box>
             <Box
               sx={{ mt: 2, p: 2, backgroundColor: "#e2cae7", borderRadius: 1 }}
             >
               <Typography variant="body1" align="right">
-                Advance: {sellings.advance}/=
+                Advance: {selling.advance}/=
               </Typography>
             </Box>
             <Box
@@ -287,7 +311,7 @@ export default function CustomerPurchase() {
                 color="white"
                 sx={{ fontWeight: "bold" }}
               >
-                Remaining Balance: {sellings.balance}/=
+                Remaining Balance: {selling.balance}/=
               </Typography>
             </Box>
             <Box
@@ -360,6 +384,7 @@ export default function CustomerPurchase() {
           </CardContent>
         </Card>
       </Box>
+      ))}
     </Container>
   );
 }
