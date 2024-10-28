@@ -100,6 +100,7 @@ export default function Payment() {
   const [deviceName, setDeviceName] = useState("");
   const [emiNumber, setEmiNumber] = useState("");
   const [price, setPrice] = useState("");
+  const [paymentDate, setPaymentDate] = useState("");
   const [date, setDate] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [oneSelling, setOneSelling] = useState([]);
@@ -220,6 +221,7 @@ export default function Payment() {
       civilID,
       emiNumber,
       date,
+      paymentDate,
       payment: price,
     };
 
@@ -248,6 +250,7 @@ export default function Payment() {
 
   const handlePriceSelect = (row) => {
     setPrice(row.price);
+    setPaymentDate(row.date);
   }
 
   return (

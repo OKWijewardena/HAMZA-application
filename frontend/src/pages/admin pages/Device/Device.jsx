@@ -110,9 +110,10 @@ export default function Device(){
         imageName: ''
     });
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id,emiNumber) => {
         try {
           await axios.delete(`http://localhost:8000/device/deleteDevice/${id}`);
+          await axios.delete(`http://localhost:8000/inventory/deleteInventoryemi/${emiNumber}`);
           alert("Dervice record deleted successfully");
           fetchDevices();// Refresh the selling list after deletion
         } catch (error) {
@@ -479,7 +480,7 @@ sessionStorage.removeItem('token');
                                                             <EditIcon />
                                                         </IconButton>
                                                         </Link>
-                                                        <IconButton color="secondary" onClick={() => handleDelete(device._id)}>
+                                                        <IconButton color="secondary" onClick={() => handleDelete(device._id,device.emiNumber)}>
                                                             <DeleteIcon />
                                                         </IconButton>
                                                     </TableCell>
