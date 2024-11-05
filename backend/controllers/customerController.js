@@ -203,8 +203,33 @@ const getOneCustomer = (req, res) => {
     });
 };
 
+const searchCustomers = asyncHandler(async (req, res) => {
+  const searchTerm = req.params.searchTerm; // Get the search term from URL parameters
+  console.log("Searching for user with search term:", searchTerm); // Log the extracted search term
+
+  // Check if searchTerm is a number
+  const isNumeric = !isNaN(searchTerm);
+
+  // Search customers based on civil_id, name, or mobile (if numeric)
+  const queryConditions = [
+      { civil_id: searchTerm }, // Match exact civil ID
+      { name: { $regex: searchTerm, $options: "i" } } // Case-insensitive partial match for name
+  ];
+
+  if (isNumeric) {
+      queryConditions.push({ mobile: searchTerm }); // Match exact mobile number if numeric
+  }
+
+  const customerRecords = await customerModel.find({
+      $or: queryConditions
+  });
+
+  console.log("Found users:", customerRecords); // Log found records
+  res.json(customerRecords); // Return matching customer records as JSON
+});
 
 
-module.exports={registerCustomer,getCustomer,updateCustomer,deleteCustomer,getusers,getCivil_idCustomer,getOneCustomer};
+
+module.exports={registerCustomer,getCustomer,updateCustomer,deleteCustomer,getusers,getCivil_idCustomer,getOneCustomer,searchCustomers};
 
       
